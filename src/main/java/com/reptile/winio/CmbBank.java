@@ -47,7 +47,7 @@ public class CmbBank {
 		HttpSession sessions=request.getSession();
 		sessions.setAttribute("UserCard", UserCard);
 		 ps.state(UserCard, "bankBillFlow", 100);
-		WebDriver driver=KeysPress.OpenUrl("ie", "https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx","C:/ie/IEDriverServer.exe");
+		WebDriver driver=KeysPress.OpenUrl("ie", "https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx","D:/ie/IEDriverServer.exe");
 		HttpSession session=request.getSession();
 		KeysPress.SenStr(userName);
 		KeysPress.SendTab("Tab");

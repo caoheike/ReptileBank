@@ -60,7 +60,7 @@ public class BcmLogins {
 		 	List<String> list=new ArrayList<String>();
 		 	Map<String,Object> map=new HashMap<String,Object>();
 		 	Map<String,Object> data=new HashMap<String,Object>();
-	    	System.setProperty("webdriver.chrome.driver", "C:\\ie\\ll\\chromedriver.exe");
+	    	System.setProperty("webdriver.chrome.driver", "D:/ie/chromedriver.exe");
 		    ChromeOptions options = new ChromeOptions();
 		        //设置浏览器大小避免截图错乱
 		        options.addArguments("start-maximized");

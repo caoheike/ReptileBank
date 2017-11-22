@@ -59,7 +59,7 @@ public class BcmLogin {
 		Map<String, String>	headers = new HashMap<String, String>();
 		Map<String, Object>	status	= new HashMap<String, Object>();
 		Map<String, Object>	maps	= new HashMap<String, Object>();
-		WebDriver		driver	= KeysPress.OpenUrl( "ie", "https://pbank.95559.com.cn/personbank/logon.jsp#", "C:/ie/IEDriverServer.exe" );
+		WebDriver		driver	= KeysPress.OpenUrl( "ie", "https://pbank.95559.com.cn/personbank/logon.jsp#", "D:/ie/IEDriverServer.exe" );
 		JavascriptExecutor	js	= (JavascriptExecutor) driver;
 
 		/* 获得账号输入框 */

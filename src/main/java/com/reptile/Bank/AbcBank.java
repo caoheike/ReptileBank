@@ -38,7 +38,7 @@ public class AbcBank {
 			Map<String, Object>	status	= new HashMap<String, Object>();
 			Map<String, Object>	maps	= new HashMap<String, Object>();
 		/*打开此网页*/
-		WebDriver driver= KeysPress.OpenUrl( "ie", "https://perbank.abchina.com/EbankSite/startup.do", "C:/ie/IEDriverServer.exe" );
+		WebDriver driver= KeysPress.OpenUrl( "ie", "https://perbank.abchina.com/EbankSite/startup.do", "D:/ie/IEDriverServer.exe" );
 		/*判断是否加载页面*/
 		CloseDriver.DriverClose(driver.getTitle(), driver,5);
 		/*键入账号*/
@@ -48,7 +48,7 @@ public class AbcBank {
 		/* 输入密码 */
 		//		keysPress.SenStr(userPwd);
 		/*特殊字符处理*/
-		SpecialStr.SpecialStr(userpwd);
+		SpecialStr.SpecialStr(userpwd.trim());
 		/* 输入验证码 */
 		WebElement	elements	= driver.findElement( By.id( "vCode" ) );
 		WebElement	code	= driver.findElement( By.id( "code" ) );
@@ -154,7 +154,7 @@ public class AbcBank {
 			params.put( "cardNumber", sp[1]);/*用户卡号*/
 			params.put( "userName", cusname);/*用户姓名*/
 			Resttemplate resttemplate = new Resttemplate();
-			status = resttemplate.SendMessage( JSONObject.fromObject( params ),application.sendip+"/HSDC/savings/authentication",card);
+			status = resttemplate.SendMessage( params ,application.sendip+"/HSDC/savings/authentication",card);
 			driver.quit();
 			return status;
 		} else{
@@ -167,4 +167,5 @@ public class AbcBank {
 		}
 	}
 }
+	
 }

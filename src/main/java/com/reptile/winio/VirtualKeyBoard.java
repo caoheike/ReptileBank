@@ -131,7 +131,7 @@ public class VirtualKeyBoard  {
 		Map<String, Object>	data	= new HashMap<String, Object>();
 		Map<String, Object>	map	= new HashMap<String, Object>();
 		WebDriver		driver	= null;
-		System.setProperty( "webdriver.ie.driver", "C:/ie/IEDriverServer.exe" );
+		System.setProperty( "webdriver.ie.driver", "D:/ie/IEDriverServer.exe" );
 		driver = new InternetExplorerDriver();
 		driver.get( "https://nper.cmbc.com.cn/pweb/static/login.html" );
 		try {
@@ -342,7 +342,7 @@ public class VirtualKeyBoard  {
 			String		sessid		= new CrawlerUtil().getUUID();          /* 生成UUid 用于区分浏览器 */
 			HttpSession	sessions	= session;
 
-			System.setProperty( "webdriver.ie.driver", "C:/ie/IEDriverServer.exe" );
+			System.setProperty( "webdriver.ie.driver", "D:/ie/IEDriverServer.exe" );
 			driver = new InternetExplorerDriver();
 			driver.get( "https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx" );
 			String ss1 = arg1;
@@ -460,7 +460,7 @@ public class VirtualKeyBoard  {
 
 		SimpleHttpClient	httclien	= new SimpleHttpClient();
 		WebDriver		driver		= null;
-		System.setProperty( "webdriver.ie.driver", "C:/ie/IEDriverServer.exe" );
+		System.setProperty( "webdriver.ie.driver", "D:/ie/IEDriverServer.exe" );
 		driver = new InternetExplorerDriver();
 		WebDriverWait wait = new WebDriverWait( driver, 20 );
 		try {
@@ -794,7 +794,7 @@ public class VirtualKeyBoard  {
 
 /*
  * public static void main(String args[]) throws IOException{
- *      System.setProperty("webdriver.ie.driver", "C:/ie/IEDriverServer.exe");
+ *      System.setProperty("webdriver.ie.driver", "D:/ie/IEDriverServer.exe");
  *      WebDriver driver = new InternetExplorerDriver();
  *      driver.get("https://sn.ac.10086.cn/login");
  *
@@ -815,7 +815,7 @@ public class VirtualKeyBoard  {
 			String		sessid		= new CrawlerUtil().getUUID();          /* 生成UUid 用于区分浏览器 */
 			HttpSession	sessions	= session;
 
-			System.setProperty( "webdriver.ie.driver", "C:/ie/IEDriverServer.exe" );
+			System.setProperty( "webdriver.ie.driver", "D:/ie/IEDriverServer.exe" );
 			driver = new InternetExplorerDriver();
 			driver.get( "https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx" );
 			String ss1 = arg1;
@@ -888,7 +888,7 @@ public class VirtualKeyBoard  {
 			String		sessid		= new CrawlerUtil().getUUID();          /* 生成UUid 用于区分浏览器 */
 			HttpSession	sessions	= session;
 
-			System.setProperty( "webdriver.ie.driver", "C:/ie/IEDriverServer.exe" );
+			System.setProperty( "webdriver.ie.driver", "D:/ie/IEDriverServer.exe" );
 			driver = new InternetExplorerDriver();
 			driver.get( "https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx" );
 			String ss1 = arg1;

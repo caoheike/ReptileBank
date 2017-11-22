@@ -100,7 +100,7 @@ public class InterfaceController  {
  	 * @throws Exception
  	 */
  	@ResponseBody
- 	@RequestMapping(value="c",method=RequestMethod.POST)
+ 	@RequestMapping(value="CmbQueryInfo",method=RequestMethod.POST)
  	@ApiOperation(value="银行查询", notes="测试伙伴们，这个里面需要的数据 在登陆返回的里面取")//设置标题描述
  	public Map<String,Object>  CmbQueryInfo(HttpServletRequest request,HttpServletResponse response,@RequestParam("code") String code,@RequestParam("sessid") String sessid,@RequestParam("ClientNo") String ClientNo,@RequestParam("idCard") String idCard,@RequestParam("UUID") String UUID,@RequestParam("Sendcode") String Sendcode) throws Exception {
  		System.out.println("heeli man");
