@@ -38,7 +38,7 @@ public class CmbBank {
 	 * @throws Exception 
 	 */
 	
-	public Map<String, Object> CMBLogin(String userName,String userPwd,HttpServletRequest request,String UserCard) throws Exception{
+	public Map<String, Object> CMBLogin(String userName,String userPwd,HttpServletRequest request,String UserCard,String UUID) throws Exception{
 		SimpleHttpClient httclien=new SimpleHttpClient();
 		Map<String,Object> params=new HashMap<String, Object>();
 		Map<String,String> headers=new HashMap<String, String>();
@@ -124,7 +124,7 @@ public class CmbBank {
 
 		}else{
 			if(elements1.getText().contains("附加码")){
-				CMBLogin(userName, userPwd, request, UserCard);
+				CMBLogin(userName, userPwd, request, UserCard,UUID);
 		
 			}
 	
