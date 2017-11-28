@@ -71,17 +71,19 @@ public class AbcBank {
 				/* 登陆 */
 				WebElement logo = driver.findElement(By.id("logo"));
 				logo.click(); 
-				if(DriverUtil.visibilityById("powerpass_ie_dyn_Msg", driver, 2) || DriverUtil.visibilityById("username-error", driver, 0) || DriverUtil.visibilityByClassName("logon-error", driver, 0)){
+				System.err.println(driver.getPageSource());
+				System.err.println(driver.findElement(By.className("logon-error")).getAttribute("title"));
+				if(DriverUtil.visibilityById("powerpass_ie_dyn_Msg", driver, 2) || DriverUtil.visibilityById("username-error", driver, 0) || !driver.findElement(By.className("logon-error")).getAttribute("title").isEmpty()){
 					String text = "";
 					if(DriverUtil.visibilityById("username-error", driver, 2)){
 						text = driver.findElement(By.id("username-error")).getText();
 					}else if(DriverUtil.visibilityById("powerpass_ie_dyn_Msg", driver, 2)){
 						text = driver.findElement(By.id("powerpass_ie_dyn_Msg")).getText();
 					}else{
-						text = driver.findElement(By.className("logon-error")).getText();
+						text = driver.findElement(By.className("logon-error")).getAttribute("title");
 					}
 					PushState.state(card, "bankBillFlow", 200);
-					status.put("errorCode", "0001");// 异常处理
+					status.put("errorCode", "0001");// 异常处理	
 					status.put("errorInfo", text);
 				}else if(DriverUtil.waitByTitle("中国农业银行个人网银首页", driver, 10)){
 					/* 登陆成功 */

@@ -18,7 +18,6 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.ParseException;
 import org.apache.log4j.Logger;
-import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.Dimension;
@@ -127,10 +126,10 @@ public class VirtualKeyBoard {
 			WebElement elements = driver.findElement(By.id("writeUserId"));
 			elements.sendKeys(number);
 			/* 执行换号 */
-			Thread.sleep(100);
+			Thread.sleep(2000);
 			KeyPresss("Tab");
 			/* //执行输入密码 */
-			Thread.sleep(300);
+			Thread.sleep(1000);
 			/*
 			 * String password = pwd; Random random = new Random(); for (int i =
 			 * 0; i < password.length(); i++) { KeyPress(password.charAt(i));
@@ -138,15 +137,13 @@ public class VirtualKeyBoard {
 			 * Thread.sleep(random.nextInt(10)+00); } 新增执行大小写特殊符号
 			 */
 			String password = pwd;
-			String cap = "cap"; /*  */
-
 			for (int i = 0; i < password.length(); i++) {
 				Thread.sleep(50);
 				String number1 = String.valueOf(password.charAt(i));
 				if (StringUtils.isNumeric(number1)) /* 如果是数字直接输出 */
 				{
 					KeyPress(password.charAt(i));
-					System.out.println(password.charAt(i) + "数字");
+					logger.warn(password.charAt(i) + "数字");
 				} else {
 					if (number1.equals("@")) {
 						KeyPress1(VKMapping.toVK("Shift"));
@@ -156,14 +153,14 @@ public class VirtualKeyBoard {
 					} else {
 						if (Character.isUpperCase(password.charAt(i))) /* 判断是否是大写 */
 						{
-							System.out.print(password.charAt(i) + "大写");
+							logger.warn(password.charAt(i) + "大写");
 							KeyPress1(VKMapping.toVK("Shift"));
 							Thread.sleep(50);
 							KeyPress(number1.toLowerCase().charAt(0));
 
 							KeyPress2(VKMapping.toVK("Shift"));
 						} else {
-							System.out.print(password.charAt(i) + "小写");
+							logger.warn(password.charAt(i) + "小写");
 							Thread.sleep(50);
 							KeyPress(password.charAt(i));
 						}
@@ -180,7 +177,7 @@ public class VirtualKeyBoard {
 				elementss.click();
 			} else {
 				/* 需要验证码进行打码 */
-				System.out.println("需要验证码");
+				logger.warn("----------------需要打印验证码----------------");
 				String imgtext = downloadImg(driver, "_tokenImg");
 				WebElement _vTokenId = driver.findElement(By.id("_vTokenName"));
 				_vTokenId.sendKeys(imgtext);
@@ -219,7 +216,8 @@ public class VirtualKeyBoard {
 					List<WebElement> element = driver.findElements(By
 							.className("ye_tb3"));
 					data.put("fixedEd", element.get(0).getText());
-
+					
+					Thread.sleep(3000);
 					String js = "var aaa=document.getElementsByTagName('a');aaa[228].click();";
 
 					jss.executeScript(js, "");
@@ -262,7 +260,7 @@ public class VirtualKeyBoard {
 							/* TODO: handle exception */
 						}
 					}
-
+					logger.warn("-------------list.toString()"+"----------------------");
 					System.out.println(list.toString());
 					data.put("html", list);
 					data.put("backtype", "CMBC");
@@ -275,54 +273,45 @@ public class VirtualKeyBoard {
 
 				} else {
 					PushState.state(idcard, "bankBillFlow", 200);
-					System.out.println("登陆失败");
-
 					map.put("errorCode", "0001");
 					map.put("errorInfo", "失败");
 				}
 			}
 		} catch (NoSuchElementException e) {
-			logger.error(e + "民生银行出现元素没有找到");
+			logger.warn(e + "民生银行出现元素没有找到");
 			PushState.state(idcard, "bankBillFlow", 200);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
-			driver.quit();
 		} catch (NoSuchFrameException e) {
-			logger.error(e + "民生银行出现iframe没有找到");
+			logger.warn(e + "民生银行出现iframe没有找到");
 			PushState.state(idcard, "bankBillFlow", 200);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
-			driver.quit();
 		} catch (NoSuchWindowException e) {
-			logger.error(e + "handle没有找到");
+			logger.warn(e + "handle没有找到");
 			PushState.state(idcard, "bankBillFlow", 200);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
-			driver.quit();
 		} catch (NoSuchAttributeException e) {
-			logger.error(e + "属性错误");
+			logger.warn(e + "属性错误");
 			PushState.state(idcard, "bankBillFlow", 200);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
-			driver.quit();
 		} catch (NoAlertPresentException e) {
-			logger.error(e + "没有找到alert");
+			logger.warn(e + "没有找到alert");
 			PushState.state(idcard, "bankBillFlow", 200);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
-			driver.quit();
 		} catch (TimeoutException e) {
-			logger.error(e + "超找元素超时");
+			logger.warn(e + "超找元素超时");
 			PushState.state(idcard, "bankBillFlow", 200);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
-			driver.quit();
 		} catch (Exception e) {
 			logger.warn("民生信用卡查询失败", e);
 			PushState.state(idcard, "bankBillFlow", 200);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
-			driver.quit();
 		} finally {
 			DriverUtil.close(driver);
 		}
@@ -549,6 +538,7 @@ public class VirtualKeyBoard {
 				String sid = driver.getPageSource()
 						.substring(driver.getPageSource().indexOf("_emp_sid = '"),driver.getPageSource().indexOf("';"))
 						.replaceAll("_emp_sid = '", "");
+				logger.warn("--------广发银行登陆------------sid为："+sid);
 				/*选中第一个*/
 				for (int i = 0; i < 11; i++) {
 					/* 为了避免查询不到账单 做此次处理 */
@@ -572,19 +562,21 @@ public class VirtualKeyBoard {
 					driver.switchTo().window(head);
 				}
 				
-				
+				logger.warn("--------广发银行登陆------------OPEN：开始");
 				for (int i = 0; i < application.Getdate().size(); i++) {
+					
 					String win = "window.open('https://ebanks.cgbchina.com.cn/perbank/CR1080.do?currencyType=&creditCardNo="
 							+ number
 							+ "&billDate="
 							+ application.Getdate().get(i)
 							+ "&billType=1&abundantFlag=0&terseFlag=0&showWarFlag=0&EMP_SID="
 							+ sid + " ');";
+					logger.warn("--------广发银行登陆------------OPEN："+i+"    url:"+win);
 					jss.executeScript(win, "");
 				}
-				
+				logger.warn("--------广发银行登陆------------OPEN：结束");
 				Set<String> jswin = driver.getWindowHandles();
-				
+				logger.warn("--------广发银行登陆------------账单查询：开始");
 				List<String> listinfo = new ArrayList<String>();
 				for (String item : jswin) {
 					if (!item.equals(head)) {
@@ -592,12 +584,14 @@ public class VirtualKeyBoard {
 						if(DriverUtil.waitByTitle("账单", driver, 8)){
 							logger.warn("-----------账单信息：-------------"+driver.getPageSource());
 							if (!driver.getPageSource().contains("var billErrMsg = '该月份账单尚未生成，请于账单日后再查询';")) {
+								logger.warn("--------广发银行登陆------------账单查询：具体内容："+driver.getPageSource());
 								listinfo.add(driver.getPageSource());
 							}
 						}
 						
 					}
 				}
+				logger.warn("--------广发银行登陆------------账单查询：结束");
 				data.put("html", listinfo);
 				data.put("backtype", "GDB");
 				data.put("idcard", usercard);
