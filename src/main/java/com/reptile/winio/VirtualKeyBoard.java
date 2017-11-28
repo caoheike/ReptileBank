@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -40,28 +39,26 @@ import org.openqa.selenium.remote.SessionNotFoundException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.reptile.util.CYDMDemo;
 import com.reptile.util.CrawlerUtil;
+import com.reptile.util.DriverUtil;
+import com.reptile.util.PushSocket;
+import com.reptile.util.PushState;
 import com.reptile.util.Resttemplate;
 import com.reptile.util.SimpleHttpClient;
 import com.reptile.util.application;
 import com.sun.jna.NativeLibrary;
-import com.reptile.util.*;
 
 @Component
 @SuppressWarnings("deprecation")
 @Service("virtualKeyBoard")
 public class VirtualKeyBoard {
-	PushState ps = new PushState();
 	public static final WinIo32 winIo32 = WinIo32.INSTANCE;
-	private static final HttpSession HttpSession = null;
 	private static CYDMDemo cydmDemo = new CYDMDemo();
 	Resttemplate resttemplate = new Resttemplate();
-	application application = new application();
 	Logger logger = Logger.getLogger(VirtualKeyBoard.class);
 	static {
 		if (!WinIo32.INSTANCE.InitializeWinIo()) {
@@ -113,7 +110,7 @@ public class VirtualKeyBoard {
 	public synchronized Map<String, Object> CMBCLogin(String number,
 			String pwd, String banktype, String idcard, String UUID)
 			throws Exception {
-		ps.state(idcard, "bankBillFlow", 100);
+		PushState.state(idcard, "bankBillFlow", 100);
 		Map<String, Object> data = new HashMap<String, Object>();
 		Map<String, Object> map = new HashMap<String, Object>();
 		WebDriver driver = null;
@@ -193,7 +190,7 @@ public class VirtualKeyBoard {
 			WebElement errorinfo = driver.findElement(By
 					.className("alert-heading"));
 			if (!"".equals(errorinfo.getText())) {
-				ps.state(idcard, "bankBillFlow", 200);
+				PushState.state(idcard, "bankBillFlow", 200);
 				map.put("errorCode", "0001");
 				map.put("errorInfo", errorinfo.getText());
 				driver.quit();
@@ -277,7 +274,7 @@ public class VirtualKeyBoard {
 							+ "/HSDC/BillFlow/BillFlowByreditCard", idcard);
 
 				} else {
-					ps.state(idcard, "bankBillFlow", 200);
+					PushState.state(idcard, "bankBillFlow", 200);
 					System.out.println("登陆失败");
 
 					map.put("errorCode", "0001");
@@ -286,43 +283,43 @@ public class VirtualKeyBoard {
 			}
 		} catch (NoSuchElementException e) {
 			logger.error(e + "民生银行出现元素没有找到");
-			ps.state(idcard, "bankBillFlow", 200);
+			PushState.state(idcard, "bankBillFlow", 200);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
 			driver.quit();
 		} catch (NoSuchFrameException e) {
 			logger.error(e + "民生银行出现iframe没有找到");
-			ps.state(idcard, "bankBillFlow", 200);
+			PushState.state(idcard, "bankBillFlow", 200);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
 			driver.quit();
 		} catch (NoSuchWindowException e) {
 			logger.error(e + "handle没有找到");
-			ps.state(idcard, "bankBillFlow", 200);
+			PushState.state(idcard, "bankBillFlow", 200);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
 			driver.quit();
 		} catch (NoSuchAttributeException e) {
 			logger.error(e + "属性错误");
-			ps.state(idcard, "bankBillFlow", 200);
+			PushState.state(idcard, "bankBillFlow", 200);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
 			driver.quit();
 		} catch (NoAlertPresentException e) {
 			logger.error(e + "没有找到alert");
-			ps.state(idcard, "bankBillFlow", 200);
+			PushState.state(idcard, "bankBillFlow", 200);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
 			driver.quit();
 		} catch (TimeoutException e) {
 			logger.error(e + "超找元素超时");
-			ps.state(idcard, "bankBillFlow", 200);
+			PushState.state(idcard, "bankBillFlow", 200);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
 			driver.quit();
 		} catch (Exception e) {
 			logger.warn("民生信用卡查询失败", e);
-			ps.state(idcard, "bankBillFlow", 200);
+			PushState.state(idcard, "bankBillFlow", 200);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
 			driver.quit();
@@ -451,18 +448,16 @@ public class VirtualKeyBoard {
 
 	public synchronized Map<String, Object> GDBLogin(String number, String pwd,
 			String usercard, String UUID) throws Exception {
-		ps.state(usercard, "bankBillFlow", 100);
+		PushState.state(usercard, "bankBillFlow", 100);
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> data = new HashMap<String, Object>();
 
-		SimpleHttpClient httclien = new SimpleHttpClient();
 		WebDriver driver = null;
 		System.setProperty("webdriver.ie.driver", "D:/ie/IEDriverServer.exe");
-		driver = new InternetExplorerDriver();
-		WebDriverWait wait = new WebDriverWait(driver, 20);
 		try {
-
-			/* driver.manage().window().setSize(new Dimension(800, 800)); */
+			driver = new InternetExplorerDriver();
+			WebDriverWait wait = new WebDriverWait(driver, 20);
+			logger.warn("--------广发银行登陆------------开始-----------用户名："+ number);
 			driver.manage().window().maximize();
 			JavascriptExecutor jss = (JavascriptExecutor) driver;
 			driver.get("https://ebanks.cgbchina.com.cn/perbank/");
@@ -471,25 +466,20 @@ public class VirtualKeyBoard {
 			WebElement elements = driver.findElement(By.id("loginId"));
 			elements.click();
 			elements.sendKeys(number);
-			Thread.sleep(300);
-			String s = "Tab"; /*  */
-			Thread.sleep(300);
+			Thread.sleep(1000);
+			String s = "Tab"; 
+			Thread.sleep(1000);
 			KeyPresss(s);
-			Thread.sleep(300);
-			/*
-			 * String ss2 = pwd; for (int i = 0; i < ss2.length(); i++) {
-			 * KeyPress(ss2.charAt(i)); Thread.sleep(10); }
-			 */
+			Thread.sleep(400);
 			String password = pwd;
-			String cap = "cap"; /*  */
 
-			for (int i = 0; i < password.length(); i++) {
+		for (int i = 0; i < password.length(); i++) {
 				Thread.sleep(50);
 				String number1 = String.valueOf(password.charAt(i));
 				if (StringUtils.isNumeric(number1)) /* 如果是数字直接输出 */
 				{
 					KeyPress(password.charAt(i));
-					System.out.println(password.charAt(i) + "数字");
+					logger.warn("--------"+password.charAt(i) + "数字");
 				} else {
 					if (number1.equals("@")) {
 						KeyPress1(VKMapping.toVK("Shift"));
@@ -499,14 +489,14 @@ public class VirtualKeyBoard {
 					} else {
 						if (Character.isUpperCase(password.charAt(i))) /* 判断是否是大写 */
 						{
-							System.out.print(password.charAt(i) + "大写");
+							logger.warn("--------"+password.charAt(i) + "大写");
 							KeyPress1(VKMapping.toVK("Shift"));
 							Thread.sleep(50);
 							KeyPress(number1.toLowerCase().charAt(0));
 
 							KeyPress2(VKMapping.toVK("Shift"));
 						} else {
-							System.out.print(password.charAt(i) + "小写");
+							logger.warn("--------"+password.charAt(i) + "小写");
 							Thread.sleep(50);
 							KeyPress(password.charAt(i));
 						}
@@ -515,121 +505,116 @@ public class VirtualKeyBoard {
 			}
 
 			String imgtext = downloadImgs(driver, "verifyImg");
-			System.out.println(imgtext + "---");
+			logger.warn("--------验证码打码为："+imgtext+"-------------");
 			if (imgtext.contains("超时") || imgtext.equals("")) {
 				map.put("errorInfo", "查询失败");
 				map.put("errorCode", "0002");
-				ps.state(usercard, "bankBillFlow", 200);
-				driver.quit();
-				return (map);
+				PushState.state(usercard, "bankBillFlow", 200);
+				return map;
 			}
 			WebElement _vTokenId = driver.findElement(By.id("captcha"));
 			_vTokenId.sendKeys(imgtext);
 			WebElement loginButton = driver.findElement(By.id("loginButton"));
 			loginButton.click(); /* 点击登陆 */
-
-			try {
-				Alert alt = driver.switchTo().alert();
-				map.put("errorInfo", "登陆失败");
-				map.put("errorCode", "0001");
-				ps.state(usercard, "bankBillFlow", 200);
-				driver.quit();
-
-				return (map);
-			} catch (NoAlertPresentException e) {
-			}
-
-			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-			boolean flg = true;
-			try {
-				driver.findElement(By.id("errorMessage"));
-			} catch (org.openqa.selenium.NoSuchElementException e) {
-				flg = false;
-			}
-
-			if (flg) {
-				map.put("errorInfo", driver.findElement(By.id("errorMessage"))
-						.getText());
-				map.put("errorCode", "0001");
-				ps.state(usercard, "bankBillFlow", 200);
-				driver.quit();
-				return (map);
-			}
-			PushSocket.push(map, UUID, "0000");
-			String jsv = "var aaa=document.getElementsByClassName('node');aaa[15].click();";
-			jss.executeScript(jsv, "");
-
-			driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-
-			String head = driver.getWindowHandle();
-
-			String sid = driver
-					.getPageSource()
-					.substring(driver.getPageSource().indexOf("_emp_sid = '"),
-							driver.getPageSource().indexOf("';"))
-					.replaceAll("_emp_sid = '", "");
-			/* 为了避免查询不到账单 做此次处理 */
-
-			List<WebElement> elements2 = driver.findElements(By
-					.tagName("IFRAME"));
-			driver.switchTo().frame(elements2.get(0));
-			//
-			WebElement elements22 = driver.findElement(By.id("creditCardNo"));
-			elements22.click();
-			WebElement elements212 = driver.findElement(By.className("cross"));
-			elements212.click();
-			new Select(driver.findElement(By.id("billDate"))).selectByIndex(1);
-			;
-			WebElement elements2121 = driver.findElement(By.linkText("查询"));
-			elements2121.click();
-			Thread.sleep(5000);
-			driver.switchTo().window(head);
-			application getdate = new application();
-
-			for (int i = 0; i < getdate.Getdate().size(); i++) {
-				String win = "window.open('https://ebanks.cgbchina.com.cn/perbank/CR1080.do?currencyType=&creditCardNo="
-						+ number
-						+ "&billDate="
-						+ getdate.Getdate().get(i)
-						+ "&billType=1&abundantFlag=0&terseFlag=0&showWarFlag=0&EMP_SID="
-						+ sid + " ');";
-				jss.executeScript(win, "");
-			}
-
-			Set<String> jswin = driver.getWindowHandles();
-
-			System.out.println(jswin.size());
-			List listinfo = new ArrayList();
-			for (String str : jswin) {
-				if (!str.equals(head)) {
-					driver.switchTo().window(str);
-					driver.manage().timeouts()
-							.implicitlyWait(10, TimeUnit.SECONDS);
-					wait.until(ExpectedConditions.titleContains("账单"));
-					System.out.println(driver.getPageSource());
-					if (driver.getPageSource().contains(
-							"var billErrMsg = '该月份账单尚未生成，请于账单日后再查询';")) {
-					} else {
-						listinfo.add(driver.getPageSource());
-					}
-
+			//弹窗的内容
+			String str = DriverUtil.alertFlag(driver);
+			if(!str.isEmpty()){
+				if(str.contains("验证码")){
+					map = GDBLogin(number, pwd, usercard, UUID);
+				}else{
+					map.put("errorInfo", str);
+					map.put("errorCode", "0001");
+					PushState.state(usercard, "bankBillFlow", 200);
+					logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+str);
 				}
-			}
-			data.put("html", listinfo);
-			data.put("backtype", "GDB");
-			data.put("idcard", usercard);
-			map.put("data", data);
-			Resttemplate ct = new Resttemplate();
-			map = ct.SendMessage(map, application.sendip
-					+ "/HSDC/BillFlow/BillFlowByreditCard", usercard);
-			driver.switchTo().window(head);
-			driver.quit();
-			System.out.println(map.toString());
+				return map;
+			}else if(DriverUtil.waitById("errorMessage", driver, 3)){
+				String errorMessage = driver.findElement(By.id("errorMessage")).getText();
+				map.put("errorInfo", errorMessage);
+				map.put("errorCode", "0001");
+				PushState.state(usercard, "bankBillFlow", 200);
+				logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+errorMessage);
+				return map;
+			}else if(DriverUtil.waitByTitle("广发银行个人网上银行", driver, 15)){
+				logger.warn("--------广发银行登陆------------成功-----------用户名："+ number+"-----------");
+				PushSocket.push(map, UUID, "0000");
+				Thread.sleep(8000);
+				String jsv = "var aaa=document.getElementsByClassName('node');aaa[15].click();";
+				jss.executeScript(jsv, "");
+				
+				driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+				
+				String head = driver.getWindowHandle();
+				
+				String sid = driver.getPageSource()
+						.substring(driver.getPageSource().indexOf("_emp_sid = '"),driver.getPageSource().indexOf("';"))
+						.replaceAll("_emp_sid = '", "");
+				/*选中第一个*/
+				for (int i = 0; i < 11; i++) {
+					/* 为了避免查询不到账单 做此次处理 */
+					List<WebElement> elements2 = driver.findElements(By
+							.tagName("IFRAME"));
+					driver.switchTo().frame(elements2.get(0));
+					if(driver.getPageSource().contains("上月账单")){
+						break;
+					}
+					//判断creditCardNo是否可点击
+					if(DriverUtil.waitById("creditCardNo", driver, 15) && DriverUtil.clickById("creditCardNo", driver, 15)){
+						driver.findElement(By.id("creditCardNo")).click();;
+					}
+					//判断cross是否可点击
+					if(DriverUtil.waitByClassName("cross", driver, 15) && DriverUtil.clickByClassName("cross", driver, 15)){
+						driver.findElement(By.className("cross")).click();;
+					}
+					new Select(driver.findElement(By.id("billDate"))).selectByIndex(i);
+					driver.findElement(By.linkText("查询")).click();
+					Thread.sleep(5000);
+					driver.switchTo().window(head);
+				}
+				
+				
+				for (int i = 0; i < application.Getdate().size(); i++) {
+					String win = "window.open('https://ebanks.cgbchina.com.cn/perbank/CR1080.do?currencyType=&creditCardNo="
+							+ number
+							+ "&billDate="
+							+ application.Getdate().get(i)
+							+ "&billType=1&abundantFlag=0&terseFlag=0&showWarFlag=0&EMP_SID="
+							+ sid + " ');";
+					jss.executeScript(win, "");
+				}
+				
+				Set<String> jswin = driver.getWindowHandles();
+				
+				List<String> listinfo = new ArrayList<String>();
+				for (String item : jswin) {
+					if (!item.equals(head)) {
+						driver.switchTo().window(item);
+						if(DriverUtil.waitByTitle("账单", driver, 8)){
+							logger.warn("-----------账单信息：-------------"+driver.getPageSource());
+							if (!driver.getPageSource().contains("var billErrMsg = '该月份账单尚未生成，请于账单日后再查询';")) {
+								listinfo.add(driver.getPageSource());
+							}
+						}
+						
+					}
+				}
+				data.put("html", listinfo);
+				data.put("backtype", "GDB");
+				data.put("idcard", usercard);
+				map.put("data", data);
+				Resttemplate ct = new Resttemplate();
+				map = ct.SendMessage(map, application.sendip
+						+ "/HSDC/BillFlow/BillFlowByreditCard", usercard);
+				driver.switchTo().window(head);
+				}
+			
 		} catch (Exception e) {
-			ps.state(usercard, "bankBillFlow", 200);
+			logger.error("-----------广发银行查询失败----------",e);
 			map.put("errorInfo", "网络异常,请重试！！");
 			map.put("errorCode", "0001");
-			driver.quit();
+			PushState.state(usercard, "bankBillFlow", 200);
+		}finally{
+			DriverUtil.close(driver);
 		}
 		return (map);
 	}

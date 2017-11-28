@@ -2,8 +2,10 @@ package com.reptile.util;
 
 import java.io.IOException;
 
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -109,6 +111,86 @@ public class  DriverUtil{
 			return false;
 		}
 		return true;
+	}
+	
+	/**
+	 * 显示等待，通过className判断元素是否可点击
+	 * @param className 
+	 * @param driver 
+	 * @param time 多长时间关闭 单位 秒
+	 */
+	public static boolean clickByClassName(String className,WebDriver driver,int time){
+		WebDriverWait wite = new WebDriverWait(driver,time);
+		try {
+			wite.until(ExpectedConditions.elementToBeClickable(By.className(className)));
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
+	}
+	/**
+	 * 显示等待，通过id判断元素是否可点击
+	 * @param id 
+	 * @param driver 
+	 * @param time 多长时间关闭 单位 秒
+	 */
+	public static boolean clickById(String id,WebDriver driver,int time){
+		WebDriverWait wite = new WebDriverWait(driver,time);
+		try {
+			wite.until(ExpectedConditions.elementToBeClickable(By.id(id)));
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
+	}
+	/**
+	 * 显示等待，通过linkText判断元素是否可点击
+	 * @param linkText 
+	 * @param driver 
+	 * @param time 多长时间关闭 单位 秒
+	 */
+	public static boolean clickByLinkText(String linkText,WebDriver driver,int time){
+		WebDriverWait wite = new WebDriverWait(driver,time);
+		try {
+			wite.until(ExpectedConditions.elementToBeClickable(By.linkText(linkText)));
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * 判断某个元素是否可点击
+	 * @param ele
+	 * @param driver
+	 * @param time
+	 * @return
+	 */
+	public static boolean clickByElement(WebElement ele,WebDriver driver,int time){
+		WebDriverWait wite = new WebDriverWait(driver,time);
+		try {
+			wite.until(ExpectedConditions.elementToBeClickable(ele));
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
+	}
+	
+	/**
+	 * 判断是否有弹窗，如有弹窗则返回弹窗内的text，否则返回空
+	 * @param id 
+	 * @param driver 
+	 * @param time 多长时间关闭 单位 秒
+	 */
+	public static String alertFlag(WebDriver driver){
+		String str = "";
+		try {
+			Alert alt = driver.switchTo().alert();
+			str = alt.getText();
+		} catch (Exception e) {
+			//不做任何处理
+		}
+		return str;
 	}
 	
 	
