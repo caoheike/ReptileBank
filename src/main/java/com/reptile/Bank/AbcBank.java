@@ -80,12 +80,12 @@ public class AbcBank {
 					}else{
 						text = driver.findElement(By.className("logon-error")).getAttribute("title");
 					}
-					PushState.state(card, "bankBillFlow", 200);
+					PushState.state(card, "savings", 200);
 					status.put("errorCode", "0001");// 异常处理	
 					status.put("errorInfo", text);
 				}else if(DriverUtil.waitByTitle("中国农业银行个人网银首页", driver, 10)){
 					/* 登陆成功 */
-					PushState.state(card, "bankBillFlow", 100);
+					PushState.state(card, "savings", 100);
 					PushSocket.push(status, UUID, "0000");// 开始执行推送登陆成功
 		
 					driver.switchTo().frame("contentFrame");
@@ -176,8 +176,18 @@ public class AbcBank {
 						params.put("IDNumber", "");/* 身份证 */
 						params.put("cardNumber", sp[1]);/* 用户卡号 */
 						params.put("userName", cusname);/* 用户姓名 */
-						Resttemplate resttemplate = new Resttemplate();
-						status = resttemplate.SendMessage(params, application.sendip+ "/HSDC/savings/authentication", card);
+//						Resttemplate resttemplate = new Resttemplate();
+//						status = resttemplate.SendMessage(params, application.sendip+ "/HSDC/savings/authentication", card);
+						status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");  //推送数据
+	    			    if(status!= null && "0000".equals(status.get("errorCode").toString())){
+	    		           	 PushState.state(card, "savings", 300);
+	    		           	status.put("errorInfo","推送成功");
+	    		           	status.put("errorCode","0000");
+    		           }else{
+	    		           	 PushState.state(card, "savings", 200);
+	    		           	status.put("errorCode",status.get("errorCode"));//异常处理
+	    		           	status.put("errorInfo",status.get("errorInfo"));
+    		           }
 					}else{
 						throw new Exception();
 					}

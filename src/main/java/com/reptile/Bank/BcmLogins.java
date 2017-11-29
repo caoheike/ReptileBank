@@ -33,9 +33,11 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import com.reptile.util.DriverUtil;
 import com.reptile.util.JiaoTongKeyMap;
 import com.reptile.util.MyCYDMDemo;
 import com.reptile.util.PushSocket;
+import com.reptile.util.PushState;
 import com.reptile.util.Resttemplate;
 import com.reptile.util.application;
 
@@ -158,6 +160,7 @@ public class BcmLogins {
 					// 不需要发送验证码
 				} else if (driver.getPageSource().contains("查看我的买单吧")) {
 					PushSocket.push(map, UUID, "0000");
+					PushState.state(UserCard, "bankBillFlow", 100);
 					driver.executeScript(
 							"javascript:gotToLink('/member/member/service/billing/detail.html');",
 							0);
@@ -218,7 +221,8 @@ public class BcmLogins {
 			logger.warn("-----------交通信用卡查询失败-----------", e);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络异常");
-			driver.quit();
+		}finally{
+			DriverUtil.close(driver);
 		}
 
 		return map;

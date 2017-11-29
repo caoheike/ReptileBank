@@ -67,7 +67,7 @@ public class InterfaceController {
 			} else if (BankType.equals("CXCMB")) {// 招商储蓄卡
 				map = banks.CMBLogin(numbe, pwd, request, userCard, UUID);
 			} else if (BankType.equals("BCM")) {// 交通银行
-				map = BcmLogin.BcmLogins(numbe, pwd, UUID);
+				map = BcmLogin.BcmLogins(numbe, pwd, UUID,userCard);
 			} else if (BankType.equals("X-BCM")) {// 交通银行 信用卡
 				map = JiaoTong.BankLogin(numbe, pwd, userCard, request, UUID);
 			} else if (BankType.equals("ABC")) {// 农业银行储蓄卡
