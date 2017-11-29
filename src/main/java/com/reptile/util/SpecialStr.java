@@ -101,7 +101,7 @@ public class SpecialStr {
 		public static void SpecialStr(String str) throws Exception{
 		
 		for (int i = 0; i < str.length(); i++) {
-		Thread.sleep( 50 );
+		Thread.sleep( 500 );
 		String number = String.valueOf( str.charAt( i ) );	
 		/*判断是否是数字*/
 		if( StringUtils.isNumeric( number)){

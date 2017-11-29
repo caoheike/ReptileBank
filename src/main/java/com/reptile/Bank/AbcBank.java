@@ -71,9 +71,7 @@ public class AbcBank {
 				/* 登陆 */
 				WebElement logo = driver.findElement(By.id("logo"));
 				logo.click(); 
-				System.err.println(driver.getPageSource());
-				System.err.println(driver.findElement(By.className("logon-error")).getAttribute("title"));
-				if(DriverUtil.visibilityById("powerpass_ie_dyn_Msg", driver, 2) || DriverUtil.visibilityById("username-error", driver, 0) || !driver.findElement(By.className("logon-error")).getAttribute("title").isEmpty()){
+				if(DriverUtil.visibilityById("powerpass_ie_dyn_Msg", driver, 2) || DriverUtil.visibilityById("username-error", driver, 0) || (DriverUtil.waitByClassName("logon-error", driver, 1)&&!driver.findElement(By.className("logon-error")).getAttribute("title").isEmpty())){
 					String text = "";
 					if(DriverUtil.visibilityById("username-error", driver, 2)){
 						text = driver.findElement(By.id("username-error")).getText();

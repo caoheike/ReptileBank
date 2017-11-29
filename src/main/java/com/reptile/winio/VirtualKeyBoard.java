@@ -564,7 +564,7 @@ public class VirtualKeyBoard {
 				
 				logger.warn("--------广发银行登陆------------OPEN：开始");
 				for (int i = 0; i < application.Getdate().size(); i++) {
-					
+					Thread.sleep(1000);
 					String win = "window.open('https://ebanks.cgbchina.com.cn/perbank/CR1080.do?currencyType=&creditCardNo="
 							+ number
 							+ "&billDate="
