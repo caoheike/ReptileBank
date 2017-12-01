@@ -63,9 +63,9 @@ public class BcmLogin {
 			logger.warn("-----------交通储蓄卡登陆-----------开始----------");
 			Map<String, Object> params = new HashMap<String, Object>();
 			Map<String, String> headers = new HashMap<String, String>();
-			driver = KeysPress.OpenUrl("ie",
-					"https://pbank.95559.com.cn/personbank/logon.jsp#",
-					"D:/ie/IEDriverServer.exe");
+			/* 打开此网页 */
+			driver = DriverUtil.getDriverInstance("ie");
+			driver.get("https://pbank.95559.com.cn/personbank/logon.jsp#");
 			JavascriptExecutor js = (JavascriptExecutor) driver;
 			/* 获得账号输入框 */
 			WebElement username = driver.findElement(By.id("alias"));
@@ -193,7 +193,8 @@ public class BcmLogin {
 
 				params.put("billMes", list);
 				params.put("baseMes", headers);
-				params.put("IDNumber", "");
+				params.put("bankName", "中国交通银行");
+				params.put("IDNumber", userCard);
 				params.put("cardNumber", UserName);
 				params.put("userName", "");
 				status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");  //推送数据
@@ -209,6 +210,8 @@ public class BcmLogin {
 			}
 		} catch (Exception e) {
 			logger.warn("-----------交通银行查询失败-------------", e);
+			status.put("errorCode", "0002");// 异常处理
+			status.put("errorInfo", "网络异常，请重试！");
 		} finally {
 			DriverUtil.close(driver);
 		}

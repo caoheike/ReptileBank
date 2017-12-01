@@ -6,6 +6,8 @@ import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.ie.InternetExplorerDriver;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -218,5 +220,22 @@ public class  DriverUtil{
 		}
 	}
 	
-
+	
+	/**
+	 * 
+	 * @param type ie 或 chrome
+	 * @return
+	 */
+	public static WebDriver getDriverInstance(String type){
+		WebDriver driver = null;
+		if(type.equals("ie")){
+			System.setProperty("webdriver.ie.driver", "D:/ie/IEDriverServer.exe");
+			DesiredCapabilities ieCapabilities = DesiredCapabilities.internetExplorer();
+			ieCapabilities.setCapability(InternetExplorerDriver.INTRODUCE_FLAKINESS_BY_IGNORING_SECURITY_DOMAINS,true);
+			ieCapabilities.setCapability(InternetExplorerDriver.BROWSER_ATTACH_TIMEOUT,15000);
+			driver = new InternetExplorerDriver(ieCapabilities);
+		}
+		return driver;
+	}
+	
 }

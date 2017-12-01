@@ -39,7 +39,7 @@ public class CYDMDemo
 	}
 	
 	
-	public String getcode(String filename) throws UnsupportedEncodingException{
+	public static String getcode(String filename) throws UnsupportedEncodingException{
 	
 		// 注意这里是普通会员账号，不是开发者账号，注册地址 http://www.yundama.com/index/reg/user
 		// 开发者可以联系客服领取免费调试题分

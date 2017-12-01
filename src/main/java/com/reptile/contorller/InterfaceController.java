@@ -44,15 +44,16 @@ public class InterfaceController {
 	public Map<String, Object> Login(HttpServletRequest request,
 			HttpServletResponse response, @RequestParam("number") String numbe,
 			@RequestParam("pwd") String pwd,
-			@RequestParam("BankType") String BankType,
-			@RequestParam("userCard") String userCard,
-			@RequestParam("UUID") String UUID) throws Exception {
+			@RequestParam("BankType") String BankType
+			) throws Exception {
 		VirtualKeyBoard bank = new VirtualKeyBoard();
 		CmbBank banks = new CmbBank();
 		BcmLogin BcmLogin = new BcmLogin();
 		BcmLogins JiaoTong = new BcmLogins();
 		Map<String, Object> map = new HashMap<String, Object>();
 		HttpSession session = request.getSession();
+		String UUID = request.getParameter("UUID");
+		String userCard = request.getParameter("userCard");
 		synchronized (this) {
 			if (BankType.equals("CMB")) {// 招商银行
 				map = bank.Login(numbe, pwd, session, UUID);
@@ -90,11 +91,10 @@ public class InterfaceController {
 			HttpServletResponse response, @RequestParam("code") String code,
 			@RequestParam("sessid") String sessid,
 			@RequestParam("ClientNo") String ClientNo,
-			@RequestParam("idCard") String idCard,
-			@RequestParam("UUID") String UUID) throws Exception {
+			@RequestParam("idCard") String idCard) throws Exception {
 		System.out.println("heeli man");
 		HttpSession session = request.getSession();
-
+		String UUID = request.getParameter("UUID");
 		return mobileService.Queryinfo(session, response, code, sessid,
 				ClientNo, idCard, UUID);
 

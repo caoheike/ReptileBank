@@ -32,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.reptile.util.CYDMDemo;
+import com.reptile.util.DriverUtil;
 import com.reptile.util.PushSocket;
 import com.reptile.util.PushState;
 import com.reptile.util.Resttemplate;
@@ -95,8 +96,7 @@ public class CMBService {
         WebDriver driver =null; 
     	try {
     		logger.warn("民生银行");
-			System.setProperty("webdriver.ie.driver", "D:\\ie\\IEDriverServer.exe");
-			driver=new InternetExplorerDriver();
+			driver=DriverUtil.getDriverInstance("ie");
 			driver.get(CMBlogin);
 			driver.manage().window().maximize();
 			driver.navigate().refresh();

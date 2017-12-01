@@ -47,6 +47,8 @@ public class MobileService {
 //				throws FailingHttpStatusCodeException, MalformedURLException, IOException, InterruptedException {
 			public Map<String, Object> Queryinfo(HttpSession session,HttpServletResponse response,String codes,String sessid,String ClientNos,String idCard,String UUID)
 					throws FailingHttpStatusCodeException, MalformedURLException, IOException, InterruptedException {
+				Map<String,Object>maps=new HashMap();
+				PushSocket.push(maps, UUID, "0000");
 				PushState.state(idCard,"bankBillFlow", 100);
 				SimpleHttpClient httclien=new SimpleHttpClient();
 		    Map<String,Object> params=new HashMap<String, Object>();//参数

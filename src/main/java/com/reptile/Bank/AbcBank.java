@@ -51,9 +51,8 @@ public class AbcBank {
 				Map<String, Object> params = new HashMap<String, Object>();
 				Map<String, String> headers = new HashMap<String, String>();
 				/* 打开此网页 */
-				driver = KeysPress.OpenUrl("ie",
-						"https://perbank.abchina.com/EbankSite/startup.do",
-						"D:/ie/IEDriverServer.exe");
+				driver = DriverUtil.getDriverInstance("ie");
+				driver.get("https://perbank.abchina.com/EbankSite/startup.do");
 				/* 判断是否加载页面 */
 				DriverUtil.waitByTitle(driver.getTitle(), driver, 10);
 				/* 键入账号 */
@@ -173,7 +172,8 @@ public class AbcBank {
 						
 						params.put("billMes", list);
 						params.put("baseMes", headers);
-						params.put("IDNumber", "");/* 身份证 */
+						params.put("bankName", "中国农业银行");
+						params.put("IDNumber", card);/* 身份证 */
 						params.put("cardNumber", sp[1]);/* 用户卡号 */
 						params.put("userName", cusname);/* 用户姓名 */
 //						Resttemplate resttemplate = new Resttemplate();

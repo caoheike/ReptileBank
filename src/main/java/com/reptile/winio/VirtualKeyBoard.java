@@ -15,7 +15,6 @@ import javax.imageio.ImageIO;
 import javax.naming.directory.NoSuchAttributeException;
 import javax.servlet.http.HttpSession;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.http.ParseException;
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
@@ -34,6 +33,7 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.Augmenter;
+import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.SessionNotFoundException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -44,6 +44,7 @@ import org.springframework.stereotype.Service;
 import com.reptile.util.CYDMDemo;
 import com.reptile.util.CrawlerUtil;
 import com.reptile.util.DriverUtil;
+import com.reptile.util.KeysPress;
 import com.reptile.util.PushSocket;
 import com.reptile.util.PushState;
 import com.reptile.util.Resttemplate;
@@ -113,9 +114,9 @@ public class VirtualKeyBoard {
 		Map<String, Object> data = new HashMap<String, Object>();
 		Map<String, Object> map = new HashMap<String, Object>();
 		WebDriver driver = null;
-		System.setProperty("webdriver.ie.driver", "D:/ie/IEDriverServer.exe");
 		try {
-			driver = new InternetExplorerDriver();
+			logger.warn("----------------民生信用卡-------------登陆开始-----------------");
+			driver = DriverUtil.getDriverInstance("ie");
 			driver.get("https://nper.cmbc.com.cn/pweb/static/login.html");
 			WebDriverWait wait = new WebDriverWait(driver, 15);
 			wait.until(ExpectedConditions.titleContains("中国民生银行个人网上银行"));
@@ -127,20 +128,22 @@ public class VirtualKeyBoard {
 			elements.sendKeys(number);
 			/* 执行换号 */
 			Thread.sleep(2000);
-			KeyPresss("Tab");
-			/* //执行输入密码 */
+			/* 按下Tab */
+			KeysPress.SendTab("Tab");
 			Thread.sleep(1000);
+			/* 输入密码 */
+			KeysPress.sendPassWord(pwd);
 			/*
 			 * String password = pwd; Random random = new Random(); for (int i =
 			 * 0; i < password.length(); i++) { KeyPress(password.charAt(i));
 			 * 
 			 * Thread.sleep(random.nextInt(10)+00); } 新增执行大小写特殊符号
 			 */
-			String password = pwd;
-			for (int i = 0; i < password.length(); i++) {
+//			String password = pwd;
+			/*for (int i = 0; i < password.length(); i++) {
 				Thread.sleep(50);
 				String number1 = String.valueOf(password.charAt(i));
-				if (StringUtils.isNumeric(number1)) /* 如果是数字直接输出 */
+				if (StringUtils.isNumeric(number1))  如果是数字直接输出 
 				{
 					KeyPress(password.charAt(i));
 					logger.warn(password.charAt(i) + "数字");
@@ -151,7 +154,7 @@ public class VirtualKeyBoard {
 						KeyPresss("2");
 						KeyPress2(VKMapping.toVK("Shift"));
 					} else {
-						if (Character.isUpperCase(password.charAt(i))) /* 判断是否是大写 */
+						if (Character.isUpperCase(password.charAt(i)))  判断是否是大写 
 						{
 							logger.warn(password.charAt(i) + "大写");
 							KeyPress1(VKMapping.toVK("Shift"));
@@ -166,11 +169,11 @@ public class VirtualKeyBoard {
 						}
 					}
 				}
-			}
+			}*/
 
 			WebElement elementss = driver.findElement(By.id("loginButton"));
 			WebElement webElement = driver.findElement(By.id("_tokenImg"));
-
+			
 			if (webElement.getAttribute("src") == null
 					|| "".equals(webElement.getAttribute("src"))) {
 				/* 不需要验证码直接提交 */
@@ -195,6 +198,8 @@ public class VirtualKeyBoard {
 				wait.until(ExpectedConditions.titleContains("中国民生银行个人网银"));
 				if (driver.getTitle().contains("中国民生银行个人网银")) {
 					PushSocket.push(map, UUID, "0000");
+					PushState.state(idcard, "bankBillFlow", 100);
+					logger.warn("----------------民生信用卡-------------登陆成功-----------------");
 					wait.until(ExpectedConditions.presenceOfElementLocated(By
 							.className("v-binding")));
 					List<WebElement> ss = driver.findElements(By
@@ -319,76 +324,46 @@ public class VirtualKeyBoard {
 		return (map);
 	}
 
+	
+	/**
+	 * 招商银行信用卡
+	 * @param arg1
+	 * @param arg2
+	 * @param session
+	 * @param UUID
+	 * @return
+	 * @throws Exception
+	 */
 	public synchronized Map<String, Object> Login(String arg1, String arg2,
 			HttpSession session, String UUID) throws Exception {
 		WebDriver driver = null;
 		SimpleHttpClient httclien = new SimpleHttpClient();
 		Map<String, Object> map = new HashMap<String, Object>(); /* 请求头 */
-		Map<String, Object> data = new HashMap<String, Object>(); /* 请求头 */
 		try {
+			logger.warn("----------------招商信用卡-------------登陆开始-----------------");
 			String sessid = new CrawlerUtil().getUUID(); /* 生成UUid 用于区分浏览器 */
 			HttpSession sessions = session;
 
-			System.setProperty("webdriver.ie.driver",
-					"D:/ie/IEDriverServer.exe");
-			driver = new InternetExplorerDriver();
+			driver = DriverUtil.getDriverInstance("ie");
 			driver.get("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx");
 			String ss1 = arg1;
 			for (int i = 0; i < ss1.length(); i++) {
 				KeyPress(ss1.charAt(i));
 				Thread.sleep(10);
 			}
-			System.out
-					.println(VirtualKeyBoard.class.getResource("/").getPath());
+			logger.warn("----------------招商信用卡-------------登陆-----------------"+VirtualKeyBoard.class.getResource("/").getPath());
 			/*
 			 * NativeLibrary.addSearchPath("WinIo32.dll",
 			 * VirtualKeyBoard.class.getResource("/").getPath());
 			 */
 			NativeLibrary.addSearchPath("WinIo32", VirtualKeyBoard.class
 					.getResource("/").getPath());
-			Thread.sleep(100);
-			String s = "Tab"; /*  */
-			KeyPresss(s);
-			Thread.sleep(20);
-			/*
-			 * String ss = arg2;// for (int i = 0; i < ss.length(); i++) {
-			 * KeyPress(ss.charAt(i)); Thread.sleep(10); } KeyPresss(s);
-			 * 新增特殊符号大小写
-			 */
-
-			String password = arg2;
-			String cap = "cap"; /*  */
-
-			for (int i = 0; i < password.length(); i++) {
-				Thread.sleep(50);
-				String number = String.valueOf(password.charAt(i));
-				if (StringUtils.isNumeric(number)) /* 如果是数字直接输出 */
-				{
-					KeyPress(password.charAt(i));
-					System.out.println(password.charAt(i) + "数字");
-				} else {
-					if (number.equals("@")) {
-						KeyPress1(VKMapping.toVK("Shift"));
-						Thread.sleep(50);
-						KeyPresss("2");
-						KeyPress2(VKMapping.toVK("Shift"));
-					} else {
-						if (Character.isUpperCase(password.charAt(i))) /* 判断是否是大写 */
-						{
-							System.out.print(password.charAt(i) + "大写");
-							KeyPress1(VKMapping.toVK("Shift"));
-							Thread.sleep(50);
-							KeyPress(number.toLowerCase().charAt(0));
-
-							KeyPress2(VKMapping.toVK("Shift"));
-						} else {
-							System.out.print(password.charAt(i) + "小写");
-							Thread.sleep(50);
-							KeyPress(password.charAt(i));
-						}
-					}
-				}
-			}
+			Thread.sleep(1000);
+			/* 按下Tab */
+			KeysPress.SendTab("Tab");
+			Thread.sleep(1000);
+			/* 输入密码 */
+			KeysPress.sendPassWord(arg2);
 
 			Thread.sleep(300);
 			WebElement elements = driver.findElement(By.id("LoginBtn"));
@@ -414,37 +389,36 @@ public class VirtualKeyBoard {
 							elements, httclien, UUID);
 				}
 			}
-
-			try {
-				driver.quit();
-			} catch (SessionNotFoundException e) {
-				System.out.println(e);
-				/* TODO: handle exception */
-			}
+			
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.warn("----------------招商信用卡-------------登陆失败-----------------",e);
 			map.put("errorInfo", "网络跑偏了,请再尝试一次");
 			map.put("errorCode", "0001");
-			try {
-				driver.quit();
-			} catch (Exception e2) {
-				/* TODO: handle exception */
-			}
+		}finally{
+			DriverUtil.close(driver);
 		}
 
 		return (map);
 	}
-
+	
+	/**
+	 * 广发银行信用卡
+	 * @param number
+	 * @param pwd
+	 * @param usercard
+	 * @param UUID
+	 * @return
+	 * @throws Exception
+	 */
 	public synchronized Map<String, Object> GDBLogin(String number, String pwd,
 			String usercard, String UUID) throws Exception {
-		PushState.state(usercard, "bankBillFlow", 100);
+//		
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> data = new HashMap<String, Object>();
 
 		WebDriver driver = null;
-		System.setProperty("webdriver.ie.driver", "D:/ie/IEDriverServer.exe");
 		try {
-			driver = new InternetExplorerDriver();
+			driver = DriverUtil.getDriverInstance("ie");
 			WebDriverWait wait = new WebDriverWait(driver, 20);
 			logger.warn("--------广发银行登陆------------开始-----------用户名："+ number);
 			driver.manage().window().maximize();
@@ -456,42 +430,11 @@ public class VirtualKeyBoard {
 			elements.click();
 			elements.sendKeys(number);
 			Thread.sleep(1000);
-			String s = "Tab"; 
+			/* 按下Tab */
+			KeysPress.SendTab("Tab");
 			Thread.sleep(1000);
-			KeyPresss(s);
-			Thread.sleep(400);
-			String password = pwd;
-
-		for (int i = 0; i < password.length(); i++) {
-				Thread.sleep(50);
-				String number1 = String.valueOf(password.charAt(i));
-				if (StringUtils.isNumeric(number1)) /* 如果是数字直接输出 */
-				{
-					KeyPress(password.charAt(i));
-					logger.warn("--------"+password.charAt(i) + "数字");
-				} else {
-					if (number1.equals("@")) {
-						KeyPress1(VKMapping.toVK("Shift"));
-						Thread.sleep(50);
-						KeyPresss("2");
-						KeyPress2(VKMapping.toVK("Shift"));
-					} else {
-						if (Character.isUpperCase(password.charAt(i))) /* 判断是否是大写 */
-						{
-							logger.warn("--------"+password.charAt(i) + "大写");
-							KeyPress1(VKMapping.toVK("Shift"));
-							Thread.sleep(50);
-							KeyPress(number1.toLowerCase().charAt(0));
-
-							KeyPress2(VKMapping.toVK("Shift"));
-						} else {
-							logger.warn("--------"+password.charAt(i) + "小写");
-							Thread.sleep(50);
-							KeyPress(password.charAt(i));
-						}
-					}
-				}
-			}
+			/* 输入密码 */
+			KeysPress.sendPassWord(pwd);
 
 			String imgtext = downloadImgs(driver, "verifyImg");
 			logger.warn("--------验证码打码为："+imgtext+"-------------");
@@ -527,6 +470,7 @@ public class VirtualKeyBoard {
 			}else if(DriverUtil.waitByTitle("广发银行个人网上银行", driver, 15)){
 				logger.warn("--------广发银行登陆------------成功-----------用户名："+ number+"-----------");
 				PushSocket.push(map, UUID, "0000");
+				PushState.state(usercard, "bankBillFlow", 100);
 				Thread.sleep(8000);
 				String jsv = "var aaa=document.getElementsByClassName('node');aaa[15].click();";
 				jss.executeScript(jsv, "");
@@ -558,7 +502,7 @@ public class VirtualKeyBoard {
 					}
 					new Select(driver.findElement(By.id("billDate"))).selectByIndex(i);
 					driver.findElement(By.linkText("查询")).click();
-					Thread.sleep(5000);
+					Thread.sleep(2000);
 					driver.switchTo().window(head);
 				}
 				
@@ -619,9 +563,6 @@ public class VirtualKeyBoard {
 			SimpleHttpClient httclien, String UUID) throws ParseException,
 			IOException, InterruptedException {
 		Map<String, Object> params = new HashMap<String, Object>(); /* 参数 */
-		Map<String, Object> paramse = new HashMap<String, Object>(); /* 参数 */
-		Map<String, Object> paramend = new HashMap<String, Object>(); /* 参数 */
-		Map<String, Object> parmcode = new HashMap<String, Object>(); /* 参数 */
 		Map<String, String> headers = new HashMap<String, String>(); /* 请求头 */
 		Map<String, Object> map = new HashMap<String, Object>(); /* 请求头 */
 		Map<String, Object> data = new HashMap<String, Object>(); /* 请求头 */
@@ -666,7 +607,7 @@ public class VirtualKeyBoard {
 				if (rest.contains("<code>00</code>")) {
 					map.put("errorCode", "0000");
 					map.put("errorInfo", "成功");
-					PushSocket.push(map, UUID, "0000");
+				
 				} else {
 					map.put("errorCode", "0001");
 					map.put("errorInfo", "验证码发送失败");
@@ -708,8 +649,8 @@ public class VirtualKeyBoard {
 		}
 
 		map.put("data", data);
-		System.out.println(map.toString() + "----!!!");
-		return (map);
+		logger.warn("----------------招商信用卡-------------登陆结果-----------------"+map.toString() );
+		return map;
 	}
 
 	/* 设置cookie */
@@ -951,7 +892,20 @@ public class VirtualKeyBoard {
 				location.getY(), size.getWidth(), size.getHeight());
 		return (croppedImage);
 	}
-
+	
+    /**
+     * 向input里输入值str
+     * @param str 输入的字符串
+     * @throws Exception 
+     */
+    public static void inputCode(String str) throws Exception{
+    	Thread.sleep(200);
+    	for (int i = 0; i < str.length(); i++) {
+    		   KeyPress(str.charAt(i));
+    				Thread.sleep(50);
+    			}
+    		
+    }
 	public static void main(String[] args) throws Exception {
 		new VirtualKeyBoard().CMBCLogin("", "", "", "", "123");
 	}
