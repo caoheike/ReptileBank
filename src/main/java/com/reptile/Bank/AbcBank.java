@@ -44,7 +44,7 @@ public class AbcBank {
 		 */
 		public static Map<String, Object> doGetDetail(String username,
 				String userpwd, String UUID, String card){
-			
+			logger.warn("-----------农业储蓄卡-----------登陆开始----------身份证号："+card);
 			Map<String, Object> status = new HashMap<String, Object>();
 			WebDriver driver = null;
 			try{
@@ -83,6 +83,7 @@ public class AbcBank {
 					status.put("errorCode", "0001");// 异常处理	
 					status.put("errorInfo", text);
 				}else if(DriverUtil.waitByTitle("中国农业银行个人网银首页", driver, 10)){
+					logger.warn("-----------农业储蓄卡-----------登陆成功----------身份证号："+card);
 					/* 登陆成功 */
 					PushState.state(card, "savings", 100);
 					PushSocket.push(status, UUID, "0000");// 开始执行推送登陆成功
@@ -197,12 +198,13 @@ public class AbcBank {
 				}
 					
 			}catch(Exception e){
-				logger.warn("-------------农业银行获取详情失败-------------", e);
+				logger.warn("-------------农业银行储蓄卡------------获取详情失败-------------", e);
 				status.put("errorCode", "0002");// 异常处理
 				status.put("errorInfo", "网络异常，请重试！");
 			}finally{
 				DriverUtil.close(driver);
 			}
+			logger.warn("-----------农业储蓄卡-----------查询结束----------返回信息为："+status.toString());
 			return status;
 		}
 }

@@ -33,7 +33,6 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.remote.Augmenter;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.openqa.selenium.remote.SessionNotFoundException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
@@ -115,7 +114,7 @@ public class VirtualKeyBoard {
 		Map<String, Object> map = new HashMap<String, Object>();
 		WebDriver driver = null;
 		try {
-			logger.warn("----------------民生信用卡-------------登陆开始-----------------");
+			logger.warn("----------------民生信用卡-------------登陆开始-----------------用户名："+number+"密码："+pwd);
 			driver = DriverUtil.getDriverInstance("ie");
 			driver.get("https://nper.cmbc.com.cn/pweb/static/login.html");
 			WebDriverWait wait = new WebDriverWait(driver, 15);
@@ -133,43 +132,6 @@ public class VirtualKeyBoard {
 			Thread.sleep(1000);
 			/* 输入密码 */
 			KeysPress.sendPassWord(pwd);
-			/*
-			 * String password = pwd; Random random = new Random(); for (int i =
-			 * 0; i < password.length(); i++) { KeyPress(password.charAt(i));
-			 * 
-			 * Thread.sleep(random.nextInt(10)+00); } 新增执行大小写特殊符号
-			 */
-//			String password = pwd;
-			/*for (int i = 0; i < password.length(); i++) {
-				Thread.sleep(50);
-				String number1 = String.valueOf(password.charAt(i));
-				if (StringUtils.isNumeric(number1))  如果是数字直接输出 
-				{
-					KeyPress(password.charAt(i));
-					logger.warn(password.charAt(i) + "数字");
-				} else {
-					if (number1.equals("@")) {
-						KeyPress1(VKMapping.toVK("Shift"));
-						Thread.sleep(50);
-						KeyPresss("2");
-						KeyPress2(VKMapping.toVK("Shift"));
-					} else {
-						if (Character.isUpperCase(password.charAt(i)))  判断是否是大写 
-						{
-							logger.warn(password.charAt(i) + "大写");
-							KeyPress1(VKMapping.toVK("Shift"));
-							Thread.sleep(50);
-							KeyPress(number1.toLowerCase().charAt(0));
-
-							KeyPress2(VKMapping.toVK("Shift"));
-						} else {
-							logger.warn(password.charAt(i) + "小写");
-							Thread.sleep(50);
-							KeyPress(password.charAt(i));
-						}
-					}
-				}
-			}*/
 
 			WebElement elementss = driver.findElement(By.id("loginButton"));
 			WebElement webElement = driver.findElement(By.id("_tokenImg"));
@@ -199,7 +161,7 @@ public class VirtualKeyBoard {
 				if (driver.getTitle().contains("中国民生银行个人网银")) {
 					PushSocket.push(map, UUID, "0000");
 					PushState.state(idcard, "bankBillFlow", 100);
-					logger.warn("----------------民生信用卡-------------登陆成功-----------------");
+					logger.warn("----------------民生信用卡-------------登陆成功-----------------用户名："+number);
 					wait.until(ExpectedConditions.presenceOfElementLocated(By
 							.className("v-binding")));
 					List<WebElement> ss = driver.findElements(By
@@ -239,8 +201,9 @@ public class VirtualKeyBoard {
 								.findElement(By
 										.xpath("//*[@id='transView']/div/div/div/div/div/table[1]/tbody/tr/td/div[7]")); /* 先定位顶级元素 */
 						wes.click();
-						driver.manage().timeouts()
-								.implicitlyWait(20, TimeUnit.SECONDS);
+						Thread.sleep(2000);
+//						driver.manage().timeouts()
+//								.implicitlyWait(20, TimeUnit.SECONDS);
 						try {
 							WebElement we = driver
 									.findElement(By
@@ -248,8 +211,9 @@ public class VirtualKeyBoard {
 													+ i + "']"));
 
 							we.click();
-							driver.manage().timeouts()
-									.implicitlyWait(20, TimeUnit.SECONDS);
+//							driver.manage().timeouts()
+//									.implicitlyWait(20, TimeUnit.SECONDS);
+							Thread.sleep(2000);
 							wait.until(ExpectedConditions
 									.textToBePresentInElement(ifs.get(2),
 											"下载明细"));
@@ -259,18 +223,14 @@ public class VirtualKeyBoard {
 									.findElement(By
 											.xpath("//*[@id='transView']/div/div/div/div/div/table[1]/tbody/tr/td/div[8]//*[@id='"
 													+ i + "']"));
-							System.out.println(we.getAttribute("title"));
-							System.out.println("账单选择问题");
+							logger.warn("---------民生详情查询--------------"+we.getAttribute("title")+"账单选择问题",e);
 
-							/* TODO: handle exception */
 						}
 					}
 					logger.warn("-------------list.toString()"+"----------------------");
-					System.out.println(list.toString());
 					data.put("html", list);
 					data.put("backtype", "CMBC");
 					data.put("idcard", idcard);
-					/*  */
 					map.put("data", data);
 
 					map = resttemplate.SendMessage(map, application.sendip
@@ -320,8 +280,8 @@ public class VirtualKeyBoard {
 		} finally {
 			DriverUtil.close(driver);
 		}
-
-		return (map);
+		logger.warn("------------民生信用卡-----------查询结束----------------返回信息为："+map.toString()+"-------------");
+		return map;
 	}
 
 	
@@ -340,7 +300,7 @@ public class VirtualKeyBoard {
 		SimpleHttpClient httclien = new SimpleHttpClient();
 		Map<String, Object> map = new HashMap<String, Object>(); /* 请求头 */
 		try {
-			logger.warn("----------------招商信用卡-------------登陆开始-----------------");
+			logger.warn("----------------招商信用卡-------------登陆开始-----------------用户名："+arg1);
 			String sessid = new CrawlerUtil().getUUID(); /* 生成UUid 用于区分浏览器 */
 			HttpSession sessions = session;
 
@@ -391,13 +351,13 @@ public class VirtualKeyBoard {
 			}
 			
 		} catch (Exception e) {
-			logger.warn("----------------招商信用卡-------------登陆失败-----------------",e);
+			logger.warn("----------------招商信用卡-------------登陆失败-----------------用户名："+arg1,e);
 			map.put("errorInfo", "网络跑偏了,请再尝试一次");
 			map.put("errorCode", "0001");
 		}finally{
 			DriverUtil.close(driver);
 		}
-
+		logger.warn("----------------招商信用卡-------------结束------返回信息："+map.toString());
 		return (map);
 	}
 	
@@ -420,7 +380,7 @@ public class VirtualKeyBoard {
 		try {
 			driver = DriverUtil.getDriverInstance("ie");
 			WebDriverWait wait = new WebDriverWait(driver, 20);
-			logger.warn("--------广发银行登陆------------开始-----------用户名："+ number);
+			logger.warn("--------广发银行信用卡------------登陆开始-----------身份证号："+ usercard);
 			driver.manage().window().maximize();
 			JavascriptExecutor jss = (JavascriptExecutor) driver;
 			driver.get("https://ebanks.cgbchina.com.cn/perbank/");
@@ -437,11 +397,12 @@ public class VirtualKeyBoard {
 			KeysPress.sendPassWord(pwd);
 
 			String imgtext = downloadImgs(driver, "verifyImg");
-			logger.warn("--------验证码打码为："+imgtext+"-------------");
+			logger.warn("--------广发银行信用卡--------登陆-----------验证码打码为："+imgtext+"-------------");
 			if (imgtext.contains("超时") || imgtext.equals("")) {
 				map.put("errorInfo", "查询失败");
 				map.put("errorCode", "0002");
 				PushState.state(usercard, "bankBillFlow", 200);
+				logger.warn("--------广发银行信用卡--------------登陆失败---------身份证号："+ usercard+"--------返回信息为："+map);
 				return map;
 			}
 			WebElement _vTokenId = driver.findElement(By.id("captcha"));
@@ -547,13 +508,14 @@ public class VirtualKeyBoard {
 				}
 			
 		} catch (Exception e) {
-			logger.error("-----------广发银行查询失败----------",e);
+			logger.warn("-----------广发银行查询失败----------",e);
 			map.put("errorInfo", "网络异常,请重试！！");
 			map.put("errorCode", "0001");
 			PushState.state(usercard, "bankBillFlow", 200);
 		}finally{
 			DriverUtil.close(driver);
 		}
+		logger.warn("--------------广发银行信用卡------------查询结束-----------返回信息为："+map+"---------------");
 		return (map);
 	}
 
@@ -649,7 +611,6 @@ public class VirtualKeyBoard {
 		}
 
 		map.put("data", data);
-		logger.warn("----------------招商信用卡-------------登陆结果-----------------"+map.toString() );
 		return map;
 	}
 
@@ -843,11 +804,6 @@ public class VirtualKeyBoard {
 				}
 			}
 
-			try {
-				driver.quit();
-			} catch (SessionNotFoundException e) {
-				/* TODO: handle exception */
-			}
 		} catch (Exception e) {
 			map.put("errorInfo", "网络跑偏了,请再尝试一次");
 			map.put("errorCode", "0001");
@@ -906,7 +862,4 @@ public class VirtualKeyBoard {
     			}
     		
     }
-	public static void main(String[] args) throws Exception {
-		new VirtualKeyBoard().CMBCLogin("", "", "", "", "123");
-	}
 }

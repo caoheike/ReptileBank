@@ -66,7 +66,7 @@ public class BcmLogins {
 		options.addArguments("start-maximized");
 		ChromeDriver driver = new ChromeDriver(options);
 		try {
-
+			logger.warn("--------------交通银行信用卡---------------登陆开始----------------身份证号："+UserCard);
 			// 开始执行任务
 			driver.get("https://creditcardapp.bankcomm.com/idm/sso/login.html?service=https://creditcardapp.bankcomm.com/member/shiro-cas");
 			try {
@@ -159,6 +159,7 @@ public class BcmLogins {
 					return map;
 					// 不需要发送验证码
 				} else if (driver.getPageSource().contains("查看我的买单吧")) {
+					logger.warn("--------------交通银行信用卡---------------登陆成功----------------身份证号："+UserCard);
 					PushSocket.push(map, UUID, "0000");
 					PushState.state(UserCard, "bankBillFlow", 100);
 					driver.executeScript(
@@ -174,7 +175,6 @@ public class BcmLogins {
 						WebElement elements = driver.findElement(By
 								.xpath("//*[@id='bill_content']/p/a"));
 						elements.click();
-						System.out.println(driver.getPageSource());
 						Thread.sleep(3000);
 						list.add((driver.getPageSource()));
 						WebElement goback = driver.findElement(By
@@ -184,11 +184,11 @@ public class BcmLogins {
 								.presenceOfElementLocated(By.id("bill_date")));
 
 					}
-
+					logger.warn("--------------交通银行信用卡---------------查询成功----------------身份证号："+UserCard);
 				} else {
+					logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因：账号密码错误");
 					map.put("errorCode", "0001");// 认证失败
 					map.put("errorInfo", "账号密码错误");
-					driver.quit();
 					return map;
 				}
 				data.put("html", list);
@@ -202,29 +202,25 @@ public class BcmLogins {
 						+ "/HSDC/BillFlow/BillFlowByreditCard", UserCard);
 
 				map.put("whetherCode", "no");
-				driver.quit();
 				return map;
 			} else if(!alertText.isEmpty()){
-				map.put("errorCode", "0001");// 认证失败
+				logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因："+alertText);
+				map.put("errorCode", "0001");
 				map.put("errorInfo", alertText);
-				driver.quit();
-				return map;
 			} else if(msg.size() != 0){
-				map.put("errorCode", "0001");// 认证失败
+				logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因："+msg.get(1).getText());
+				map.put("errorCode", "0001");
 				map.put("errorInfo", msg.get(1).getText());
-				driver.quit();
-				return map;
-
 			}
 
 		} catch (Exception e) {
-			logger.warn("-----------交通信用卡查询失败-----------", e);
+			logger.warn("-----------交通信用卡-----------查询失败-----------身份证号："+UserCard, e);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络异常");
 		}finally{
 			DriverUtil.close(driver);
 		}
-
+		logger.warn("--------------交通银行信用卡---------------返回信息为："+map);
 		return map;
 
 	}

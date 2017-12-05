@@ -95,7 +95,7 @@ public class CMBService {
         Map<String,Object> data=new HashMap<String,Object>();
         WebDriver driver =null; 
     	try {
-    		logger.warn("民生银行");
+    		logger.warn("--------------民生储蓄卡------------登陆开始------------身份证号："+idCard);
 			driver=DriverUtil.getDriverInstance("ie");
 			driver.get(CMBlogin);
 			driver.manage().window().maximize();
@@ -137,7 +137,7 @@ public class CMBService {
             try{
             	element6=driver.findElement(By.id("transView"));
             	if(element6!=null&&element6.getText().contains("个人网上银行首次登录")){
-            		logger.warn("民生银行首次登陆");
+            		logger.warn("--------------民生储蓄卡------------首次登陆------------身份证号："+idCard);
     				//首次登陆
     				//System.out.println("您为第一次登陆网上银行，请先登陆官网设置您的登陆名和登陆密码");
     				map.put("errorCode", "0001");
@@ -145,10 +145,9 @@ public class CMBService {
     	            driver.quit();
     	            return map;
     			}else{//登陆成功
+    				logger.warn("--------------民生储蓄卡------------登陆成功------------身份证号："+idCard);
     				PushSocket.push(map, UUID, "0000");
     				PushState.state(idCard, "savings", 100);
-    				logger.warn("民生银行登陆成功");
-    				System.out.println("登陆成功");
     				WebDriverWait wait = new WebDriverWait(driver, 20);
     			    wait.until(ExpectedConditions.titleContains("中国民生银行个人网银"));
                     wait.until(ExpectedConditions.presenceOfElementLocated(By.className("v-binding")));
@@ -172,7 +171,7 @@ public class CMBService {
 			            map.put("errorInfo", "系统繁忙请稍后有再试!");
 			            return map;
 					}
-    			   	logger.warn("民生银行详单获取中...");
+    				logger.warn("--------------民生储蓄卡------------民生银行详单获取中...------------身份证号："+idCard);
     				//开始解析账户详情
     				Map<String, String>    baseMes=new HashMap<String, String>();//存放基本信息
     				baseMes=this.parseBaseMes(driver, baseMes);

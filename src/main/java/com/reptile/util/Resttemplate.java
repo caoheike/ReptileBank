@@ -6,6 +6,7 @@ import java.util.Map;
 
 import net.sf.json.JSONObject;
 
+import org.apache.log4j.Logger;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -21,6 +22,7 @@ import org.springframework.web.client.RestTemplate;
  *
  */
 public class Resttemplate {
+	private static Logger logger = Logger.getLogger(Resttemplate.class);
 	/**
 	 * 
 	 * @param map 需要推送的数据
@@ -37,9 +39,12 @@ public class Resttemplate {
           MediaType type = MediaType.parseMediaType("application/x-www-form-urlencoded; charset=UTF-8");
           headers.setContentType(type);
           headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-          System.out.println(JSONObject.fromObject(map).toString()+"sssvvvv");
+          
+          logger.warn("-------------请求入参："+JSONObject.fromObject(map).toString()+"------------");
           HttpEntity<String> formEntity = new HttpEntity<String>(JSONObject.fromObject(map).toString(), headers);
           String result = restTemplate.postForObject(Url, formEntity,String.class);
+          logger.warn("-------------请求结果："+result+"------------");
+          
           JSONObject jsonObject=JSONObject.fromObject(result);
           if(jsonObject.get("errorCode").equals("0000")){
         		message.put("errorCode","0000");
@@ -50,7 +55,7 @@ public class Resttemplate {
           }
            
 		} catch (Exception e) {
-			System.out.println(e+"aaaa");
+			logger.warn("----------请求失败--------------",e);
 			message.put("errorCode","0003");//异常处理
 			message.put("errorInfo","推送失败");
 		}
@@ -68,9 +73,13 @@ public class Resttemplate {
         MediaType type = MediaType.parseMediaType("application/x-www-form-urlencoded; charset=UTF-8");
         headers.setContentType(type);
         headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-        System.out.println(JSONObject.fromObject(map).toString()+"sssvvvv");
+        
+        logger.warn("-------------向数据中心推送的数据为："+JSONObject.fromObject(map).toString()+"------------");
+        
         HttpEntity<String> formEntity = new HttpEntity<String>(JSONObject.fromObject(map).toString(), headers);
         String result = restTemplate.postForObject(Url, formEntity,String.class);
+        logger.warn("-------------数据中心返回的结果为："+result+"------------");
+        
         JSONObject jsonObject=JSONObject.fromObject(result);
         if(jsonObject.get("errorCode").equals("0000")){
       		message.put("errorCode","0000");
@@ -83,8 +92,8 @@ public class Resttemplate {
         }
          
 		} catch (Exception e) {
+			logger.warn("----------将数据推送给数据中心失败--------------",e);
 			ps.state(id, "bankBillFlow", 200);
-			System.out.println(e+"aaaa");
 			message.put("errorCode","0003");//异常处理
 			message.put("errorInfo","推送失败");
 		}
@@ -100,9 +109,10 @@ public class Resttemplate {
 		  MediaType type = MediaType.parseMediaType("application/x-www-form-urlencoded; charset=UTF-8");
 		  headers.setContentType(type);
 		  headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-		  System.out.println(jsonObject);
+		  logger.warn("-------------向数据中心推送的数据为："+jsonObject.toString()+"------------");
 		  HttpEntity<String> formEntity = new HttpEntity<String>(jsonObject.toString(), headers);
 		  String result = restTemplate.postForObject(Url, formEntity,String.class);
+		  logger.warn("-------------数据中心返回的结果为："+result+"------------");
 		  JSONObject jsonObjects=JSONObject.fromObject(result);
 		  if(jsonObjects.equals("0000")){
 			  message.put("errorCode","0000");
@@ -113,7 +123,7 @@ public class Resttemplate {
 		  }
 		  
 	  } catch (Exception e) {
-		  System.out.println(e);
+		  logger.warn("----------将数据推送给数据中心失败--------------",e);
 		  message.put("errorCode","0003");//异常处理
 		  message.put("errorCode","推送失败");
 	  }
@@ -131,9 +141,11 @@ public class Resttemplate {
 		  MediaType type = MediaType.parseMediaType("application/x-www-form-urlencoded; charset=UTF-8");
 		  headers.setContentType(type);
 		  headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-		  System.out.println(jsonObject);
+		  
+	      logger.warn("-------------向数据中心推送的数据为："+JSONObject.fromObject(jsonObject).toString()+"------------");
 		  HttpEntity<String> formEntity = new HttpEntity<String>(jsonObject.toString(), headers);
 		  String result = restTemplate.postForObject(Url, formEntity,String.class);
+		  logger.warn("-------------数据中心返回的结果为："+result+"------------");
 		  JSONObject jsonObjects=JSONObject.fromObject(result);
 		  if("0".equals(jsonObjects.get("errorCode").toString())){
 			  message.put("ResultCode","0000");
@@ -144,7 +156,7 @@ public class Resttemplate {
 		  }
 		  
 	  } catch (Exception e) {
-		  System.out.println(e);
+		  logger.warn("----------将数据推送给数据中心失败--------------",e);
 		  message.put("ResultCode","0003");//异常处理
 		  message.put("ResultInfo","推送失败");
 	  }

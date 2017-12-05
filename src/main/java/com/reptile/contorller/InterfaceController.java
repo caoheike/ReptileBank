@@ -21,6 +21,7 @@ import com.reptile.Bank.BcmLogin;
 import com.reptile.Bank.BcmLogins;
 import com.reptile.Bank.CMBService;
 import com.reptile.service.MobileService;
+import com.reptile.service.SPDBService;
 import com.reptile.winio.CmbBank;
 import com.reptile.winio.VirtualKeyBoard;
 
@@ -57,8 +58,8 @@ public class InterfaceController {
 		synchronized (this) {
 			if (BankType.equals("CMB")) {// 招商银行
 				map = bank.Login(numbe, pwd, session, UUID);
-			} else if (BankType.equals("CCB")) {// 浦发银行
-
+			} else if (BankType.equals("SPDB")) {// 浦发银行
+				map = new SPDBService().login(request, userCard, pwd, UUID);
 			} else if (BankType.equals("BOC")) {
 
 			} else if (BankType.equals("CMBC")) {// 民生信用卡
@@ -76,7 +77,7 @@ public class InterfaceController {
 			} else if (BankType.equals("CMBC2")) {// 民生储蓄卡
 				map = new CMBService().login(request, response, numbe, pwd,
 						userCard, UUID);
-			}
+			} 
 
 			return map;
 		}

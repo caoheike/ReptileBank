@@ -15,7 +15,6 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import net.sf.json.JSONObject;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -60,7 +59,7 @@ public class BcmLogin {
 		Map<String, Object> status = new HashMap<String, Object>();
 		WebDriver driver = null;
 		try {
-			logger.warn("-----------交通储蓄卡登陆-----------开始----------");
+			logger.warn("-----------交通储蓄卡-----------登陆开始----------身份证号："+userCard);
 			Map<String, Object> params = new HashMap<String, Object>();
 			Map<String, String> headers = new HashMap<String, String>();
 			/* 打开此网页 */
@@ -96,12 +95,12 @@ public class BcmLogin {
 					&& !driver.findElement(By.id("captchaErrMsg")).getText()
 							.equals("")) {
 				status = BcmLogin.BcmLogins(UserName, UserPwd, UUID,userCard);
-				return status;
 			} else if (flgs == true) {
+				logger.warn("-----------交通储蓄卡-----------登陆失败----------身份证号："+userCard);
 				status.put( "errorInfo", "账号密码错误" );
 				status.put( "errorCode", "0001" );
-				return status;
 			} else {
+				logger.warn("-----------交通储蓄卡-----------登陆成功----------身份证号："+userCard);
 				PushSocket.push(status, UUID, "0000");
 				PushState.state(userCard, "savings", 100);
 				boolean flg = ElementExist(driver, By.id("btnConf1"));
@@ -115,7 +114,6 @@ public class BcmLogin {
 				String zd = "Util.changeMenu('P001000');";
 
 				js.executeScript(zd, "");
-				System.out.println(driver.getPageSource());
 //				driver.switchTo().frame("frameMain");
 //				driver.switchTo().frame("tranArea");
 //				WebElement mx1 = driver.findElement(By.linkText("账户查询"));
@@ -128,8 +126,6 @@ public class BcmLogin {
 				/* //点击明细 */
 				WebElement mx = driver.findElement(By.linkText("明细"));
 				mx.click();
-				/* 开始设置日期 */
-				System.out.println(lists.get(0).get("begin").toString());
 				js.executeScript(
 						"$('#startDate_show').val('"
 								+ lists.get(0).get("begin").toString()
@@ -215,6 +211,7 @@ public class BcmLogin {
 		} finally {
 			DriverUtil.close(driver);
 		}
+		logger.warn("-----------交通储蓄卡-----------查询结果----------返回结果："+status.toString());
 		return status;
 	}
 

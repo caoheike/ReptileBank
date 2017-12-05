@@ -19,7 +19,7 @@ import org.springframework.stereotype.Component;
  *
  */
 public class application {
-//public static String sendip="http://10.1.1.12:8080";//外地
+//	public static String sendip="http://10.1.1.12:8080";//外地
 //public static String sendip="http://192.168.3.16:8089";//本地
 public static String sendip="http://117.34.70.217:8080";//测试环境
 
