@@ -31,6 +31,7 @@ import com.reptile.util.DriverUtil;
 import com.reptile.util.PushState;
 import com.reptile.util.SimpleHttpClient;
 import com.reptile.util.KeysPress;
+import com.reptile.util.PushSocket;
 
 public class CmbBank {
 	private Logger logger = Logger.getLogger(CmbBank.class);
@@ -140,7 +141,6 @@ public class CmbBank {
 						map.put("data", params);
 
 					} else {
-
 						map.put("errorInfo", "失败");
 						map.put("errorCode", "0001");
 						PushState.state(UserCard, "savings", 200);

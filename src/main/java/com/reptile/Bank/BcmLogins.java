@@ -63,6 +63,7 @@ public class BcmLogins {
 		List<String> list = new ArrayList<String>();
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> data = new HashMap<String, Object>();
+		PushSocket.push(map, UUID, "1000","交通银行信用卡登录中");
 		System.setProperty("webdriver.chrome.driver", "D:/ie/chromedriver.exe");
 		ChromeOptions options = new ChromeOptions();
 		// 设置浏览器大小避免截图错乱
@@ -156,6 +157,7 @@ public class BcmLogins {
 					// map.put("driverid",driverid);
 					// map.put("whetherCode", "yes");
 					logger.warn(UserCard + "此帐号在登录时需要验证码，可能帐号出现异常 需要自行登录 才可认证");
+					PushSocket.push(map, UUID, "3000","交通银行信用卡登陆失败");
 					map.put("whetherCode", "no");
 					map.put("errorCode", "0004");// 认证失败
 					map.put("errorInfo", "帐号认证异常，请你先尝试在官网登录");
@@ -163,41 +165,52 @@ public class BcmLogins {
 					// 不需要发送验证码
 				} else if (driver.getPageSource().contains("查看我的买单吧")) {
 					logger.warn("--------------交通银行信用卡---------------登陆成功----------------身份证号："+UserCard);
-					PushSocket.push(map, UUID, "0000");
+					PushSocket.push(map, UUID, "2000","交通银行信用卡登陆成功");
 					if(isok==true){
 						PushState.state(UserCard, "bankBillFlow", 100);
 					}
-					driver.executeScript(
-							"javascript:gotToLink('/member/member/service/billing/detail.html');",
-							0);
-					WebDriverWait wait = new WebDriverWait(driver, 20);
-					wait.until(ExpectedConditions.presenceOfElementLocated(By
-							.id("bill_date")));
-					for (int i = 0; i < 5; i++) {
-						Select sel = new Select(driver.findElement(By
+					Thread.sleep(2000);
+					PushSocket.push(map, UUID, "5000","交通银行信用卡数据获取中");
+					try {
+						driver.executeScript(
+								"javascript:gotToLink('/member/member/service/billing/detail.html');",
+								0);
+						WebDriverWait wait = new WebDriverWait(driver, 20);
+						wait.until(ExpectedConditions.presenceOfElementLocated(By
 								.id("bill_date")));
-						sel.selectByIndex(i);
-						WebElement elements = driver.findElement(By
-								.xpath("//*[@id='bill_content']/p/a"));
-						elements.click();
-						Thread.sleep(3000);
-						list.add((driver.getPageSource()));
-						WebElement goback = driver.findElement(By
-								.className("goback"));
-						goback.click();
-						wait.until(ExpectedConditions
-								.presenceOfElementLocated(By.id("bill_date")));
+						for (int i = 0; i < 5; i++) {
+							Select sel = new Select(driver.findElement(By
+									.id("bill_date")));
+							sel.selectByIndex(i);
+							WebElement elements = driver.findElement(By
+									.xpath("//*[@id='bill_content']/p/a"));
+							elements.click();
+							Thread.sleep(3000);
+							list.add((driver.getPageSource()));
+							WebElement goback = driver.findElement(By
+									.className("goback"));
+							goback.click();
+							wait.until(ExpectedConditions
+									.presenceOfElementLocated(By.id("bill_date")));
 
+						}
+					}catch (Exception e) {
+						logger.warn("-----------交通信用卡-----------查询失败-----------身份证号："+UserCard, e);
+						PushSocket.push(map, UUID, "7000","交通银行信用卡数据获取失败");
+						map.put("errorCode", "0001");
+						map.put("errorInfo", "网络异常");
 					}
+					
 					logger.warn("--------------交通银行信用卡---------------查询成功----------------身份证号："+UserCard);
 				} else {
 					logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因：账号密码错误");
+					PushSocket.push(map, UUID, "3000","交通银行信用卡登陆失败");
 					map.put("errorCode", "0001");// 认证失败
 					map.put("errorInfo", "账号密码错误");
 					return map;
 				}
+				PushSocket.push(map, UUID, "6000","交通银行信用卡数据获取成功");
 				data.put("html", list);
-
 				data.put("backtype", "BCM");
 				data.put("idcard", UserCard);
 				map.put("data", data);
@@ -205,16 +218,18 @@ public class BcmLogins {
 				// map= resttemplate.SendMessage(map,
 				// "http://192.168.3.16:8089/HSDC/BillFlow/BillFlowByreditCard",UserCard);
 				map = resttemplate.SendMessageX(map, application.sendip
-						+ "/HSDC/BillFlow/BillFlowByreditCard", UserCard);
+						+ "/HSDC/BillFlow/BillFlowByreditCard", UserCard,UUID);
 
 				map.put("whetherCode", "no");
 				return map;
 			} else if(!alertText.isEmpty()){
 				logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因："+alertText);
+				PushSocket.push(map, UUID, "3000","交通银行信用卡登陆失败");
 				map.put("errorCode", "0001");
 				map.put("errorInfo", alertText);
 			} else if(msg.size() != 0){
 				logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因："+msg.get(1).getText());
+				PushSocket.push(map, UUID, "3000","交通银行信用卡登陆失败");
 				map.put("errorCode", "0001");
 				map.put("errorInfo", msg.get(1).getText());
 			}

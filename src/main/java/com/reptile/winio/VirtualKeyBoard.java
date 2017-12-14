@@ -114,6 +114,7 @@ public class VirtualKeyBoard {
 		PushState.state(idcard, "bankBillFlow", 100);
 		Map<String, Object> data = new HashMap<String, Object>();
 		Map<String, Object> map = new HashMap<String, Object>();
+		PushSocket.push(map, UUID, "1000","民生银行登录中");
 		WebDriver driver = null;
 		try {
 			logger.warn("----------------民生信用卡-------------登陆开始-----------------用户名："+number+"密码："+pwd);
@@ -163,16 +164,19 @@ public class VirtualKeyBoard {
 			} else {
 				wait.until(ExpectedConditions.titleContains("中国民生银行个人网银"));
 				if (driver.getTitle().contains("中国民生银行个人网银")) {
-					PushSocket.push(map, UUID, "0000");
+					PushSocket.push(map, UUID, "2000","民生银行登陆成功");
 					if(isok==true){
 						PushState.state(idcard, "bankBillFlow", 100);
 					}
 					logger.warn("----------------民生信用卡-------------登陆成功-----------------用户名："+number);
+					Thread.sleep(2000);
+					PushSocket.push(map, UUID, "5000","民生银行数据获取中");
 					wait.until(ExpectedConditions.presenceOfElementLocated(By
 							.className("v-binding")));
 					List<WebElement> ss = driver.findElements(By
 							.className("v-binding"));
 					ss.get(7).click();
+					Thread.sleep(2000);
 					/*
 					 * wait.until(ExpectedConditions.elementToBeClickable(ss.get(
 					 * 7)));
@@ -225,6 +229,7 @@ public class VirtualKeyBoard {
 											"下载明细"));
 							list.add(driver.getPageSource());
 						} catch (org.openqa.selenium.ElementNotVisibleException e) {
+							PushSocket.push(map, UUID, "7000","民生银行数据获取失败");
 							WebElement we = driver
 									.findElement(By
 											.xpath("//*[@id='transView']/div/div/div/div/div/table[1]/tbody/tr/td/div[8]//*[@id='"
@@ -233,6 +238,7 @@ public class VirtualKeyBoard {
 
 						}
 					}
+					PushSocket.push(map, UUID, "6000","民生银行数据获取成功");
 					logger.warn("-------------list.toString()"+"----------------------");
 					data.put("html", list);
 					data.put("backtype", "CMBC");
@@ -240,9 +246,10 @@ public class VirtualKeyBoard {
 					map.put("data", data);
 					map.put("isok", isok);
 					map = resttemplate.SendMessageX(map, application.sendip
-							+ "/HSDC/BillFlow/BillFlowByreditCard", idcard);
+							+ "/HSDC/BillFlow/BillFlowByreditCard", idcard,UUID);
 
 				} else {
+					PushSocket.push(map, UUID, "3000","民生银行登陆失败");
 					if(isok==true){
 						PushState.state(idcard, "bankBillFlow", 200);
 					}
@@ -252,6 +259,7 @@ public class VirtualKeyBoard {
 			}
 		} catch (NoSuchElementException e) {
 			logger.warn(e + "民生银行出现元素没有找到");
+			PushSocket.push(map, UUID, "7000","民生银行数据获取失败");
 			if(isok==true){
 				PushState.state(idcard, "bankBillFlow", 200);
 			}
@@ -259,6 +267,7 @@ public class VirtualKeyBoard {
 			map.put("errorInfo", "网络错误");
 		} catch (NoSuchFrameException e) {
 			logger.warn(e + "民生银行出现iframe没有找到");
+			PushSocket.push(map, UUID, "7000","民生银行数据获取失败");
 			if(isok==true){
 				PushState.state(idcard, "bankBillFlow", 200);
 			}
@@ -266,6 +275,7 @@ public class VirtualKeyBoard {
 			map.put("errorInfo", "网络错误");
 		} catch (NoSuchWindowException e) {
 			logger.warn(e + "handle没有找到");
+			PushSocket.push(map, UUID, "7000","民生银行数据获取失败");
 			if(isok==true){
 				PushState.state(idcard, "bankBillFlow", 200);
 			}
@@ -273,6 +283,7 @@ public class VirtualKeyBoard {
 			map.put("errorInfo", "网络错误");
 		} catch (NoSuchAttributeException e) {
 			logger.warn(e + "属性错误");
+			PushSocket.push(map, UUID, "7000","民生银行数据获取失败");
 			if(isok==true){
 				PushState.state(idcard, "bankBillFlow", 200);
 			}
@@ -280,6 +291,7 @@ public class VirtualKeyBoard {
 			map.put("errorInfo", "网络错误");
 		} catch (NoAlertPresentException e) {
 			logger.warn(e + "没有找到alert");
+			PushSocket.push(map, UUID, "7000","民生银行数据获取失败");
 			if(isok==true){
 				PushState.state(idcard, "bankBillFlow", 200);
 			}
@@ -287,6 +299,7 @@ public class VirtualKeyBoard {
 			map.put("errorInfo", "网络错误");
 		} catch (TimeoutException e) {
 			logger.warn(e + "超找元素超时");
+			PushSocket.push(map, UUID, "7000","民生银行数据获取失败");
 			if(isok==true){
 				PushState.state(idcard, "bankBillFlow", 200);
 			}
@@ -294,6 +307,7 @@ public class VirtualKeyBoard {
 			map.put("errorInfo", "网络错误");
 		} catch (Exception e) {
 			logger.warn("民生信用卡查询失败", e);
+			PushSocket.push(map, UUID, "7000","民生银行数据获取失败");
 			if(isok==true){
 				PushState.state(idcard, "bankBillFlow", 200);
 			}
@@ -398,6 +412,7 @@ public class VirtualKeyBoard {
 //		
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> data = new HashMap<String, Object>();
+		PushSocket.push(map, UUID, "1000","广发银行信用卡登录中");
 		boolean isok = CountTime.getCountTime(timeCnt);
 		WebDriver driver = null;
 		try {
@@ -424,6 +439,7 @@ public class VirtualKeyBoard {
 			if (imgtext.contains("超时") || imgtext.equals("")) {
 				map.put("errorInfo", "查询失败");
 				map.put("errorCode", "0002");
+				PushSocket.push(map, UUID, "3000","广发银行信用卡登陆失败");
 				if(isok==true){
 					PushState.state(usercard, "bankBillFlow", 200);
 				}
@@ -442,6 +458,7 @@ public class VirtualKeyBoard {
 				}else{
 					map.put("errorInfo", str);
 					map.put("errorCode", "0001");
+					PushSocket.push(map, UUID, "3000","广发银行信用卡登陆失败");
 					if(isok==true){
 						PushState.state(usercard, "bankBillFlow", 200);
 					}
@@ -452,6 +469,7 @@ public class VirtualKeyBoard {
 				String errorMessage = driver.findElement(By.id("errorMessage")).getText();
 				map.put("errorInfo", errorMessage);
 				map.put("errorCode", "0001");
+				PushSocket.push(map, UUID, "3000","广发银行信用卡登陆失败");
 				if(isok==true){
 					PushState.state(usercard, "bankBillFlow", 200);
 				}
@@ -459,11 +477,12 @@ public class VirtualKeyBoard {
 				return map;
 			}else if(DriverUtil.waitByTitle("广发银行个人网上银行", driver, 15)){
 				logger.warn("--------广发银行登陆------------成功-----------用户名："+ number+"-----------");
-				PushSocket.push(map, UUID, "0000");
+				PushSocket.push(map, UUID, "2000","广发银行信用卡登陆成功");
 				if(isok==true){
 					PushState.state(usercard, "bankBillFlow", 100);
 				}
 				Thread.sleep(8000);
+				PushSocket.push(map, UUID, "5000","广发银行信用卡数据获取中");
 				String jsv = "var aaa=document.getElementsByClassName('node');aaa[15].click();";
 				jss.executeScript(jsv, "");
 				
@@ -527,6 +546,7 @@ public class VirtualKeyBoard {
 						
 					}
 				}
+				PushSocket.push(map, UUID, "6000","广发银行信用卡数据获取成功");
 				logger.warn("--------广发银行登陆------------账单查询：结束");
 				data.put("html", listinfo);
 				data.put("backtype", "GDB");
@@ -535,7 +555,7 @@ public class VirtualKeyBoard {
 				map.put("isok", isok);
 				Resttemplate ct = new Resttemplate();
 				map = ct.SendMessageX(map, application.sendip
-						+ "/HSDC/BillFlow/BillFlowByreditCard", usercard);
+						+ "/HSDC/BillFlow/BillFlowByreditCard", usercard,UUID);
 				driver.switchTo().window(head);
 				}
 			
@@ -543,6 +563,7 @@ public class VirtualKeyBoard {
 			logger.warn("-----------广发银行查询失败----------",e);
 			map.put("errorInfo", "网络异常,请重试！！");
 			map.put("errorCode", "0001");
+			PushSocket.push(map, UUID, "7000","广发银行信用卡数据获取失败");
 			if(isok==true){
 				PushState.state(usercard, "bankBillFlow", 200);
 			}

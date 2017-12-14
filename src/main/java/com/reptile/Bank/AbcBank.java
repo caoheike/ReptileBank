@@ -46,6 +46,8 @@ public class AbcBank {
 				String userpwd, String UUID, String card){
 			logger.warn("-----------农业储蓄卡-----------登陆开始----------身份证号："+card);
 			Map<String, Object> status = new HashMap<String, Object>();
+			PushSocket.push(status, UUID, "1000","农业储蓄卡登录中");
+
 			WebDriver driver = null;
 			try{
 				Map<String, Object> params = new HashMap<String, Object>();
@@ -80,15 +82,17 @@ public class AbcBank {
 						text = driver.findElement(By.className("logon-error")).getAttribute("title");
 					}
 					PushState.state(card, "savings", 200);
+					PushSocket.push(status, UUID, "2000","农业储蓄卡登陆失败");
 					status.put("errorCode", "0001");// 异常处理	
 					status.put("errorInfo", text);
 				}else if(DriverUtil.waitByTitle("中国农业银行个人网银首页", driver, 10)){
 					logger.warn("-----------农业储蓄卡-----------登陆成功----------身份证号："+card);
 					/* 登陆成功 */
 					PushState.state(card, "savings", 100);
-					PushSocket.push(status, UUID, "0000");// 开始执行推送登陆成功
-		
+					PushSocket.push(status, UUID, "2000","农业储蓄卡登陆成功");// 开始执行推送登陆成功
+					Thread.sleep(2000);
 					driver.switchTo().frame("contentFrame");
+					PushSocket.push(status, UUID, "5000","农业储蓄卡数据获取中");
 					/* 拿到姓名 */
 					WebElement custName = driver
 							.findElement(By.id("show-custName"));
@@ -177,19 +181,24 @@ public class AbcBank {
 						params.put("IDNumber", card);/* 身份证 */
 						params.put("cardNumber", sp[1]);/* 用户卡号 */
 						params.put("userName", cusname);/* 用户姓名 */
+						PushSocket.push(status, UUID, "6000","农业银行储蓄卡数据获取成功");
+
 //						Resttemplate resttemplate = new Resttemplate();
 //						status = resttemplate.SendMessage(params, application.sendip+ "/HSDC/savings/authentication", card);
 						status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");  //推送数据
 	    			    if(status!= null && "0000".equals(status.get("errorCode").toString())){
 	    		           	 PushState.state(card, "savings", 300);
+	    		           	PushSocket.push(status, UUID, "8000","认证成功");
 	    		           	status.put("errorInfo","推送成功");
 	    		           	status.put("errorCode","0000");
     		           }else{
 	    		           	 PushState.state(card, "savings", 200);
+	    		           	PushSocket.push(status, UUID, "9000","认证失败");
 	    		           	status.put("errorCode",status.get("errorCode"));//异常处理
 	    		           	status.put("errorInfo",status.get("errorInfo"));
     		           }
 					}else{
+						PushSocket.push(status, UUID, "7000","农业银行储蓄卡数据获取失败");
 						throw new Exception();
 					}
 				

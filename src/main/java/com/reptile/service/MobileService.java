@@ -49,8 +49,9 @@ public class MobileService {
 			public Map<String, Object> Queryinfo(HttpSession session,HttpServletResponse response,String codes,String sessid,String ClientNos,String idCard,String UUID,String timeCnt)
 					throws FailingHttpStatusCodeException, MalformedURLException, IOException, InterruptedException, java.text.ParseException {
 				Map<String,Object>maps=new HashMap();
+				Map<String,Object> map=new HashMap<String, Object>();//请求头
 				boolean isok = CountTime.getCountTime(timeCnt);
-				PushSocket.push(maps, UUID, "0000");
+				PushSocket.push(map, UUID, "1000","招商银行信用卡登录中");
 				if(isok==true){
 					PushState.state(idCard,"bankBillFlow", 100);
 				}
@@ -61,7 +62,7 @@ public class MobileService {
 		    Map<String,Object> paramend=new HashMap<String, Object>();//参数
 		    Map<String,Object> parmcode=new HashMap<String, Object>();//参数
 		    Map<String,String> headers=new HashMap<String, String>();//请求头
-		    Map<String,Object> map=new HashMap<String, Object>();//请求头
+		    
 		    Map<String,Object> data=new HashMap<String, Object>();//请求头
 		    String zhangdan="";
 		    boolean codeflg=true;
@@ -70,9 +71,11 @@ public class MobileService {
 		    
 		    
 			 if(codes.equals("0")){
-			 PushSocket.push(map, UUID, "0000");
+				 PushSocket.push(map, UUID, "2000","招商银行信用卡登陆成功");
 				 //不需要验证码的处理
 				 	System.out.println("直接授权登陆");
+				 	Thread.sleep(1000);
+				 	PushSocket.push(map, UUID, "5000","数据获取中");
 			    	params.put("AuthName","<AuthName>CBANK_CREDITCARD_LOAN</AuthName>" );
 			    	params.put("ClientNo",ClientNos);
 			    	
@@ -109,6 +112,7 @@ public class MobileService {
 					       	paramend.put("O_STMT_FLAG","Y");
 					       	String endinfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningListNew.aspx", paramend, headers);//开始发包
 					    	if(endinfo.contains("账单数据正在更新中")){
+					    		PushSocket.push(map, UUID, "7000","招商信用卡数据获取失败");
 					    		map.put("errorCode","0000");
 				    			map.put("errorInfo","认证成功");
 					    		return map;
@@ -125,6 +129,7 @@ public class MobileService {
 					       	paramend.put("O_STMT_FLAG","Y");
 					       	String endinfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningListNew.aspx", paramend, headers);//开始发包
 					    	if(endinfo.contains("账单数据正在更新中")){
+					    		PushSocket.push(map, UUID, "7000","招商信用卡数据获取失败");
 					    		map.put("errorCode","0000");
 				    			map.put("errorInfo","认证成功");
 					    		return map;
@@ -150,10 +155,12 @@ public class MobileService {
 			    	parmcode.put("SendCode",codes.replace("0,", ""));
 			    	String seninfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/GenLoginVerifyM2.aspx", parmcode, headers);
 			    	if(seninfo.contains("code>00</code>")){
-			   		 PushSocket.push(map, UUID, "0000");
+			    		PushSocket.push(map, UUID, "2000","招商信用卡登录成功");
 			    		System.out.println("成功登陆");
-			    				
+			    		Thread.sleep(1000);
 			    		System.out.println("继续发包请求");
+			    		PushSocket.push(map, UUID, "5000","招商信用卡数据获取中");
+
 				    	params.put("AuthName","<AuthName>CBANK_CREDITCARD_LOAN</AuthName>" );
 				    	params.put("ClientNo",ClientNos);
 				    	
@@ -163,11 +170,13 @@ public class MobileService {
 				    	try {
 				    		toke =rest1.substring(rest1.indexOf("<AuthToken>"), rest1.indexOf("</AuthResponseBody>"));
 				    	  	if(toke.contains("当前用户不允许使用该业务")){
+				    	  		PushSocket.push(map, UUID, "7000","招商信用卡数据获取失败");
 				    	  		map.put("errorCode","0001");
 				    			map.put("errorInfo","当前用户不允许使用该业务");
 					    		return map;
 					    	}
 						} catch (java.lang.StringIndexOutOfBoundsException e) {
+							PushSocket.push(map, UUID, "7000","招商信用卡数据获取失败");
 							map.put("errorCode","0001");
 			    			map.put("errorInfo","当前用户不允许使用该业务");
 				    		return map;
@@ -220,6 +229,7 @@ public class MobileService {
 					    		lists.add(endinfo);
 					    	}
 					    	if(list.size()<=0){
+					    		PushSocket.push(map, UUID, "7000","招商信用卡数据获取失败");
 					    		map.put("errorCode","0001");
 				    			map.put("errorInfo","暂无账单");
 					    		return map;
@@ -235,6 +245,7 @@ public class MobileService {
 						       	paramend.put("O_STMT_FLAG","Y");
 						       	String endinfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningListNew.aspx", paramend, headers);//开始发包
 						    	if(endinfo.contains("账单数据正在更新中")){
+						    		PushSocket.push(map, UUID, "7000","招商信用卡数据获取失败");
 						    		map.put("errorCode","0000");
 					    			map.put("errorInfo","认证成功");
 						    		return map;
@@ -260,6 +271,7 @@ public class MobileService {
 				 
 			 }
 			 if(codeflg==true){
+				 PushSocket.push(map, UUID, "6000","招商信用卡数据获取成功");
 //				 map=resttemplate.SendMessage(map,"http://113.200.105.37:8080/HSDC/BillFlow/BillFlowByreditCard"); 
 				 map=resttemplate.SendMessage(map,application.sendip+"/HSDC/BillFlow/BillFlowByreditCard"); 
 //				 map=resttemplate.SendMessage(map,"http://192.168.3.4:8081/HSDC/BillFlow/BillFlowByreditCard"); 
@@ -267,6 +279,7 @@ public class MobileService {
 					 if(isok==true){
 				    	PushState.state(idCard, "bankBillFlow",300);
 					 }
+					 PushSocket.push(map, UUID, "8000","认证成功");
 				    	//开始获取正确信息
 				    	
 //				    	paramend.put("CreditCardVersion","2.0");
@@ -279,6 +292,7 @@ public class MobileService {
 		        	if(isok==true){
 		            	PushState.state(idCard, "bankBillFlow",200);
 		        	}
+		        	PushSocket.push(map, UUID, "9000","认证失败");
 		            	//---------------------数据中心推送状态----------------------
 		                map.put("errorInfo","查询失败");
 		                map.put("errorCode","0001");
@@ -287,6 +301,7 @@ public class MobileService {
 				 	if(isok==true){
 		            	PushState.state(idCard, "bankBillFlow",200);
 		        	}
+				 	PushSocket.push(map, UUID, "3000","招商信用卡登陆失败");
 					map.put("errorCode","0001");
 	    			map.put("errorInfo","验证码错误");
 			 }
@@ -323,21 +338,23 @@ public class MobileService {
 		  * 储蓄卡查询
 		 * @throws IOException 
 		 * @throws ParseException 
+		 * @throws InterruptedException 
 		  */
 		 
-		 public Map<String,Object> CmbQueryInfo(String code,String sessid,String num,String idcard,HttpServletRequest re,String UUID,String Sendcode) throws ParseException, IOException{
+		 public Map<String,Object> CmbQueryInfo(String code,String sessid,String num,String idcard,HttpServletRequest re,String UUID,String Sendcode) throws ParseException, IOException, InterruptedException{
 				SimpleHttpClient httclien=new SimpleHttpClient();
 				Map<String,Object> params=new HashMap<String, Object>();
 				Map<String,String> headers=new HashMap<String, String>();
 				Map<String,Object> parmcode=new HashMap<String, Object>();
 				Map<String,Object> data1=new HashMap<String, Object>();
 				Map<String,String> head1=new HashMap<String, String>();
-				  Map status=new HashMap();
-			 HttpSession session=re.getSession();
-			String cookieid= session.getAttribute(sessid).toString();
-			parmcode.put("ClientNo", num);
-	    	parmcode.put("PRID", "VerifyMSGCode");
-	    	parmcode.put("SendCode",code);
+				Map status=new HashMap();
+				PushSocket.push(params, UUID, "1000","招商储蓄卡登录中");
+				HttpSession session=re.getSession();
+				String cookieid= session.getAttribute(sessid).toString();
+				parmcode.put("ClientNo", num);
+				parmcode.put("PRID", "VerifyMSGCode");
+				parmcode.put("SendCode",code);
 	    	//是否需要验证码
 
 	    	if(!Sendcode.equals("0")){
@@ -346,8 +363,132 @@ public class MobileService {
 		    	if(seninfo.contains("code>00</code>")){
 		    	 
 		    		System.out.println("成功登陆");
-		    		PushSocket.push(status, UUID, "0000");
+		    		PushSocket.push(params, UUID, "2000","招商储蓄卡登陆成功");
+		    		try {
+		    			System.out.println("继续发包请求");
+			    		Thread.sleep(2000);
+			    		PushSocket.push(params, UUID, "5000","招商储蓄卡数据获取中");
+				    	params.put("AuthName","<AuthName>CBANK_DEBITCARD_ACCOUNTMANAGER</AuthName>" );
+				    	params.put("ClientNo",num);
+				        String rest1=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/ApplyToken.aspx", params, headers);//开始发包
+				    	String toke =rest1.substring(rest1.indexOf("<AuthToken>"), rest1.indexOf("</AuthResponseBody>"));	
+				       	System.out.println(toke);
+				       	params.put("AuthToken",toke);
+				       	String rest2=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_DebitCard_AccountManager/UI/DebitCard/Login/Login.aspx", params, headers);//开始发包
+				       	String num1=rest2.substring(rest2.indexOf("<ClientNo>"), rest2.indexOf("</ClientNo>")).replace("<ClientNo>", "");
+				       	data1.put("ClientNo",num1);//开始获取有用信息了
+				       	head1.put("Request-Line", "POST /CmbBank_DebitCard_AccountManager/UI/DebitCard/AccountQuery/am_QueryHistoryTrans.aspx HTTP/1.1");
+				       	head1.put("Accept", "text/html, application/xhtml+xml, */*");
+				       	head1.put("Accept-Encoding", "gzip, deflate");
+				       	head1.put("Accept-Language", "zh-CN");
+				       	head1.put("Cache-Control", "no-cache");
+				       	head1.put("Connection", "Keep-Alive");
+				       	head1.put("Cookie",cookieid.toString().replaceAll("path=/,", "").replaceAll("path=/","").replace("; ;", ";"));
+				       	head1.put("Content-Type", "application/x-www-form-urlencoded");
+				       	head1.put("Host", "pbsz.ebank.cmbchina.com");
+				       	head1.put("Referer", "https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/GenIndex.aspx");
+				       	head1.put("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)");
+				
+				        String loginstr=	httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_DebitCard_AccountManager/UI/DebitCard/AccountQuery/am_QueryHistoryTrans.aspx", data1, head1);
+			
+				        System.out.println(loginstr+num1+"-----");
+				        
+				        
+				        
+				        Document doc = Jsoup.parse(loginstr);    
+			            Element linksElements = doc.getElementById("__EVENTVALIDATION");
+			            Element VIEWSTATE = doc.getElementById("__VIEWSTATE");
+			            Element VIEWSTATEGENERATOR = doc.getElementById("__VIEWSTATEGENERATOR");
+			            Element ddlDebitCardLists = doc.getElementById("ddlDebitCardList");
+			            
+			            String EVENTVALIDATION=linksElements.val();
+			            String VIEWSTATES=VIEWSTATE.val();
+			            String VIEWSTATEGENERATORS=VIEWSTATEGENERATOR.val();
+			            String ssid=ddlDebitCardLists.getElementsByTag("option").val();
+			            params.clear();
+			            params.put("__EVENTVALIDATION", EVENTVALIDATION);
+			            params.put("__VIEWSTATE",VIEWSTATES);
+			            params.put("__VIEWSTATEGENERATORS",VIEWSTATEGENERATORS);
+			            List<Map> lists=yuefen();
+			            params.put("BeginDate",lists.get(0).get("begin"));
+			            params.put("EndDate",lists.get(5).get("end"));
+			            params.put("BeginDate","20171101");
+			            params.put("EndDate","20171109");
+			            params.put("BtnOK","查 询");
+			            params.put("ClientNo",num1);
+			            params.put("ddlDebitCardList",ssid);
+			            String loginstr1=	httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_DebitCard_AccountManager/UI/DebitCard/AccountQuery/am_QueryHistoryTrans.aspx", params, headers);
+			            System.out.println(loginstr1+"流水信息");
+			            
+				        Document docs = Jsoup.parse(loginstr1);   
+				 	   Element trs = docs.getElementById("dgHistoryTransRecSet");
+				 	   System.out.println(trs.html());
+					   Elements tr=trs.select("tr");
+					
+			    	  List list=new ArrayList();
+					   for (int i = 1; i < tr.size(); i++) {
+						   Map<String,Object>map=new HashMap<String, Object>();
+						   System.out.println("开始");
+						   Elements td=tr.get(i).select("td");
+						   for (int j = 0; j < td.size(); j++) {
+							
+							   if(j==0){
+								   map.put("dealTime", td.get(j).text());//交易时间
+							   }
+							   if(j==2){
+								   map.put("dealAmount", td.get(j).text());//交易金额
+							   }
+							   if(j==5){
+								   map.put("dealDitch", td.get(j).text());//交易渠道
+							   }
+							   if(j==4){
+								   map.put("balanceAmount", td.get(j).text());//余额
+							   }
+							   if(j==6){
+								   map.put("dealReferral", td.get(j).text());//业务摘要
+							   }
+							   
+							
+						   }
+						   map.put("oppositeSideName", "");
+						   map.put("oppositeSideNumber", "");
+						   map.put("currency", "");
+						   list.add(map);					   
+					   }
+					   
+					   params.clear();
+					   headers.clear();
+					   headers.put("accountType","");
+					   headers.put("openBranch","");
+					   headers.put("openTime","");
+
+					    params.put("billMes", list);
+					    params.put("baseMes", headers);
+					    params.put("IDNumber", "");
+					    params.put("cardNumber", num);
+					    params.put("userName", "");
+					    System.out.println(JSONObject.fromObject(params));
+					    PushSocket.push(params, UUID, "6000","招商储蓄卡数据获取成功");
+						Resttemplate resttemplate=new Resttemplate();
+						status=	resttemplate.SendMessage(JSONObject.fromObject(params), application.sendip+"/HSDC/savings/authentication",idcard,UUID);
+						System.out.println(status);
+		    		}catch(Exception e) {
+		    			params.put("errorInfo", "网络异常,请重试！！");
+		    			params.put("errorCode", "0001");
+		    			PushSocket.push(params, UUID, "7000","招商储蓄卡数据获取失败");
+		    		}
+				 }else {
+					 params.put("errorInfo", "查询失败");
+					 params.put("errorCode", "0002");
+					 PushSocket.push(params, UUID, "3000","招商储蓄卡登陆失败");
+				 }
+	    	}else{
+	    		try {
+	    			System.out.println("成功登陆");
+		    		PushSocket.push(status, UUID, "2000","招商储蓄卡登陆成功");
 		    		System.out.println("继续发包请求");
+		    		Thread.sleep(2000);
+		    		PushSocket.push(params, UUID, "5000","招商储蓄卡数据获取中");
 			    	params.put("AuthName","<AuthName>CBANK_DEBITCARD_ACCOUNTMANAGER</AuthName>" );
 			    	params.put("ClientNo",num);
 			        String rest1=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/ApplyToken.aspx", params, headers);//开始发包
@@ -445,128 +586,20 @@ public class MobileService {
 
 				    params.put("billMes", list);
 				    params.put("baseMes", headers);
-				    params.put("IDNumber", "123");
+				    params.put("IDNumber", "");
 				    params.put("cardNumber", num);
-				    params.put("userName", "张三");
+				    params.put("userName", "");
 				  System.out.println(JSONObject.fromObject(params));
-			
+				  PushSocket.push(params, UUID, "6000","招商储蓄卡数据获取成功");
 					Resttemplate resttemplate=new Resttemplate();
-					status=	resttemplate.SendMessage(JSONObject.fromObject(params), application.sendip+"/HSDC/savings/authentication",idcard);
+					status=	resttemplate.SendMessage(JSONObject.fromObject(params), application.sendip+"/HSDC/savings/authentication",session.getAttribute("UserCard").toString(),UUID);
 					System.out.println(status);
-				 
-		
-
-			 }
-	    	}else{
+	    		}catch(Exception e) {
+	    			params.put("errorInfo", "网络异常,请重试！！");
+	    			params.put("errorCode", "0001");
+	    			PushSocket.push(params, UUID, "7000","招商储蓄卡数据获取失败");
+	    		}
 	    		
-	    		System.out.println("成功登陆");
-	    		PushSocket.push(status, UUID, "0000");
-	    		System.out.println("继续发包请求");
-		    	params.put("AuthName","<AuthName>CBANK_DEBITCARD_ACCOUNTMANAGER</AuthName>" );
-		    	params.put("ClientNo",num);
-		        String rest1=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/ApplyToken.aspx", params, headers);//开始发包
-		    	String toke =rest1.substring(rest1.indexOf("<AuthToken>"), rest1.indexOf("</AuthResponseBody>"));	
-		       	System.out.println(toke);
-		       	params.put("AuthToken",toke);
-		       	String rest2=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_DebitCard_AccountManager/UI/DebitCard/Login/Login.aspx", params, headers);//开始发包
-		       	String num1=rest2.substring(rest2.indexOf("<ClientNo>"), rest2.indexOf("</ClientNo>")).replace("<ClientNo>", "");
-		       	data1.put("ClientNo",num1);//开始获取有用信息了
-		       	head1.put("Request-Line", "POST /CmbBank_DebitCard_AccountManager/UI/DebitCard/AccountQuery/am_QueryHistoryTrans.aspx HTTP/1.1");
-		       	head1.put("Accept", "text/html, application/xhtml+xml, */*");
-		       	head1.put("Accept-Encoding", "gzip, deflate");
-		       	head1.put("Accept-Language", "zh-CN");
-		       	head1.put("Cache-Control", "no-cache");
-		       	head1.put("Connection", "Keep-Alive");
-		       	head1.put("Cookie",cookieid.toString().replaceAll("path=/,", "").replaceAll("path=/","").replace("; ;", ";"));
-		       	head1.put("Content-Type", "application/x-www-form-urlencoded");
-		       	head1.put("Host", "pbsz.ebank.cmbchina.com");
-		       	head1.put("Referer", "https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/GenIndex.aspx");
-		       	head1.put("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0)");
-		
-		        String loginstr=	httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_DebitCard_AccountManager/UI/DebitCard/AccountQuery/am_QueryHistoryTrans.aspx", data1, head1);
-	
-		        System.out.println(loginstr+num1+"-----");
-		        
-		        
-		        
-		        Document doc = Jsoup.parse(loginstr);    
-	            Element linksElements = doc.getElementById("__EVENTVALIDATION");
-	            Element VIEWSTATE = doc.getElementById("__VIEWSTATE");
-	            Element VIEWSTATEGENERATOR = doc.getElementById("__VIEWSTATEGENERATOR");
-	            Element ddlDebitCardLists = doc.getElementById("ddlDebitCardList");
-	            
-	            String EVENTVALIDATION=linksElements.val();
-	            String VIEWSTATES=VIEWSTATE.val();
-	            String VIEWSTATEGENERATORS=VIEWSTATEGENERATOR.val();
-	            String ssid=ddlDebitCardLists.getElementsByTag("option").val();
-	            params.clear();
-	            params.put("__EVENTVALIDATION", EVENTVALIDATION);
-	            params.put("__VIEWSTATE",VIEWSTATES);
-	            params.put("__VIEWSTATEGENERATORS",VIEWSTATEGENERATORS);
-	            List<Map> lists=yuefen();
-	            params.put("BeginDate",lists.get(0).get("begin"));
-	            params.put("EndDate",lists.get(5).get("end"));
-	            params.put("BeginDate","20171101");
-	            params.put("EndDate","20171109");
-	            params.put("BtnOK","查 询");
-	            params.put("ClientNo",num1);
-	            params.put("ddlDebitCardList",ssid);
-	            String loginstr1=	httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_DebitCard_AccountManager/UI/DebitCard/AccountQuery/am_QueryHistoryTrans.aspx", params, headers);
-	            System.out.println(loginstr1+"流水信息");
-	            
-		        Document docs = Jsoup.parse(loginstr1);   
-		 	   Element trs = docs.getElementById("dgHistoryTransRecSet");
-		 	   System.out.println(trs.html());
-			   Elements tr=trs.select("tr");
-			
-	    	  List list=new ArrayList();
-			   for (int i = 1; i < tr.size(); i++) {
-				   Map<String,Object>map=new HashMap<String, Object>();
-				   System.out.println("开始");
-				   Elements td=tr.get(i).select("td");
-				   for (int j = 0; j < td.size(); j++) {
-					
-					   if(j==0){
-						   map.put("dealTime", td.get(j).text());//交易时间
-					   }
-					   if(j==2){
-						   map.put("dealAmount", td.get(j).text());//交易金额
-					   }
-					   if(j==5){
-						   map.put("dealDitch", td.get(j).text());//交易渠道
-					   }
-					   if(j==4){
-						   map.put("balanceAmount", td.get(j).text());//余额
-					   }
-					   if(j==6){
-						   map.put("dealReferral", td.get(j).text());//业务摘要
-					   }
-					   
-					
-				}
-				   map.put("oppositeSideName", "");
-				   map.put("oppositeSideNumber", "");
-				   map.put("currency", "");
-				   list.add(map);
-				   
-			}
-			   
-			   params.clear();
-			   headers.clear();
-			   headers.put("accountType","");
-			   headers.put("openBranch","");
-			   headers.put("openTime","");
-
-			    params.put("billMes", list);
-			    params.put("baseMes", headers);
-			    params.put("IDNumber", "123");
-			    params.put("cardNumber", num);
-			    params.put("userName", "张三");
-			  System.out.println(JSONObject.fromObject(params));
-		
-				Resttemplate resttemplate=new Resttemplate();
-				status=	resttemplate.SendMessage(JSONObject.fromObject(params), application.sendip+"/HSDC/savings/authentication",session.getAttribute("UserCard").toString());
-				System.out.println(status);
 	    	}
 	    	
 			 return status;

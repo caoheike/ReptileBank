@@ -104,7 +104,7 @@ public class InterfaceController {
 	}
 
 	/**
-	 * 储蓄卡查询
+	 * 招商储蓄卡查询
 	 * 
 	 * @param request
 	 * @param response

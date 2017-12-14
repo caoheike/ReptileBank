@@ -19,4 +19,9 @@ public class CountTime {
 		}
 		
 	}
+	public static String currentTime(){
+		SimpleDateFormat format = new SimpleDateFormat("yyyy年MM月dd日  hh:mm:ss");
+	    String mon = format.format(new Date());
+		return mon;
+	}
 }

@@ -22,22 +22,23 @@ public class PushSocket {
 	 * @param errorInfo
 	 */
 	public static Map<String, Object> push(Map<String, Object> map,
-			String UUID, String errorInfo) {
+			String UUID,String resultCode,String errorInfor) {
 		Map<String, Object> mapData = new HashMap<String, Object>();
 		Session se = TalkframeController.getWsUserMap().get(UUID);
 		String seq_id = TalkframeController.getWsInfoMap().get(UUID);
 		logger.warn("----------------长连接推送开始------se：" + se + "-----seq_id:"
 				+ seq_id);
+		String date=CountTime.currentTime();
 		try {
 			if (se != null && seq_id != null) {
 				if (seq_id.equals("hello")) {
 					se.getBasicRemote().sendText(
-							"{\"resultCode\":\"" + errorInfo
-									+ "\",\"seq_id\":\"" + seq_id + "\"}");
+							"{\"resultCode\":\"" + resultCode
+									+ "\",\"seq_id\":\"" + seq_id + "\",\"errorInfor\":\""+errorInfor+"\",\"date\":\""+date+"\"}");
 				} else {
 					se.getBasicRemote().sendText(
-							"{\"resultCode\":" + errorInfo + ",\"seq_id\":"
-									+ seq_id + "}");
+							"{\"resultCode\":" + resultCode + ",\"seq_id\":"
+									+ seq_id +",\"errorInfor\":\""+errorInfor+"\",\"date\":\""+date+ "}");
 				}
 
 			}

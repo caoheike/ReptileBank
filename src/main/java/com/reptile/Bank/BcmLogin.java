@@ -57,6 +57,7 @@ public class BcmLogin {
 	public static Map<String, Object> BcmLogins(String UserName,
 			String UserPwd, String UUID,String userCard) throws Exception {
 		Map<String, Object> status = new HashMap<String, Object>();
+		PushSocket.push(status, UUID, "1000","交通储蓄卡登录中");
 		WebDriver driver = null;
 		try {
 			logger.warn("-----------交通储蓄卡-----------登陆开始----------身份证号："+userCard);
@@ -96,114 +97,126 @@ public class BcmLogin {
 							.equals("")) {
 				status = BcmLogin.BcmLogins(UserName, UserPwd, UUID,userCard);
 			} else if (flgs == true) {
+				PushSocket.push(status, UUID, "3000","交通储蓄卡登录失败");
 				logger.warn("-----------交通储蓄卡-----------登陆失败----------身份证号："+userCard);
 				status.put( "errorInfo", "账号密码错误" );
 				status.put( "errorCode", "0001" );
 			} else {
-				logger.warn("-----------交通储蓄卡-----------登陆成功----------身份证号："+userCard);
-				PushSocket.push(status, UUID, "0000");
-				PushState.state(userCard, "savings", 100);
-				boolean flg = ElementExist(driver, By.id("btnConf1"));
-				/* 判断是否有登陆确认信息 */
-				if (flg == true) {
-					WebElement btnConf1 = driver.findElement(By.id("btnConf1"));
-					btnConf1.click();
-				}
+				try {
+					logger.warn("-----------交通储蓄卡-----------登陆成功----------身份证号："+userCard);
+					PushSocket.push(status, UUID, "2000","交通储蓄卡登陆成功");
+					PushState.state(userCard, "savings", 100);
+					boolean flg = ElementExist(driver, By.id("btnConf1"));
+					/* 判断是否有登陆确认信息 */
+					if (flg == true) {
+						WebElement btnConf1 = driver.findElement(By.id("btnConf1"));
+						btnConf1.click();
+					}
 
-				/* 执行JS去点击账单查询 */
-				String zd = "Util.changeMenu('P001000');";
+					/* 执行JS去点击账单查询 */
+					String zd = "Util.changeMenu('P001000');";
 
-				js.executeScript(zd, "");
-//				driver.switchTo().frame("frameMain");
-//				driver.switchTo().frame("tranArea");
-//				WebElement mx1 = driver.findElement(By.linkText("账户查询"));
-//				Thread.sleep(2000);
-				/* 切入ifrmae */
-				driver.switchTo().frame("frameMain");
-				driver.switchTo().frame("tranArea");
+					js.executeScript(zd, "");
+//					driver.switchTo().frame("frameMain");
+//					driver.switchTo().frame("tranArea");
+//					WebElement mx1 = driver.findElement(By.linkText("账户查询"));
+//					Thread.sleep(2000);
+					/* 切入ifrmae */
+					driver.switchTo().frame("frameMain");
+					driver.switchTo().frame("tranArea");
+					PushSocket.push(status, UUID, "5000","交通储蓄卡数据获取中");
+					List<Map<String, Object>> lists = yuefen();
+					/* //点击明细 */
+					WebElement mx = driver.findElement(By.linkText("明细"));
+					mx.click();
+					js.executeScript(
+							"$('#startDate_show').val('"
+									+ lists.get(0).get("begin").toString()
+									+ "');$('#endDate_show').val('"
+									+ lists.get(5).get("end").toString()
+									+ "');$('#btnQry2').click()", "");
+					/* 开始解析 */
+					Document docs = Jsoup.parse(driver.getPageSource());
+					Elements trs = docs.getElementsByClass("form-table");
+					Elements tr = trs.select("tr");
+					List<Object> list = new ArrayList<Object>();
+					for (int i = 1; i < tr.size(); i++) {
+						Map<String, Object> map = new HashMap<String, Object>();
 
-				List<Map<String, Object>> lists = yuefen();
-				/* //点击明细 */
-				WebElement mx = driver.findElement(By.linkText("明细"));
-				mx.click();
-				js.executeScript(
-						"$('#startDate_show').val('"
-								+ lists.get(0).get("begin").toString()
-								+ "');$('#endDate_show').val('"
-								+ lists.get(5).get("end").toString()
-								+ "');$('#btnQry2').click()", "");
-				/* 开始解析 */
-				Document docs = Jsoup.parse(driver.getPageSource());
-				Elements trs = docs.getElementsByClass("form-table");
-				Elements tr = trs.select("tr");
-				List<Object> list = new ArrayList<Object>();
-				for (int i = 1; i < tr.size(); i++) {
-					Map<String, Object> map = new HashMap<String, Object>();
+						Elements td = tr.get(i).select("td");
+						for (int j = 0; j < td.size(); j++) {
+							if (j == 0) {
+								/* 交易时间 */
+								if (td.get(j).text().equals("查询")) {
+								} else if (td.get(j).text().contains("保存文件格式")) {
+								} else {
+									map.put("dealTime", td.get(j).text());
+								}
+							}
+							if (j == 1) {
+								/* 交易方式 */
+								map.put("dealReferral", td.get(j).text()); /* 业务摘要 */
+							}
+							if (j == 2) {
+								/* 交易币种 */
+								map.put("currency", td.get(j).text()); /* 业务摘要 */
+							}
+							if (j == 3) {
+								map.put("dealAmount", td.get(j).text()); /* 交易金额 */
+								/* 支出金额 */
+							}
+							if (j == 4) {
+								/* 收入金额 */
+							}
+							if (j == 5) {
+								/* 收入余额 */
+								map.put("balanceAmount", td.get(j).text()); /* 余额 */
+							}
 
-					Elements td = tr.get(i).select("td");
-					for (int j = 0; j < td.size(); j++) {
-						if (j == 0) {
-							/* 交易时间 */
-							if (td.get(j).text().equals("查询")) {
-							} else if (td.get(j).text().contains("保存文件格式")) {
-							} else {
-								map.put("dealTime", td.get(j).text());
+							if (j == 6) {
+								/* 交易地点 */
+								map.put("dealDitch", td.get(j).text()); /* 交易渠道 */
 							}
 						}
-						if (j == 1) {
-							/* 交易方式 */
-							map.put("dealReferral", td.get(j).text()); /* 业务摘要 */
-						}
-						if (j == 2) {
-							/* 交易币种 */
-							map.put("currency", td.get(j).text()); /* 业务摘要 */
-						}
-						if (j == 3) {
-							map.put("dealAmount", td.get(j).text()); /* 交易金额 */
-							/* 支出金额 */
-						}
-						if (j == 4) {
-							/* 收入金额 */
-						}
-						if (j == 5) {
-							/* 收入余额 */
-							map.put("balanceAmount", td.get(j).text()); /* 余额 */
-						}
-
-						if (j == 6) {
-							/* 交易地点 */
-							map.put("dealDitch", td.get(j).text()); /* 交易渠道 */
-						}
+						map.put("oppositeSideName", "");
+						map.put("oppositeSideNumber", "");
+						map.put("currency", "");
+						list.add(map);
 					}
-					map.put("oppositeSideName", "");
-					map.put("oppositeSideNumber", "");
-					map.put("currency", "");
-					list.add(map);
+					
+					params.clear();
+					headers.clear();
+					headers.put("accountType", "");
+					headers.put("openBranch", "");
+					headers.put("openTime", "");
+
+					params.put("billMes", list);
+					params.put("baseMes", headers);
+					params.put("bankName", "中国交通银行");
+					params.put("IDNumber", userCard);
+					params.put("cardNumber", UserName);
+					params.put("userName", "");
+					status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");  //推送数据
+				    if(status!= null && "0000".equals(status.get("errorCode").toString())){
+			           	PushState.state(userCard, "savings", 300);
+			           	PushSocket.push(status, UUID, "8000","交通储蓄卡认证成功");
+			           	status.put("errorInfo","推送成功");
+			           	status.put("errorCode","0000");
+		           }else{
+			           	 PushState.state(userCard, "savings", 200);
+			           	PushSocket.push(status, UUID, "9000","交通储蓄卡认证失败");
+			           	status.put("errorCode",status.get("errorCode"));//异常处理
+			           	status.put("errorInfo",status.get("errorInfo"));
+		           }
+				}catch (Exception e) {
+					logger.warn("-----------交通银行查询失败-------------", e);
+					PushSocket.push(status, UUID, "7000","交通储蓄卡数据获取失败");
+					status.put("errorCode", "0002");// 异常处理
+					status.put("errorInfo", "网络异常，请重试！");
 				}
-
-				params.clear();
-				headers.clear();
-				headers.put("accountType", "");
-				headers.put("openBranch", "");
-				headers.put("openTime", "");
-
-				params.put("billMes", list);
-				params.put("baseMes", headers);
-				params.put("bankName", "中国交通银行");
-				params.put("IDNumber", userCard);
-				params.put("cardNumber", UserName);
-				params.put("userName", "");
-				status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");  //推送数据
-			    if(status!= null && "0000".equals(status.get("errorCode").toString())){
-		           	 PushState.state(userCard, "savings", 300);
-		           	status.put("errorInfo","推送成功");
-		           	status.put("errorCode","0000");
-	           }else{
-		           	 PushState.state(userCard, "savings", 200);
-		           	status.put("errorCode",status.get("errorCode"));//异常处理
-		           	status.put("errorInfo",status.get("errorInfo"));
-	           }
 			}
+				
+				
 		} catch (Exception e) {
 			logger.warn("-----------交通银行查询失败-------------", e);
 			status.put("errorCode", "0002");// 异常处理

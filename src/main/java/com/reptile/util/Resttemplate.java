@@ -63,7 +63,7 @@ public class Resttemplate {
 	  
   }
   
-  public Map<String,Object> SendMessage(Map<String,Object> map,String Url,String id){
+  public Map<String,Object> SendMessage(Map<String,Object> map,String Url,String id,String UUID){
 		PushState ps=new PushState();
 	  Map<String,Object> message=new HashMap<String, Object>();
 	  try {
@@ -85,9 +85,11 @@ public class Resttemplate {
         if(jsonObject.get("errorCode").equals("0000")){
       		message.put("errorCode","0000");
   			message.put("errorInfo","查询成功");
+  			PushSocket.push(map, UUID, "8000","认证成功");
   			ps.state(id, "bankBillFlow", 300);
         }else{
     		ps.state(id, "bankBillFlow", 200);
+    		PushSocket.push(map, UUID, "9000","认证失败");
       		message.put("errorCode",jsonObject.get("errorCode"));//异常处理
   			message.put("errorInfo",jsonObject.get("errorInfo"));
         }
@@ -101,7 +103,7 @@ public class Resttemplate {
 	  	return message;
 	  
 }
-  public Map<String,Object> SendMessageX(Map<String,Object> map,String Url,String id){
+  public Map<String,Object> SendMessageX(Map<String,Object> map,String Url,String id,String UUID){
 	  boolean isok = (boolean) map.get("isok");
 	  map.remove("isok");
 		PushState ps=new PushState();
@@ -125,10 +127,12 @@ public class Resttemplate {
       if(jsonObject.get("errorCode").equals("0000")){
     		message.put("errorCode","0000");
 			message.put("errorInfo","查询成功");
+			PushSocket.push(map, UUID, "8000","认证成功");
 			if(isok==true){
 				ps.state(id, "bankBillFlow", 300);
 			}
       }else{
+    	  PushSocket.push(map, UUID, "9000","认证失败");
     	  if(isok==true){
     		  ps.state(id, "bankBillFlow", 200);
     	  }   		  
