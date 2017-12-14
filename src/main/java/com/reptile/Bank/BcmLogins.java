@@ -4,6 +4,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +34,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import com.reptile.util.CountTime;
 import com.reptile.util.DriverUtil;
 import com.reptile.util.JiaoTongKeyMap;
 import com.reptile.util.MyCYDMDemo;
@@ -55,8 +57,9 @@ public class BcmLogins {
 	Resttemplate resttemplate = new Resttemplate();
 
 	public Map<String, Object> BankLogin(String UserNumber, String UserPwd,
-			String UserCard, HttpServletRequest request, String UUID)
-			throws InterruptedException {
+			String UserCard, HttpServletRequest request, String UUID,String timeCnt)
+			throws InterruptedException, ParseException {
+		boolean isok = CountTime.getCountTime(timeCnt);
 		List<String> list = new ArrayList<String>();
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> data = new HashMap<String, Object>();
@@ -161,7 +164,9 @@ public class BcmLogins {
 				} else if (driver.getPageSource().contains("查看我的买单吧")) {
 					logger.warn("--------------交通银行信用卡---------------登陆成功----------------身份证号："+UserCard);
 					PushSocket.push(map, UUID, "0000");
-					PushState.state(UserCard, "bankBillFlow", 100);
+					if(isok==true){
+						PushState.state(UserCard, "bankBillFlow", 100);
+					}
 					driver.executeScript(
 							"javascript:gotToLink('/member/member/service/billing/detail.html');",
 							0);
@@ -196,9 +201,10 @@ public class BcmLogins {
 				data.put("backtype", "BCM");
 				data.put("idcard", UserCard);
 				map.put("data", data);
+				map.put("isok", isok);
 				// map= resttemplate.SendMessage(map,
 				// "http://192.168.3.16:8089/HSDC/BillFlow/BillFlowByreditCard",UserCard);
-				map = resttemplate.SendMessage(map, application.sendip
+				map = resttemplate.SendMessageX(map, application.sendip
 						+ "/HSDC/BillFlow/BillFlowByreditCard", UserCard);
 
 				map.put("whetherCode", "no");

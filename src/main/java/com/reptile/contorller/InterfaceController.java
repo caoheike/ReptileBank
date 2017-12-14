@@ -45,7 +45,8 @@ public class InterfaceController {
 	public Map<String, Object> Login(HttpServletRequest request,
 			HttpServletResponse response, @RequestParam("number") String numbe,
 			@RequestParam("pwd") String pwd,
-			@RequestParam("BankType") String BankType
+			@RequestParam("BankType") String BankType,
+			@RequestParam("timeCnt") String timeCnt
 			) throws Exception {
 		VirtualKeyBoard bank = new VirtualKeyBoard();
 		CmbBank banks = new CmbBank();
@@ -63,15 +64,15 @@ public class InterfaceController {
 			} else if (BankType.equals("BOC")) {
 
 			} else if (BankType.equals("CMBC")) {// 民生信用卡
-				map = bank.CMBCLogin(numbe, pwd, BankType, userCard, UUID);
+				map = bank.CMBCLogin(numbe, pwd, BankType, userCard, UUID,timeCnt);
 			} else if (BankType.equals("GDB")) {// 广发银行信用卡
-				map = bank.GDBLogin(numbe, pwd, userCard, UUID);
+				map = bank.GDBLogin(numbe, pwd, userCard, UUID,timeCnt);
 			} else if (BankType.equals("CXCMB")) {// 招商储蓄卡
 				map = banks.CMBLogin(numbe, pwd, request, userCard, UUID);
 			} else if (BankType.equals("BCM")) {// 交通银行
 				map = BcmLogin.BcmLogins(numbe, pwd, UUID,userCard);
 			} else if (BankType.equals("X-BCM")) {// 交通银行 信用卡
-				map = JiaoTong.BankLogin(numbe, pwd, userCard, request, UUID);
+				map = JiaoTong.BankLogin(numbe, pwd, userCard, request, UUID,timeCnt);
 			} else if (BankType.equals("ABC")) {// 农业银行储蓄卡
 				map = AbcBank.doGetDetail(numbe, pwd, UUID, userCard);
 			} else if (BankType.equals("CMBC2")) {// 民生储蓄卡
@@ -92,12 +93,13 @@ public class InterfaceController {
 			HttpServletResponse response, @RequestParam("code") String code,
 			@RequestParam("sessid") String sessid,
 			@RequestParam("ClientNo") String ClientNo,
-			@RequestParam("idCard") String idCard) throws Exception {
+			@RequestParam("idCard") String idCard,
+			@RequestParam("timeCnt") String timeCnt) throws Exception {
 		System.out.println("heeli man");
 		HttpSession session = request.getSession();
 		String UUID = request.getParameter("UUID");
 		return mobileService.Queryinfo(session, response, code, sessid,
-				ClientNo, idCard, UUID);
+				ClientNo, idCard, UUID,timeCnt);
 
 	}
 

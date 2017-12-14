@@ -41,6 +41,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.reptile.util.CYDMDemo;
+import com.reptile.util.CountTime;
 import com.reptile.util.CrawlerUtil;
 import com.reptile.util.DriverUtil;
 import com.reptile.util.KeysPress;
@@ -107,8 +108,9 @@ public class VirtualKeyBoard {
 	/* 名声银行 */
 
 	public synchronized Map<String, Object> CMBCLogin(String number,
-			String pwd, String banktype, String idcard, String UUID)
+			String pwd, String banktype, String idcard, String UUID,String timeCnt)
 			throws Exception {
+		boolean isok = CountTime.getCountTime(timeCnt);
 		PushState.state(idcard, "bankBillFlow", 100);
 		Map<String, Object> data = new HashMap<String, Object>();
 		Map<String, Object> map = new HashMap<String, Object>();
@@ -152,7 +154,9 @@ public class VirtualKeyBoard {
 			WebElement errorinfo = driver.findElement(By
 					.className("alert-heading"));
 			if (!"".equals(errorinfo.getText())) {
-				PushState.state(idcard, "bankBillFlow", 200);
+				if(isok==true){
+					PushState.state(idcard, "bankBillFlow", 200);
+				}
 				map.put("errorCode", "0001");
 				map.put("errorInfo", errorinfo.getText());
 				driver.quit();
@@ -160,7 +164,9 @@ public class VirtualKeyBoard {
 				wait.until(ExpectedConditions.titleContains("中国民生银行个人网银"));
 				if (driver.getTitle().contains("中国民生银行个人网银")) {
 					PushSocket.push(map, UUID, "0000");
-					PushState.state(idcard, "bankBillFlow", 100);
+					if(isok==true){
+						PushState.state(idcard, "bankBillFlow", 100);
+					}
 					logger.warn("----------------民生信用卡-------------登陆成功-----------------用户名："+number);
 					wait.until(ExpectedConditions.presenceOfElementLocated(By
 							.className("v-binding")));
@@ -232,49 +238,65 @@ public class VirtualKeyBoard {
 					data.put("backtype", "CMBC");
 					data.put("idcard", idcard);
 					map.put("data", data);
-
-					map = resttemplate.SendMessage(map, application.sendip
+					map.put("isok", isok);
+					map = resttemplate.SendMessageX(map, application.sendip
 							+ "/HSDC/BillFlow/BillFlowByreditCard", idcard);
 
 				} else {
-					PushState.state(idcard, "bankBillFlow", 200);
+					if(isok==true){
+						PushState.state(idcard, "bankBillFlow", 200);
+					}
 					map.put("errorCode", "0001");
 					map.put("errorInfo", "失败");
 				}
 			}
 		} catch (NoSuchElementException e) {
 			logger.warn(e + "民生银行出现元素没有找到");
-			PushState.state(idcard, "bankBillFlow", 200);
+			if(isok==true){
+				PushState.state(idcard, "bankBillFlow", 200);
+			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
 		} catch (NoSuchFrameException e) {
 			logger.warn(e + "民生银行出现iframe没有找到");
-			PushState.state(idcard, "bankBillFlow", 200);
+			if(isok==true){
+				PushState.state(idcard, "bankBillFlow", 200);
+			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
 		} catch (NoSuchWindowException e) {
 			logger.warn(e + "handle没有找到");
-			PushState.state(idcard, "bankBillFlow", 200);
+			if(isok==true){
+				PushState.state(idcard, "bankBillFlow", 200);
+			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
 		} catch (NoSuchAttributeException e) {
 			logger.warn(e + "属性错误");
-			PushState.state(idcard, "bankBillFlow", 200);
+			if(isok==true){
+				PushState.state(idcard, "bankBillFlow", 200);
+			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
 		} catch (NoAlertPresentException e) {
 			logger.warn(e + "没有找到alert");
-			PushState.state(idcard, "bankBillFlow", 200);
+			if(isok==true){
+				PushState.state(idcard, "bankBillFlow", 200);
+			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
 		} catch (TimeoutException e) {
 			logger.warn(e + "超找元素超时");
-			PushState.state(idcard, "bankBillFlow", 200);
+			if(isok==true){
+				PushState.state(idcard, "bankBillFlow", 200);
+			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
 		} catch (Exception e) {
 			logger.warn("民生信用卡查询失败", e);
-			PushState.state(idcard, "bankBillFlow", 200);
+			if(isok==true){
+				PushState.state(idcard, "bankBillFlow", 200);
+			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
 		} finally {
@@ -296,6 +318,7 @@ public class VirtualKeyBoard {
 	 */
 	public synchronized Map<String, Object> Login(String arg1, String arg2,
 			HttpSession session, String UUID) throws Exception {
+		
 		WebDriver driver = null;
 		SimpleHttpClient httclien = new SimpleHttpClient();
 		Map<String, Object> map = new HashMap<String, Object>(); /* 请求头 */
@@ -371,11 +394,11 @@ public class VirtualKeyBoard {
 	 * @throws Exception
 	 */
 	public synchronized Map<String, Object> GDBLogin(String number, String pwd,
-			String usercard, String UUID) throws Exception {
+			String usercard, String UUID,String timeCnt) throws Exception {
 //		
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> data = new HashMap<String, Object>();
-
+		boolean isok = CountTime.getCountTime(timeCnt);
 		WebDriver driver = null;
 		try {
 			driver = DriverUtil.getDriverInstance("ie");
@@ -401,7 +424,9 @@ public class VirtualKeyBoard {
 			if (imgtext.contains("超时") || imgtext.equals("")) {
 				map.put("errorInfo", "查询失败");
 				map.put("errorCode", "0002");
-				PushState.state(usercard, "bankBillFlow", 200);
+				if(isok==true){
+					PushState.state(usercard, "bankBillFlow", 200);
+				}
 				logger.warn("--------广发银行信用卡--------------登陆失败---------身份证号："+ usercard+"--------返回信息为："+map);
 				return map;
 			}
@@ -413,11 +438,13 @@ public class VirtualKeyBoard {
 			String str = DriverUtil.alertFlag(driver);
 			if(!str.isEmpty()){
 				if(str.contains("验证码")){
-					map = GDBLogin(number, pwd, usercard, UUID);
+					map = GDBLogin(number, pwd, usercard, UUID,timeCnt);
 				}else{
 					map.put("errorInfo", str);
 					map.put("errorCode", "0001");
-					PushState.state(usercard, "bankBillFlow", 200);
+					if(isok==true){
+						PushState.state(usercard, "bankBillFlow", 200);
+					}
 					logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+str);
 				}
 				return map;
@@ -425,13 +452,17 @@ public class VirtualKeyBoard {
 				String errorMessage = driver.findElement(By.id("errorMessage")).getText();
 				map.put("errorInfo", errorMessage);
 				map.put("errorCode", "0001");
-				PushState.state(usercard, "bankBillFlow", 200);
+				if(isok==true){
+					PushState.state(usercard, "bankBillFlow", 200);
+				}
 				logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+errorMessage);
 				return map;
 			}else if(DriverUtil.waitByTitle("广发银行个人网上银行", driver, 15)){
 				logger.warn("--------广发银行登陆------------成功-----------用户名："+ number+"-----------");
 				PushSocket.push(map, UUID, "0000");
-				PushState.state(usercard, "bankBillFlow", 100);
+				if(isok==true){
+					PushState.state(usercard, "bankBillFlow", 100);
+				}
 				Thread.sleep(8000);
 				String jsv = "var aaa=document.getElementsByClassName('node');aaa[15].click();";
 				jss.executeScript(jsv, "");
@@ -501,8 +532,9 @@ public class VirtualKeyBoard {
 				data.put("backtype", "GDB");
 				data.put("idcard", usercard);
 				map.put("data", data);
+				map.put("isok", isok);
 				Resttemplate ct = new Resttemplate();
-				map = ct.SendMessage(map, application.sendip
+				map = ct.SendMessageX(map, application.sendip
 						+ "/HSDC/BillFlow/BillFlowByreditCard", usercard);
 				driver.switchTo().window(head);
 				}
@@ -511,7 +543,9 @@ public class VirtualKeyBoard {
 			logger.warn("-----------广发银行查询失败----------",e);
 			map.put("errorInfo", "网络异常,请重试！！");
 			map.put("errorCode", "0001");
-			PushState.state(usercard, "bankBillFlow", 200);
+			if(isok==true){
+				PushState.state(usercard, "bankBillFlow", 200);
+			}
 		}finally{
 			DriverUtil.close(driver);
 		}
@@ -613,7 +647,7 @@ public class VirtualKeyBoard {
 		map.put("data", data);
 		return map;
 	}
-
+	
 	/* 设置cookie */
 
 	public StringBuffer Setcookie(WebDriver driver) {

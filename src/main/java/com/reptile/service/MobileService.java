@@ -25,6 +25,7 @@ import org.jsoup.select.Elements;
 import org.springframework.stereotype.Service;
 
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
+import com.reptile.util.CountTime;
 import com.reptile.util.PushSocket;
 import com.reptile.util.PushState;
 import com.reptile.util.Resttemplate;
@@ -45,11 +46,15 @@ public class MobileService {
 		
 //		public String Queryinfo(HttpSession session,HttpServletResponse response,String codes,String sessid,String ClientNos)
 //				throws FailingHttpStatusCodeException, MalformedURLException, IOException, InterruptedException {
-			public Map<String, Object> Queryinfo(HttpSession session,HttpServletResponse response,String codes,String sessid,String ClientNos,String idCard,String UUID)
-					throws FailingHttpStatusCodeException, MalformedURLException, IOException, InterruptedException {
+			public Map<String, Object> Queryinfo(HttpSession session,HttpServletResponse response,String codes,String sessid,String ClientNos,String idCard,String UUID,String timeCnt)
+					throws FailingHttpStatusCodeException, MalformedURLException, IOException, InterruptedException, java.text.ParseException {
 				Map<String,Object>maps=new HashMap();
+				boolean isok = CountTime.getCountTime(timeCnt);
 				PushSocket.push(maps, UUID, "0000");
-				PushState.state(idCard,"bankBillFlow", 100);
+				if(isok==true){
+					PushState.state(idCard,"bankBillFlow", 100);
+				}
+				
 				SimpleHttpClient httclien=new SimpleHttpClient();
 		    Map<String,Object> params=new HashMap<String, Object>();//参数
 		    Map<String,Object> paramse=new HashMap<String, Object>();//参数
@@ -255,12 +260,13 @@ public class MobileService {
 				 
 			 }
 			 if(codeflg==true){
-				  	
 //				 map=resttemplate.SendMessage(map,"http://113.200.105.37:8080/HSDC/BillFlow/BillFlowByreditCard"); 
 				 map=resttemplate.SendMessage(map,application.sendip+"/HSDC/BillFlow/BillFlowByreditCard"); 
 //				 map=resttemplate.SendMessage(map,"http://192.168.3.4:8081/HSDC/BillFlow/BillFlowByreditCard"); 
 				 if(map.toString().contains("0000")){
+					 if(isok==true){
 				    	PushState.state(idCard, "bankBillFlow",300);
+					 }
 				    	//开始获取正确信息
 				    	
 //				    	paramend.put("CreditCardVersion","2.0");
@@ -270,13 +276,17 @@ public class MobileService {
 		                map.put("errorCode","0000");
 		        }else{
 		            	//--------------------数据中心推送状态----------------------
+		        	if(isok==true){
 		            	PushState.state(idCard, "bankBillFlow",200);
+		        	}
 		            	//---------------------数据中心推送状态----------------------
 		                map.put("errorInfo","查询失败");
 		                map.put("errorCode","0001");
 		            }
 			 }else{
-				 PushState.state(idCard,"bankBillFlow", 200);
+				 	if(isok==true){
+		            	PushState.state(idCard, "bankBillFlow",200);
+		        	}
 					map.put("errorCode","0001");
 	    			map.put("errorInfo","验证码错误");
 			 }

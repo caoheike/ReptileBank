@@ -62,6 +62,7 @@ public class Resttemplate {
 	  	return message;
 	  
   }
+  
   public Map<String,Object> SendMessage(Map<String,Object> map,String Url,String id){
 		PushState ps=new PushState();
 	  Map<String,Object> message=new HashMap<String, Object>();
@@ -93,6 +94,53 @@ public class Resttemplate {
          
 		} catch (Exception e) {
 			logger.warn("----------将数据推送给数据中心失败--------------",e);
+			ps.state(id, "bankBillFlow", 200);
+			message.put("errorCode","0003");//异常处理
+			message.put("errorInfo","推送失败");
+		}
+	  	return message;
+	  
+}
+  public Map<String,Object> SendMessageX(Map<String,Object> map,String Url,String id){
+	  boolean isok = (boolean) map.get("isok");
+	  map.remove("isok");
+		PushState ps=new PushState();
+	  Map<String,Object> message=new HashMap<String, Object>();
+	  try {
+		  StringHttpMessageConverter m = new StringHttpMessageConverter(Charset.forName("UTF-8"));  
+		  RestTemplate restTemplate = new RestTemplateBuilder().additionalMessageConverters(m).build();  
+      HttpHeaders headers = new HttpHeaders();
+      headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+      MediaType type = MediaType.parseMediaType("application/x-www-form-urlencoded; charset=UTF-8");
+      headers.setContentType(type);
+      headers.add("Accept", MediaType.APPLICATION_JSON.toString());
+      
+      logger.warn("-------------向数据中心推送的数据为："+JSONObject.fromObject(map).toString()+"------------");
+      
+      HttpEntity<String> formEntity = new HttpEntity<String>(JSONObject.fromObject(map).toString(), headers);
+      String result = restTemplate.postForObject(Url, formEntity,String.class);
+      logger.warn("-------------数据中心返回的结果为："+result+"------------");
+      
+      JSONObject jsonObject=JSONObject.fromObject(result);
+      if(jsonObject.get("errorCode").equals("0000")){
+    		message.put("errorCode","0000");
+			message.put("errorInfo","查询成功");
+			if(isok==true){
+				ps.state(id, "bankBillFlow", 300);
+			}
+      }else{
+    	  if(isok==true){
+    		  ps.state(id, "bankBillFlow", 200);
+    	  }   		  
+    		message.put("errorCode",jsonObject.get("errorCode"));//异常处理
+			message.put("errorInfo",jsonObject.get("errorInfo"));
+      }
+       
+		} catch (Exception e) {
+			logger.warn("----------将数据推送给数据中心失败--------------",e);
+			if(isok==true){
+	    		  ps.state(id, "bankBillFlow", 200);
+	    	 } 
 			ps.state(id, "bankBillFlow", 200);
 			message.put("errorCode","0003");//异常处理
 			message.put("errorInfo","推送失败");
