@@ -97,7 +97,7 @@ public class BcmLogin {
 							.equals("")) {
 				status = BcmLogin.BcmLogins(UserName, UserPwd, UUID,userCard);
 			} else if (flgs == true) {
-				PushSocket.push(status, UUID, "3000","交通储蓄卡登录失败");
+				PushSocket.push(status, UUID, "3000","账号密码错误");
 				logger.warn("-----------交通储蓄卡-----------登陆失败----------身份证号："+userCard);
 				status.put( "errorInfo", "账号密码错误" );
 				status.put( "errorCode", "0001" );
@@ -199,18 +199,18 @@ public class BcmLogin {
 					status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");  //推送数据
 				    if(status!= null && "0000".equals(status.get("errorCode").toString())){
 			           	PushState.state(userCard, "savings", 300);
-			           	PushSocket.push(status, UUID, "8000","交通储蓄卡认证成功");
+			           	PushSocket.push(status, UUID, "8000","认证成功");
 			           	status.put("errorInfo","推送成功");
 			           	status.put("errorCode","0000");
 		           }else{
 			           	 PushState.state(userCard, "savings", 200);
-			           	PushSocket.push(status, UUID, "9000","交通储蓄卡认证失败");
+			           	PushSocket.push(status, UUID, "9000","认证失败");
 			           	status.put("errorCode",status.get("errorCode"));//异常处理
 			           	status.put("errorInfo",status.get("errorInfo"));
 		           }
 				}catch (Exception e) {
 					logger.warn("-----------交通银行查询失败-------------", e);
-					PushSocket.push(status, UUID, "7000","交通储蓄卡数据获取失败");
+					PushSocket.push(status, UUID, "7000","网络异常,数据获取失败");
 					status.put("errorCode", "0002");// 异常处理
 					status.put("errorInfo", "网络异常，请重试！");
 				}

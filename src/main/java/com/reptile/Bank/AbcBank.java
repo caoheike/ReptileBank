@@ -82,7 +82,7 @@ public class AbcBank {
 						text = driver.findElement(By.className("logon-error")).getAttribute("title");
 					}
 					PushState.state(card, "savings", 200);
-					PushSocket.push(status, UUID, "2000","农业储蓄卡登陆失败");
+					PushSocket.push(status, UUID, "2000",text);
 					status.put("errorCode", "0001");// 异常处理	
 					status.put("errorInfo", text);
 				}else if(DriverUtil.waitByTitle("中国农业银行个人网银首页", driver, 10)){
@@ -198,7 +198,7 @@ public class AbcBank {
 	    		           	status.put("errorInfo",status.get("errorInfo"));
     		           }
 					}else{
-						PushSocket.push(status, UUID, "7000","农业银行储蓄卡数据获取失败");
+						PushSocket.push(status, UUID, "7000","网页异常，数据获取失败");
 						throw new Exception();
 					}
 				

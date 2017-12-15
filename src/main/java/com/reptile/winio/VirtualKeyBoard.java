@@ -111,7 +111,9 @@ public class VirtualKeyBoard {
 			String pwd, String banktype, String idcard, String UUID,String timeCnt)
 			throws Exception {
 		boolean isok = CountTime.getCountTime(timeCnt);
-		PushState.state(idcard, "bankBillFlow", 100);
+		if(isok==true){
+			PushState.state(idcard, "bankBillFlow", 100);
+		}
 		Map<String, Object> data = new HashMap<String, Object>();
 		Map<String, Object> map = new HashMap<String, Object>();
 		PushSocket.push(map, UUID, "1000","民生银行登录中");
@@ -155,6 +157,7 @@ public class VirtualKeyBoard {
 			WebElement errorinfo = driver.findElement(By
 					.className("alert-heading"));
 			if (!"".equals(errorinfo.getText())) {
+				PushSocket.push(map, UUID, "3000",errorinfo.getText());
 				if(isok==true){
 					PushState.state(idcard, "bankBillFlow", 200);
 				}
@@ -229,7 +232,7 @@ public class VirtualKeyBoard {
 											"下载明细"));
 							list.add(driver.getPageSource());
 						} catch (org.openqa.selenium.ElementNotVisibleException e) {
-							PushSocket.push(map, UUID, "7000","民生银行数据获取失败");
+							PushSocket.push(map, UUID, "7000","网络异常，数据获取失败");
 							WebElement we = driver
 									.findElement(By
 											.xpath("//*[@id='transView']/div/div/div/div/div/table[1]/tbody/tr/td/div[8]//*[@id='"
@@ -249,7 +252,7 @@ public class VirtualKeyBoard {
 							+ "/HSDC/BillFlow/BillFlowByreditCard", idcard,UUID);
 
 				} else {
-					PushSocket.push(map, UUID, "3000","民生银行登陆失败");
+					PushSocket.push(map, UUID, "3000","网络异常，登陆失败");
 					if(isok==true){
 						PushState.state(idcard, "bankBillFlow", 200);
 					}
@@ -259,7 +262,7 @@ public class VirtualKeyBoard {
 			}
 		} catch (NoSuchElementException e) {
 			logger.warn(e + "民生银行出现元素没有找到");
-			PushSocket.push(map, UUID, "7000","民生银行数据获取失败");
+			PushSocket.push(map, UUID, "7000","网页数据没有找到");
 			if(isok==true){
 				PushState.state(idcard, "bankBillFlow", 200);
 			}
@@ -267,7 +270,7 @@ public class VirtualKeyBoard {
 			map.put("errorInfo", "网络错误");
 		} catch (NoSuchFrameException e) {
 			logger.warn(e + "民生银行出现iframe没有找到");
-			PushSocket.push(map, UUID, "7000","民生银行数据获取失败");
+			PushSocket.push(map, UUID, "7000","网页数据没有找到");
 			if(isok==true){
 				PushState.state(idcard, "bankBillFlow", 200);
 			}
@@ -275,7 +278,7 @@ public class VirtualKeyBoard {
 			map.put("errorInfo", "网络错误");
 		} catch (NoSuchWindowException e) {
 			logger.warn(e + "handle没有找到");
-			PushSocket.push(map, UUID, "7000","民生银行数据获取失败");
+			PushSocket.push(map, UUID, "7000","网页数据没有找到");
 			if(isok==true){
 				PushState.state(idcard, "bankBillFlow", 200);
 			}
@@ -283,7 +286,7 @@ public class VirtualKeyBoard {
 			map.put("errorInfo", "网络错误");
 		} catch (NoSuchAttributeException e) {
 			logger.warn(e + "属性错误");
-			PushSocket.push(map, UUID, "7000","民生银行数据获取失败");
+			PushSocket.push(map, UUID, "7000","网页数据没有找到");
 			if(isok==true){
 				PushState.state(idcard, "bankBillFlow", 200);
 			}
@@ -291,7 +294,7 @@ public class VirtualKeyBoard {
 			map.put("errorInfo", "网络错误");
 		} catch (NoAlertPresentException e) {
 			logger.warn(e + "没有找到alert");
-			PushSocket.push(map, UUID, "7000","民生银行数据获取失败");
+			PushSocket.push(map, UUID, "7000","网页数据没有找到");
 			if(isok==true){
 				PushState.state(idcard, "bankBillFlow", 200);
 			}
@@ -299,7 +302,7 @@ public class VirtualKeyBoard {
 			map.put("errorInfo", "网络错误");
 		} catch (TimeoutException e) {
 			logger.warn(e + "超找元素超时");
-			PushSocket.push(map, UUID, "7000","民生银行数据获取失败");
+			PushSocket.push(map, UUID, "7000","网页数据没有找到");
 			if(isok==true){
 				PushState.state(idcard, "bankBillFlow", 200);
 			}
@@ -307,7 +310,7 @@ public class VirtualKeyBoard {
 			map.put("errorInfo", "网络错误");
 		} catch (Exception e) {
 			logger.warn("民生信用卡查询失败", e);
-			PushSocket.push(map, UUID, "7000","民生银行数据获取失败");
+			PushSocket.push(map, UUID, "7000","网页数据没有找到");
 			if(isok==true){
 				PushState.state(idcard, "bankBillFlow", 200);
 			}
@@ -338,6 +341,7 @@ public class VirtualKeyBoard {
 		Map<String, Object> map = new HashMap<String, Object>(); /* 请求头 */
 		try {
 			logger.warn("----------------招商信用卡-------------登陆开始-----------------用户名："+arg1);
+			PushSocket.push(map, UUID, "1000","招商银行信用卡登录中");
 			String sessid = new CrawlerUtil().getUUID(); /* 生成UUid 用于区分浏览器 */
 			HttpSession sessions = session;
 
@@ -439,7 +443,7 @@ public class VirtualKeyBoard {
 			if (imgtext.contains("超时") || imgtext.equals("")) {
 				map.put("errorInfo", "查询失败");
 				map.put("errorCode", "0002");
-				PushSocket.push(map, UUID, "3000","广发银行信用卡登陆失败");
+				PushSocket.push(map, UUID, "3000","连接超时");
 				if(isok==true){
 					PushState.state(usercard, "bankBillFlow", 200);
 				}
@@ -458,7 +462,7 @@ public class VirtualKeyBoard {
 				}else{
 					map.put("errorInfo", str);
 					map.put("errorCode", "0001");
-					PushSocket.push(map, UUID, "3000","广发银行信用卡登陆失败");
+					PushSocket.push(map, UUID, "3000",str);
 					if(isok==true){
 						PushState.state(usercard, "bankBillFlow", 200);
 					}
@@ -469,101 +473,111 @@ public class VirtualKeyBoard {
 				String errorMessage = driver.findElement(By.id("errorMessage")).getText();
 				map.put("errorInfo", errorMessage);
 				map.put("errorCode", "0001");
-				PushSocket.push(map, UUID, "3000","广发银行信用卡登陆失败");
+				PushSocket.push(map, UUID, "3000",errorMessage);
 				if(isok==true){
 					PushState.state(usercard, "bankBillFlow", 200);
 				}
 				logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+errorMessage);
 				return map;
 			}else if(DriverUtil.waitByTitle("广发银行个人网上银行", driver, 15)){
-				logger.warn("--------广发银行登陆------------成功-----------用户名："+ number+"-----------");
-				PushSocket.push(map, UUID, "2000","广发银行信用卡登陆成功");
-				if(isok==true){
-					PushState.state(usercard, "bankBillFlow", 100);
-				}
-				Thread.sleep(8000);
-				PushSocket.push(map, UUID, "5000","广发银行信用卡数据获取中");
-				String jsv = "var aaa=document.getElementsByClassName('node');aaa[15].click();";
-				jss.executeScript(jsv, "");
-				
-				driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-				
-				String head = driver.getWindowHandle();
-				
-				String sid = driver.getPageSource()
-						.substring(driver.getPageSource().indexOf("_emp_sid = '"),driver.getPageSource().indexOf("';"))
-						.replaceAll("_emp_sid = '", "");
-				logger.warn("--------广发银行登陆------------sid为："+sid);
-				/*选中第一个*/
-				for (int i = 0; i < 11; i++) {
-					/* 为了避免查询不到账单 做此次处理 */
-					List<WebElement> elements2 = driver.findElements(By
-							.tagName("IFRAME"));
-					driver.switchTo().frame(elements2.get(0));
-					if(driver.getPageSource().contains("上月账单")){
-						break;
+				try {
+					logger.warn("--------广发银行登陆------------成功-----------用户名："+ number+"-----------");
+					PushSocket.push(map, UUID, "2000","广发银行信用卡登陆成功");
+					if(isok==true){
+						PushState.state(usercard, "bankBillFlow", 100);
 					}
-					//判断creditCardNo是否可点击
-					if(DriverUtil.waitById("creditCardNo", driver, 15) && DriverUtil.clickById("creditCardNo", driver, 15)){
-						driver.findElement(By.id("creditCardNo")).click();;
-					}
-					//判断cross是否可点击
-					if(DriverUtil.waitByClassName("cross", driver, 15) && DriverUtil.clickByClassName("cross", driver, 15)){
-						driver.findElement(By.className("cross")).click();;
-					}
-					new Select(driver.findElement(By.id("billDate"))).selectByIndex(i);
-					driver.findElement(By.linkText("查询")).click();
-					Thread.sleep(2000);
-					driver.switchTo().window(head);
-				}
-				
-				logger.warn("--------广发银行登陆------------OPEN：开始");
-				for (int i = 0; i < application.Getdate().size(); i++) {
-					Thread.sleep(1000);
-					String win = "window.open('https://ebanks.cgbchina.com.cn/perbank/CR1080.do?currencyType=&creditCardNo="
-							+ number
-							+ "&billDate="
-							+ application.Getdate().get(i)
-							+ "&billType=1&abundantFlag=0&terseFlag=0&showWarFlag=0&EMP_SID="
-							+ sid + " ');";
-					logger.warn("--------广发银行登陆------------OPEN："+i+"    url:"+win);
-					jss.executeScript(win, "");
-				}
-				logger.warn("--------广发银行登陆------------OPEN：结束");
-				Set<String> jswin = driver.getWindowHandles();
-				logger.warn("--------广发银行登陆------------账单查询：开始");
-				List<String> listinfo = new ArrayList<String>();
-				for (String item : jswin) {
-					if (!item.equals(head)) {
-						driver.switchTo().window(item);
-						if(DriverUtil.waitByTitle("账单", driver, 8)){
-							logger.warn("-----------账单信息：-------------"+driver.getPageSource());
-							if (!driver.getPageSource().contains("var billErrMsg = '该月份账单尚未生成，请于账单日后再查询';")) {
-								logger.warn("--------广发银行登陆------------账单查询：具体内容："+driver.getPageSource());
-								listinfo.add(driver.getPageSource());
-							}
+					Thread.sleep(8000);
+					PushSocket.push(map, UUID, "5000","广发银行信用卡数据获取中");
+					String jsv = "var aaa=document.getElementsByClassName('node');aaa[15].click();";
+					jss.executeScript(jsv, "");
+					
+					driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+					
+					String head = driver.getWindowHandle();
+					
+					String sid = driver.getPageSource()
+							.substring(driver.getPageSource().indexOf("_emp_sid = '"),driver.getPageSource().indexOf("';"))
+							.replaceAll("_emp_sid = '", "");
+					logger.warn("--------广发银行登陆------------sid为："+sid);
+					/*选中第一个*/
+					for (int i = 0; i < 11; i++) {
+						/* 为了避免查询不到账单 做此次处理 */
+						List<WebElement> elements2 = driver.findElements(By
+								.tagName("IFRAME"));
+						driver.switchTo().frame(elements2.get(0));
+						if(driver.getPageSource().contains("上月账单")){
+							break;
 						}
-						
+						//判断creditCardNo是否可点击
+						if(DriverUtil.waitById("creditCardNo", driver, 15) && DriverUtil.clickById("creditCardNo", driver, 15)){
+							driver.findElement(By.id("creditCardNo")).click();;
+						}
+						//判断cross是否可点击
+						if(DriverUtil.waitByClassName("cross", driver, 15) && DriverUtil.clickByClassName("cross", driver, 15)){
+							driver.findElement(By.className("cross")).click();;
+						}
+						new Select(driver.findElement(By.id("billDate"))).selectByIndex(i);
+						driver.findElement(By.linkText("查询")).click();
+						Thread.sleep(2000);
+						driver.switchTo().window(head);
+					}
+					
+					logger.warn("--------广发银行登陆------------OPEN：开始");
+					for (int i = 0; i < application.Getdate().size(); i++) {
+						Thread.sleep(1000);
+						String win = "window.open('https://ebanks.cgbchina.com.cn/perbank/CR1080.do?currencyType=&creditCardNo="
+								+ number
+								+ "&billDate="
+								+ application.Getdate().get(i)
+								+ "&billType=1&abundantFlag=0&terseFlag=0&showWarFlag=0&EMP_SID="
+								+ sid + " ');";
+						logger.warn("--------广发银行登陆------------OPEN："+i+"    url:"+win);
+						jss.executeScript(win, "");
+					}
+					logger.warn("--------广发银行登陆------------OPEN：结束");
+					Set<String> jswin = driver.getWindowHandles();
+					logger.warn("--------广发银行登陆------------账单查询：开始");
+					List<String> listinfo = new ArrayList<String>();
+					for (String item : jswin) {
+						if (!item.equals(head)) {
+							driver.switchTo().window(item);
+							if(DriverUtil.waitByTitle("账单", driver, 8)){
+								logger.warn("-----------账单信息：-------------"+driver.getPageSource());
+								if (!driver.getPageSource().contains("var billErrMsg = '该月份账单尚未生成，请于账单日后再查询';")) {
+									logger.warn("--------广发银行登陆------------账单查询：具体内容："+driver.getPageSource());
+									listinfo.add(driver.getPageSource());
+								}
+							}
+							
+						}
+					}
+					PushSocket.push(map, UUID, "6000","广发银行信用卡数据获取成功");
+					logger.warn("--------广发银行登陆------------账单查询：结束");
+					data.put("html", listinfo);
+					data.put("backtype", "GDB");
+					data.put("idcard", usercard);
+					map.put("data", data);
+					map.put("isok", isok);
+					Resttemplate ct = new Resttemplate();
+					map = ct.SendMessageX(map, application.sendip
+							+ "/HSDC/BillFlow/BillFlowByreditCard", usercard,UUID);
+					driver.switchTo().window(head);
+					}catch (Exception e) {
+						logger.warn("-----------广发银行查询失败----------",e);
+						map.put("errorInfo", "网络异常,请重试！！");
+						map.put("errorCode", "0001");
+						PushSocket.push(map, UUID, "7000","网络异常，数据获取失败");
+						if(isok==true){
+							PushState.state(usercard, "bankBillFlow", 200);
+						}
 					}
 				}
-				PushSocket.push(map, UUID, "6000","广发银行信用卡数据获取成功");
-				logger.warn("--------广发银行登陆------------账单查询：结束");
-				data.put("html", listinfo);
-				data.put("backtype", "GDB");
-				data.put("idcard", usercard);
-				map.put("data", data);
-				map.put("isok", isok);
-				Resttemplate ct = new Resttemplate();
-				map = ct.SendMessageX(map, application.sendip
-						+ "/HSDC/BillFlow/BillFlowByreditCard", usercard,UUID);
-				driver.switchTo().window(head);
-				}
+				
 			
 		} catch (Exception e) {
 			logger.warn("-----------广发银行查询失败----------",e);
 			map.put("errorInfo", "网络异常,请重试！！");
 			map.put("errorCode", "0001");
-			PushSocket.push(map, UUID, "7000","广发银行信用卡数据获取失败");
 			if(isok==true){
 				PushState.state(usercard, "bankBillFlow", 200);
 			}

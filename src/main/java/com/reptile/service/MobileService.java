@@ -112,7 +112,7 @@ public class MobileService {
 					       	paramend.put("O_STMT_FLAG","Y");
 					       	String endinfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningListNew.aspx", paramend, headers);//开始发包
 					    	if(endinfo.contains("账单数据正在更新中")){
-					    		PushSocket.push(map, UUID, "7000","招商信用卡数据获取失败");
+					    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
 					    		map.put("errorCode","0000");
 				    			map.put("errorInfo","认证成功");
 					    		return map;
@@ -129,7 +129,7 @@ public class MobileService {
 					       	paramend.put("O_STMT_FLAG","Y");
 					       	String endinfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningListNew.aspx", paramend, headers);//开始发包
 					    	if(endinfo.contains("账单数据正在更新中")){
-					    		PushSocket.push(map, UUID, "7000","招商信用卡数据获取失败");
+					    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
 					    		map.put("errorCode","0000");
 				    			map.put("errorInfo","认证成功");
 					    		return map;
@@ -170,13 +170,13 @@ public class MobileService {
 				    	try {
 				    		toke =rest1.substring(rest1.indexOf("<AuthToken>"), rest1.indexOf("</AuthResponseBody>"));
 				    	  	if(toke.contains("当前用户不允许使用该业务")){
-				    	  		PushSocket.push(map, UUID, "7000","招商信用卡数据获取失败");
+				    	  		PushSocket.push(map, UUID, "7000","当前用户不允许使用该业务");
 				    	  		map.put("errorCode","0001");
 				    			map.put("errorInfo","当前用户不允许使用该业务");
 					    		return map;
 					    	}
 						} catch (java.lang.StringIndexOutOfBoundsException e) {
-							PushSocket.push(map, UUID, "7000","招商信用卡数据获取失败");
+							PushSocket.push(map, UUID, "7000","当前用户不允许使用该业务");
 							map.put("errorCode","0001");
 			    			map.put("errorInfo","当前用户不允许使用该业务");
 				    		return map;
@@ -229,7 +229,7 @@ public class MobileService {
 					    		lists.add(endinfo);
 					    	}
 					    	if(list.size()<=0){
-					    		PushSocket.push(map, UUID, "7000","招商信用卡数据获取失败");
+					    		PushSocket.push(map, UUID, "7000","暂无账单");
 					    		map.put("errorCode","0001");
 				    			map.put("errorInfo","暂无账单");
 					    		return map;
@@ -245,7 +245,7 @@ public class MobileService {
 						       	paramend.put("O_STMT_FLAG","Y");
 						       	String endinfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningListNew.aspx", paramend, headers);//开始发包
 						    	if(endinfo.contains("账单数据正在更新中")){
-						    		PushSocket.push(map, UUID, "7000","招商信用卡数据获取失败");
+						    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
 						    		map.put("errorCode","0000");
 					    			map.put("errorInfo","认证成功");
 						    		return map;
@@ -301,7 +301,7 @@ public class MobileService {
 				 	if(isok==true){
 		            	PushState.state(idCard, "bankBillFlow",200);
 		        	}
-				 	PushSocket.push(map, UUID, "3000","招商信用卡登陆失败");
+				 	PushSocket.push(map, UUID, "3000","验证码错误");
 					map.put("errorCode","0001");
 	    			map.put("errorInfo","验证码错误");
 			 }
@@ -475,12 +475,12 @@ public class MobileService {
 		    		}catch(Exception e) {
 		    			params.put("errorInfo", "网络异常,请重试！！");
 		    			params.put("errorCode", "0001");
-		    			PushSocket.push(params, UUID, "7000","招商储蓄卡数据获取失败");
+		    			PushSocket.push(params, UUID, "7000","网络忙，无法获取数据");
 		    		}
 				 }else {
 					 params.put("errorInfo", "查询失败");
 					 params.put("errorCode", "0002");
-					 PushSocket.push(params, UUID, "3000","招商储蓄卡登陆失败");
+					 PushSocket.push(params, UUID, "3000","网络异常，登陆失败");
 				 }
 	    	}else{
 	    		try {
@@ -597,7 +597,7 @@ public class MobileService {
 	    		}catch(Exception e) {
 	    			params.put("errorInfo", "网络异常,请重试！！");
 	    			params.put("errorCode", "0001");
-	    			PushSocket.push(params, UUID, "7000","招商储蓄卡数据获取失败");
+	    			PushSocket.push(params, UUID, "7000","网络异常，数据获取失败");
 	    		}
 	    		
 	    	}

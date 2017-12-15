@@ -38,7 +38,7 @@ public class PushSocket {
 				} else {
 					se.getBasicRemote().sendText(
 							"{\"resultCode\":" + resultCode + ",\"seq_id\":"
-									+ seq_id +",\"errorInfor\":\""+errorInfor+"\",\"date\":\""+date+ "}");
+									+ seq_id +",\"errorInfor\":\""+errorInfor+"\",\"date\":\""+date+ "\"}");
 				}
 
 			}

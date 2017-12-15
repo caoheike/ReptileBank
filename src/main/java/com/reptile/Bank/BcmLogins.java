@@ -157,7 +157,7 @@ public class BcmLogins {
 					// map.put("driverid",driverid);
 					// map.put("whetherCode", "yes");
 					logger.warn(UserCard + "此帐号在登录时需要验证码，可能帐号出现异常 需要自行登录 才可认证");
-					PushSocket.push(map, UUID, "3000","交通银行信用卡登陆失败");
+					PushSocket.push(map, UUID, "3000","帐号认证异常，请你先尝试在官网登录");
 					map.put("whetherCode", "no");
 					map.put("errorCode", "0004");// 认证失败
 					map.put("errorInfo", "帐号认证异常，请你先尝试在官网登录");
@@ -196,7 +196,7 @@ public class BcmLogins {
 						}
 					}catch (Exception e) {
 						logger.warn("-----------交通信用卡-----------查询失败-----------身份证号："+UserCard, e);
-						PushSocket.push(map, UUID, "7000","交通银行信用卡数据获取失败");
+						PushSocket.push(map, UUID, "7000","网络异常,数据获取失败");
 						map.put("errorCode", "0001");
 						map.put("errorInfo", "网络异常");
 					}
@@ -204,7 +204,7 @@ public class BcmLogins {
 					logger.warn("--------------交通银行信用卡---------------查询成功----------------身份证号："+UserCard);
 				} else {
 					logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因：账号密码错误");
-					PushSocket.push(map, UUID, "3000","交通银行信用卡登陆失败");
+					PushSocket.push(map, UUID, "3000","账号密码错误");
 					map.put("errorCode", "0001");// 认证失败
 					map.put("errorInfo", "账号密码错误");
 					return map;
@@ -224,12 +224,12 @@ public class BcmLogins {
 				return map;
 			} else if(!alertText.isEmpty()){
 				logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因："+alertText);
-				PushSocket.push(map, UUID, "3000","交通银行信用卡登陆失败");
+				PushSocket.push(map, UUID, "3000",alertText);
 				map.put("errorCode", "0001");
 				map.put("errorInfo", alertText);
 			} else if(msg.size() != 0){
 				logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因："+msg.get(1).getText());
-				PushSocket.push(map, UUID, "3000","交通银行信用卡登陆失败");
+				PushSocket.push(map, UUID, "3000",msg.get(1).getText());
 				map.put("errorCode", "0001");
 				map.put("errorInfo", msg.get(1).getText());
 			}

@@ -96,7 +96,7 @@ public class SPDBService {
 		 	logger.warn("浦发银行",e);
 			map.put("errorCode", "0001");
             map.put("errorInfo", "网络连接异常!");
-            PushSocket.push(map, UUID, "3000","浦发银行登录失败");
+            PushSocket.push(map, UUID, "3000","网络连接异常，登录失败");
             return map;
 		  }
 		  WebElement loginButton=  driver.findElement(By.id("LoginButton"));
@@ -107,7 +107,7 @@ public class SPDBService {
 			    String tip=alert.getText().toString();
 				map.put("errorCode", "0001");
 	            map.put("errorInfo", tip);
-	            PushSocket.push(map, UUID, "3000","浦发银行登录失败");
+	            PushSocket.push(map, UUID, "3000",tip);
 	            alert.accept(); 
 	            return map;
 			   } catch (org.openqa.selenium.NoAlertPresentException e) {//没有弹窗时判断是否登陆成功，是否需要验证码
@@ -154,7 +154,7 @@ public class SPDBService {
     		           }
     			    
 				} catch (Exception e1) {
-					PushSocket.push(map, UUID, "7000","浦发银行数据获取失败");
+					PushSocket.push(map, UUID, "7000","网络连接异常，数据获取失败");
 					PushState.state(userCard, "savings",100);
 					map.put("errorCode", "0001");
 		            map.put("errorInfo", "网络连接异常!");
@@ -163,7 +163,7 @@ public class SPDBService {
 			}else{//用户名或密码错误
 			    WebElement tip=	driver.findElement(By.className("loginErr"));
 				logger.warn("----浦发银行登陆失败----失败原因："+tip.getText());
-				PushSocket.push(map, UUID, "3000","浦发银行登陆失败");
+				PushSocket.push(map, UUID, "3000",tip.getText());
 				map.put("errorCode", "0001");
 	            map.put("errorInfo", tip.getText());
 	       

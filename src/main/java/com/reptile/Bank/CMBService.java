@@ -143,7 +143,7 @@ public class CMBService {
     				//System.out.println("您为第一次登陆网上银行，请先登陆官网设置您的登陆名和登陆密码");
     				map.put("errorCode", "0001");
     	            map.put("errorInfo", "您为第一次登陆网上银行，请先登陆官网设置您的登陆名和登陆密码");
-    	            PushSocket.push(map, UUID, "2000","民生储蓄卡登陆失败");
+    	            PushSocket.push(map, UUID, "2000","您为第一次登陆网上银行，请先登陆官网设置您的登陆名和登陆密码");
     	            driver.quit();
     	            return map;
     			}else{//登陆成功
@@ -169,7 +169,7 @@ public class CMBService {
         				//Thread.sleep(3000);
 					} catch (Exception e) {
 						PushState.state(idCard, "savings", 200);
-						PushSocket.push(map, UUID, "7000","民生储蓄卡数据获取失败");
+						PushSocket.push(map, UUID, "7000","系统繁忙，数据获取失败");
 						logger.warn("民生银行",e);
 						map.put("errorCode", "0002");
 			            map.put("errorInfo", "系统繁忙请稍后有再试!");
@@ -184,7 +184,7 @@ public class CMBService {
     			    //交易明细解析
     			    billMes=this.parseBillMes(driver, billMes);
     			    if(billMes.contains("errorCode")){
-    			    	PushSocket.push(map, UUID, "7000","民生储蓄卡数据获取失败");
+    			    	PushSocket.push(map, UUID, "7000","网络连接异常，数据获取失败");
     			    	PushState.state(idCard, "savings", 200);
     			    	map.put("errorCode", "0003");
     			    	map.put("errorInfo", "网络连接异常!");
@@ -229,7 +229,7 @@ public class CMBService {
 					map.put("errorInfo", element1.getText());
 					//System.out.println(element1.getText());
 				} 
-				PushSocket.push(map, UUID, "7000","民生储蓄卡数据获取失败");
+				PushSocket.push(map, UUID, "7000",element1.getText());
 				logger.warn("民生银行",element1.getText());
 				// driver.quit();
 				 return map;

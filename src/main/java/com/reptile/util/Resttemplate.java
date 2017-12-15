@@ -145,7 +145,7 @@ public class Resttemplate {
 			if(isok==true){
 	    		  ps.state(id, "bankBillFlow", 200);
 	    	 } 
-			ps.state(id, "bankBillFlow", 200);
+			PushSocket.push(map, UUID, "9000","认证失败");
 			message.put("errorCode","0003");//异常处理
 			message.put("errorInfo","推送失败");
 		}
