@@ -5,7 +5,7 @@ import com.sun.jna.Native;
 
 public interface DD  extends Library{
 	  DD INSTANCE = (DD)Native.loadLibrary("dd74000x32", DD.class);//32位系统
-//	  DD INSTANCE = (DD)Native.loadLibrary("dd74000x64.32", DD.class);//64位系统
+//	  DD INSTANCE = (DD)Native.loadLibrary("dd74000x64.64", DD.class);//64位系统
 	   //64位JAVA调用*64.dll, 32位调用*32.dll 。与系统本身位数无关。
 	   public int DD_mov(int x, int y);
 	   public int DD_movR(int dx, int dy);
