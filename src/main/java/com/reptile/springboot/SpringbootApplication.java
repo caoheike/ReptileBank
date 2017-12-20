@@ -18,11 +18,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurerAdapter
 @EnableScheduling
 public class SpringbootApplication extends WebMvcConfigurerAdapter {
 	 @Override
-     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {
+     public void configureContentNegotiation(ContentNegotiationConfigurer configurer) {	
           configurer.favorPathExtension(false);
-          
-          
-      }
+      }	
 	 
 	public static void main(String[] args) {
 		SpringApplication.run(SpringbootApplication.class, args);

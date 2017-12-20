@@ -44,10 +44,11 @@ public class AbcBank {
 		 */
 		public static Map<String, Object> doGetDetail(String username,
 				String userpwd, String UUID, String card){
+			int numCount=0;//打码次数
 			logger.warn("-----------农业储蓄卡-----------登陆开始----------身份证号："+card);
 			Map<String, Object> status = new HashMap<String, Object>();
 			PushSocket.push(status, UUID, "1000","农业储蓄卡登录中");
-
+			PushState.state(card, "savings", 100);
 			WebDriver driver = null;
 			try{
 				Map<String, Object> params = new HashMap<String, Object>();
@@ -82,13 +83,13 @@ public class AbcBank {
 						text = driver.findElement(By.className("logon-error")).getAttribute("title");
 					}
 					PushState.state(card, "savings", 200);
-					PushSocket.push(status, UUID, "2000",text);
+					PushSocket.push(status, UUID, "3000",text);
 					status.put("errorCode", "0001");// 异常处理	
 					status.put("errorInfo", text);
 				}else if(DriverUtil.waitByTitle("中国农业银行个人网银首页", driver, 10)){
 					logger.warn("-----------农业储蓄卡-----------登陆成功----------身份证号："+card);
 					/* 登陆成功 */
-					PushState.state(card, "savings", 100);
+					
 					PushSocket.push(status, UUID, "2000","农业储蓄卡登陆成功");// 开始执行推送登陆成功
 					Thread.sleep(2000);
 					driver.switchTo().frame("contentFrame");
@@ -192,17 +193,28 @@ public class AbcBank {
 	    		           	status.put("errorInfo","推送成功");
 	    		           	status.put("errorCode","0000");
     		           }else{
-	    		           	 PushState.state(card, "savings", 200);
-	    		           	PushSocket.push(status, UUID, "9000","认证失败");
+	    		           	PushState.state(card, "savings", 200);
+	    		           	PushSocket.push(status, UUID, "9000",status.get("errorInfo").toString());
 	    		           	status.put("errorCode",status.get("errorCode"));//异常处理
 	    		           	status.put("errorInfo",status.get("errorInfo"));
     		           }
 					}else{
 						PushSocket.push(status, UUID, "7000","网页异常，数据获取失败");
+						PushState.state(card, "savings", 200);
+						status.put("errorCode","0001");//异常处理
+    		           	status.put("errorInfo","网页异常,数据获取失败");
 						throw new Exception();
 					}
 				
 				}else{
+					numCount=numCount+1;
+					driver.quit();
+					if(numCount>5) {
+						PushSocket.push(status, UUID, "3000","网页异常,登录失败");
+    		           	status.put("errorCode","0001");//异常处理
+    		           	status.put("errorInfo","网页异常,登录失败");
+						return status;
+					}
 					status = doGetDetail(username, userpwd, UUID, card);
 				}
 					
@@ -210,6 +222,8 @@ public class AbcBank {
 				logger.warn("-------------农业银行储蓄卡------------获取详情失败-------------", e);
 				status.put("errorCode", "0002");// 异常处理
 				status.put("errorInfo", "网络异常，请重试！");
+				PushSocket.push(status, UUID, "9000","网页异常，认证失败");
+				PushState.state(card, "savings", 200);
 			}finally{
 				DriverUtil.close(driver);
 			}

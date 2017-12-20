@@ -59,11 +59,14 @@ public class BcmLogins {
 	public Map<String, Object> BankLogin(String UserNumber, String UserPwd,
 			String UserCard, HttpServletRequest request, String UUID,String timeCnt)
 			throws InterruptedException, ParseException {
-		boolean isok = CountTime.getCountTime(timeCnt);
+		boolean isok =CountTime.getCountTime(timeCnt); 
 		List<String> list = new ArrayList<String>();
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> data = new HashMap<String, Object>();
 		PushSocket.push(map, UUID, "1000","交通银行信用卡登录中");
+		if(isok==true){
+			PushState.state(UserCard, "bankBillFlow", 100);
+		}
 		System.setProperty("webdriver.chrome.driver", "D:/ie/chromedriver.exe");
 		ChromeOptions options = new ChromeOptions();
 		// 设置浏览器大小避免截图错乱
@@ -158,6 +161,9 @@ public class BcmLogins {
 					// map.put("whetherCode", "yes");
 					logger.warn(UserCard + "此帐号在登录时需要验证码，可能帐号出现异常 需要自行登录 才可认证");
 					PushSocket.push(map, UUID, "3000","帐号认证异常，请你先尝试在官网登录");
+					if(isok==true){
+						PushState.state(UserCard, "bankBillFlow", 200);
+					}
 					map.put("whetherCode", "no");
 					map.put("errorCode", "0004");// 认证失败
 					map.put("errorInfo", "帐号认证异常，请你先尝试在官网登录");
@@ -166,9 +172,7 @@ public class BcmLogins {
 				} else if (driver.getPageSource().contains("查看我的买单吧")) {
 					logger.warn("--------------交通银行信用卡---------------登陆成功----------------身份证号："+UserCard);
 					PushSocket.push(map, UUID, "2000","交通银行信用卡登陆成功");
-					if(isok==true){
-						PushState.state(UserCard, "bankBillFlow", 100);
-					}
+					
 					Thread.sleep(2000);
 					PushSocket.push(map, UUID, "5000","交通银行信用卡数据获取中");
 					try {
@@ -194,9 +198,25 @@ public class BcmLogins {
 									.presenceOfElementLocated(By.id("bill_date")));
 
 						}
+						PushSocket.push(map, UUID, "6000","交通银行信用卡数据获取成功");
+						data.put("html", list);
+						data.put("backtype", "BCM");
+						data.put("idcard", UserCard);
+						map.put("data", data);
+						map.put("isok", isok);
+						// map= resttemplate.SendMessage(map,
+						// "http://192.168.3.16:8089/HSDC/BillFlow/BillFlowByreditCard",UserCard);
+						map = resttemplate.SendMessageX(map, application.sendip
+								+ "/HSDC/BillFlow/BillFlowByreditCard", UserCard,UUID);
+
+						map.put("whetherCode", "no");
+						return map;
 					}catch (Exception e) {
 						logger.warn("-----------交通信用卡-----------查询失败-----------身份证号："+UserCard, e);
-						PushSocket.push(map, UUID, "7000","网络异常,数据获取失败");
+						PushSocket.push(map, UUID, "9000","网络异常,认证失败");
+						if(isok==true){
+							PushState.state(UserCard, "bankBillFlow", 200);
+						}
 						map.put("errorCode", "0001");
 						map.put("errorInfo", "网络异常");
 					}
@@ -205,37 +225,38 @@ public class BcmLogins {
 				} else {
 					logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因：账号密码错误");
 					PushSocket.push(map, UUID, "3000","账号密码错误");
+					if(isok==true){
+						PushState.state(UserCard, "bankBillFlow", 200);
+					}
 					map.put("errorCode", "0001");// 认证失败
 					map.put("errorInfo", "账号密码错误");
 					return map;
 				}
-				PushSocket.push(map, UUID, "6000","交通银行信用卡数据获取成功");
-				data.put("html", list);
-				data.put("backtype", "BCM");
-				data.put("idcard", UserCard);
-				map.put("data", data);
-				map.put("isok", isok);
-				// map= resttemplate.SendMessage(map,
-				// "http://192.168.3.16:8089/HSDC/BillFlow/BillFlowByreditCard",UserCard);
-				map = resttemplate.SendMessageX(map, application.sendip
-						+ "/HSDC/BillFlow/BillFlowByreditCard", UserCard,UUID);
-
-				map.put("whetherCode", "no");
-				return map;
+				
 			} else if(!alertText.isEmpty()){
 				logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因："+alertText);
 				PushSocket.push(map, UUID, "3000",alertText);
+				if(isok==true){
+					PushState.state(UserCard, "bankBillFlow", 200);
+				}
 				map.put("errorCode", "0001");
 				map.put("errorInfo", alertText);
 			} else if(msg.size() != 0){
 				logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因："+msg.get(1).getText());
 				PushSocket.push(map, UUID, "3000",msg.get(1).getText());
+				if(isok==true){
+					PushState.state(UserCard, "bankBillFlow", 200);
+				}
 				map.put("errorCode", "0001");
 				map.put("errorInfo", msg.get(1).getText());
 			}
 
 		} catch (Exception e) {
 			logger.warn("-----------交通信用卡-----------查询失败-----------身份证号："+UserCard, e);
+			PushSocket.push(map, UUID, "9000","网络异常,认证失败");
+			if(isok==true){
+				PushState.state(UserCard, "bankBillFlow", 200);
+			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络异常");
 		}finally{

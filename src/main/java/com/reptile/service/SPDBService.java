@@ -80,6 +80,7 @@ public class SPDBService {
 		 
 		  Map<String,Object> map=new HashMap<String,Object>();
 		  PushSocket.push(map, UUID, "1000","浦发银行登录中");
+		  PushState.state(userCard, "savings",100);
 		  logger.warn("浦发银行");
 		  WebDriver driver=  this.getDriver(SPDBLOGIN);
 		  driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);
@@ -114,7 +115,7 @@ public class SPDBService {
 				   if(driver.getPageSource().contains("先生")||driver.getPageSource().contains("女士")){
 				   PushSocket.push(map, UUID, "2000","浦发银行登录成功");
 				  logger.warn("浦发银行，登陆成功");
-				  PushState.state(userCard, "savings",100);
+				  
 				  String name=this.getName(driver);//获取用户名
 				  driver.get(GETDETAIL_URL); 
 				  try {
@@ -132,14 +133,14 @@ public class SPDBService {
 					Map<String, String> baseMes=new HashMap<String, String>();//存放基本信息
 					Thread.sleep(3000);					
 					billMes=this.forParseBillMes(driver, billMes);//流水
-					baseMes=this.parseBaseMes(baseMes);//基本信息
-					PushSocket.push(map, UUID, "6000","浦发银行数据获取成功");
+					baseMes=this.parseBaseMes(baseMes);//基本信息					
 				    map.put("bankName", "浦发银行储蓄卡");//银行名称
 				    map.put("cardNumber", cardNumber);//卡号
 				    map.put("IDNumber", userCard);
 				    map.put("userName", name);//用户名
 					map.put("billMes", billMes);
 					map.put("baseMes", baseMes);
+					PushSocket.push(map, UUID, "6000","浦发银行数据获取成功");
 					map = new Resttemplate().SendMessage(map, application.sendip+"/HSDC/savings/authentication");  //推送数据
     			    if(map!=null&&"0000".equals(map.get("errorCode").toString())){
     		           	 PushState.state(userCard, "savings", 300);
@@ -148,21 +149,22 @@ public class SPDBService {
     		           	map.put("errorCode","0000");
     		           }else{
     		           	PushState.state(userCard, "savings", 200);
-    		           	PushSocket.push(map, UUID, "9000","浦发银行认证失败");
+    		           	PushSocket.push(map, UUID, "9000",map.get("errorInfo").toString());
     		           	map.put("errorInfo","推送失败");
     		           	map.put("errorCode","0001");
     		           }
     			    
 				} catch (Exception e1) {
-					PushSocket.push(map, UUID, "7000","网络连接异常，数据获取失败");
-					PushState.state(userCard, "savings",100);
+					PushSocket.push(map, UUID, "9000","网络连接异常，认证失败");
+					PushState.state(userCard, "savings",200);
 					map.put("errorCode", "0001");
 		            map.put("errorInfo", "网络连接异常!");
-					 logger.warn("浦发银行",e);
+					logger.warn("浦发银行",e);
 				}
 			}else{//用户名或密码错误
 			    WebElement tip=	driver.findElement(By.className("loginErr"));
 				logger.warn("----浦发银行登陆失败----失败原因："+tip.getText());
+				PushState.state(userCard, "savings",200);
 				PushSocket.push(map, UUID, "3000",tip.getText());
 				map.put("errorCode", "0001");
 	            map.put("errorInfo", tip.getText());

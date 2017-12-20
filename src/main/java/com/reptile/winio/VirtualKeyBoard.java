@@ -168,9 +168,7 @@ public class VirtualKeyBoard {
 				wait.until(ExpectedConditions.titleContains("中国民生银行个人网银"));
 				if (driver.getTitle().contains("中国民生银行个人网银")) {
 					PushSocket.push(map, UUID, "2000","民生银行登陆成功");
-					if(isok==true){
-						PushState.state(idcard, "bankBillFlow", 100);
-					}
+					
 					logger.warn("----------------民生信用卡-------------登陆成功-----------------用户名："+number);
 					Thread.sleep(2000);
 					PushSocket.push(map, UUID, "5000","民生银行数据获取中");
@@ -198,11 +196,12 @@ public class VirtualKeyBoard {
 					data.put("fixedEd", element.get(0).getText());
 					
 					Thread.sleep(3000);
-					String js = "var aaa=document.getElementsByTagName('a');aaa[228].click();";
+					String js = "var aaa=document.getElementsByTagName('a');aaa[229].click();";
 
 					jss.executeScript(js, "");
 					Thread.sleep(3000);
 
+					
 					List<WebElement> ifs = driver.findElements(By
 							.className("lanzi1"));
 					wait.until(ExpectedConditions.textToBePresentInElement(
@@ -218,38 +217,50 @@ public class VirtualKeyBoard {
 //						driver.manage().timeouts()
 //								.implicitlyWait(20, TimeUnit.SECONDS);
 						try {
-							WebElement we = driver
+							/*WebElement we = driver
 									.findElement(By
 											.xpath("//*[@id='transView']/div/div/div/div/div/table[1]/tbody/tr/td/div[8]//*[@id='"
 													+ i + "']"));
 
-							we.click();
+							we.click();*/
+							
 //							driver.manage().timeouts()
 //									.implicitlyWait(20, TimeUnit.SECONDS);
-							Thread.sleep(2000);
+							
+							List<WebElement> xialali = driver.findElements(By
+									.className("xialali"));
+							
+							xialali.get(5+i).click();
+							
+							Thread.sleep(3000);
 							wait.until(ExpectedConditions
 									.textToBePresentInElement(ifs.get(2),
 											"下载明细"));
 							list.add(driver.getPageSource());
+							PushSocket.push(map, UUID, "6000","民生银行数据获取成功");
+							logger.warn("-------------list.toString()"+"----------------------");
+							data.put("html", list);
+							data.put("backtype", "CMBC");
+							data.put("idcard", idcard);
+							map.put("data", data);
+							map.put("isok", isok);
+							map = resttemplate.SendMessageX(map, application.sendip
+									+ "/HSDC/BillFlow/BillFlowByreditCard", idcard,UUID);
 						} catch (org.openqa.selenium.ElementNotVisibleException e) {
-							PushSocket.push(map, UUID, "7000","网络异常，数据获取失败");
+							PushSocket.push(map, UUID, "9000","网络异常，认证失败");
 							WebElement we = driver
 									.findElement(By
 											.xpath("//*[@id='transView']/div/div/div/div/div/table[1]/tbody/tr/td/div[8]//*[@id='"
 													+ i + "']"));
 							logger.warn("---------民生详情查询--------------"+we.getAttribute("title")+"账单选择问题",e);
-
+							if(isok==true){
+								PushState.state(idcard, "bankBillFlow", 200);
+							}
+							map.put("errorCode", "0001");
+							map.put("errorInfo", "网络错误");
 						}
 					}
-					PushSocket.push(map, UUID, "6000","民生银行数据获取成功");
-					logger.warn("-------------list.toString()"+"----------------------");
-					data.put("html", list);
-					data.put("backtype", "CMBC");
-					data.put("idcard", idcard);
-					map.put("data", data);
-					map.put("isok", isok);
-					map = resttemplate.SendMessageX(map, application.sendip
-							+ "/HSDC/BillFlow/BillFlowByreditCard", idcard,UUID);
+					
 
 				} else {
 					PushSocket.push(map, UUID, "3000","网络异常，登陆失败");
@@ -341,7 +352,6 @@ public class VirtualKeyBoard {
 		Map<String, Object> map = new HashMap<String, Object>(); /* 请求头 */
 		try {
 			logger.warn("----------------招商信用卡-------------登陆开始-----------------用户名："+arg1);
-			PushSocket.push(map, UUID, "1000","招商银行信用卡登录中");
 			String sessid = new CrawlerUtil().getUUID(); /* 生成UUid 用于区分浏览器 */
 			HttpSession sessions = session;
 
@@ -417,14 +427,19 @@ public class VirtualKeyBoard {
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> data = new HashMap<String, Object>();
 		PushSocket.push(map, UUID, "1000","广发银行信用卡登录中");
+		
 		boolean isok = CountTime.getCountTime(timeCnt);
+		if(isok==true){
+			PushState.state(usercard, "bankBillFlow", 100);
+		}
 		WebDriver driver = null;
+		JavascriptExecutor jss = (JavascriptExecutor) driver;
 		try {
 			driver = DriverUtil.getDriverInstance("ie");
 			WebDriverWait wait = new WebDriverWait(driver, 20);
 			logger.warn("--------广发银行信用卡------------登陆开始-----------身份证号："+ usercard);
 			driver.manage().window().maximize();
-			JavascriptExecutor jss = (JavascriptExecutor) driver;
+			
 			driver.get("https://ebanks.cgbchina.com.cn/perbank/");
 			wait.until(ExpectedConditions.presenceOfElementLocated(By
 					.linkText("广发银行官方网站")));
@@ -437,8 +452,9 @@ public class VirtualKeyBoard {
 			Thread.sleep(1000);
 			/* 输入密码 */
 			KeysPress.sendPassWord(pwd);
-
-			String imgtext = downloadImgs(driver, "verifyImg");
+			WebElement keyWord = driver.findElement(By.id("verifyImg"));
+			String imgtext = downloadImgss(driver, keyWord);
+			System.out.println(imgtext+"************打码*********");
 			logger.warn("--------广发银行信用卡--------登陆-----------验证码打码为："+imgtext+"-------------");
 			if (imgtext.contains("超时") || imgtext.equals("")) {
 				map.put("errorInfo", "查询失败");
@@ -455,37 +471,47 @@ public class VirtualKeyBoard {
 			WebElement loginButton = driver.findElement(By.id("loginButton"));
 			loginButton.click(); /* 点击登陆 */
 			//弹窗的内容
+			
+		} catch (Exception e) {
+			logger.warn("-----------广发银行登录失败----------",e);
+			map.put("errorInfo", "网络异常,请重试！！");
+			map.put("errorCode", "0001");
+			PushSocket.push(map, UUID, "3000","网络异常");
+			if(isok==true){
+				PushState.state(usercard, "bankBillFlow", 200);
+			}
+		}finally{
+			DriverUtil.close(driver);
+		}
 			String str = DriverUtil.alertFlag(driver);
 			if(!str.isEmpty()){
-				if(str.contains("验证码")){
-					map = GDBLogin(number, pwd, usercard, UUID,timeCnt);
-				}else{
-					map.put("errorInfo", str);
+					if(str.contains("验证码")){
+						map = GDBLogin(number, pwd, usercard, UUID,timeCnt);
+					}else{
+						map.put("errorInfo", str);
+						map.put("errorCode", "0001");
+						PushSocket.push(map, UUID, "3000",str);
+						if(isok==true){
+							PushState.state(usercard, "bankBillFlow", 200);
+						}
+						logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+str);
+					}
+					return map;								
+			}else if(DriverUtil.waitById("errorMessage", driver, 3)){
+					String errorMessage = driver.findElement(By.id("errorMessage")).getText();
+					map.put("errorInfo", errorMessage);
 					map.put("errorCode", "0001");
-					PushSocket.push(map, UUID, "3000",str);
+					PushSocket.push(map, UUID, "3000",errorMessage);
 					if(isok==true){
 						PushState.state(usercard, "bankBillFlow", 200);
 					}
-					logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+str);
-				}
-				return map;
-			}else if(DriverUtil.waitById("errorMessage", driver, 3)){
-				String errorMessage = driver.findElement(By.id("errorMessage")).getText();
-				map.put("errorInfo", errorMessage);
-				map.put("errorCode", "0001");
-				PushSocket.push(map, UUID, "3000",errorMessage);
-				if(isok==true){
-					PushState.state(usercard, "bankBillFlow", 200);
-				}
-				logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+errorMessage);
-				return map;
+					logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+errorMessage);
+					return map;									
 			}else if(DriverUtil.waitByTitle("广发银行个人网上银行", driver, 15)){
 				try {
 					logger.warn("--------广发银行登陆------------成功-----------用户名："+ number+"-----------");
 					PushSocket.push(map, UUID, "2000","广发银行信用卡登陆成功");
-					if(isok==true){
-						PushState.state(usercard, "bankBillFlow", 100);
-					}
+					
 					Thread.sleep(8000);
 					PushSocket.push(map, UUID, "5000","广发银行信用卡数据获取中");
 					String jsv = "var aaa=document.getElementsByClassName('node');aaa[15].click();";
@@ -566,24 +592,17 @@ public class VirtualKeyBoard {
 						logger.warn("-----------广发银行查询失败----------",e);
 						map.put("errorInfo", "网络异常,请重试！！");
 						map.put("errorCode", "0001");
-						PushSocket.push(map, UUID, "7000","网络异常，数据获取失败");
+						PushSocket.push(map, UUID, "9000","网络异常，认证失败");
 						if(isok==true){
 							PushState.state(usercard, "bankBillFlow", 200);
 						}
+					}finally{
+						DriverUtil.close(driver);
 					}
 				}
 				
 			
-		} catch (Exception e) {
-			logger.warn("-----------广发银行查询失败----------",e);
-			map.put("errorInfo", "网络异常,请重试！！");
-			map.put("errorCode", "0001");
-			if(isok==true){
-				PushState.state(usercard, "bankBillFlow", 200);
-			}
-		}finally{
-			DriverUtil.close(driver);
-		}
+		
 		logger.warn("--------------广发银行信用卡------------查询结束-----------返回信息为："+map+"---------------");
 		return (map);
 	}
@@ -642,8 +661,10 @@ public class VirtualKeyBoard {
 				} else {
 					map.put("errorCode", "0001");
 					map.put("errorInfo", "验证码发送失败");
+					PushSocket.push(map, UUID, "3000","验证码发送失败,登陆失败");
 				}
 			} else {
+				PushSocket.push(map, UUID, "2000","招商银行信用卡登陆成功");
 				data.put("Verify", "no");
 				map.put("errorCode", "0000");
 				/* map.put("errorinfo", "操作成功"); //原始数据 */
@@ -663,16 +684,20 @@ public class VirtualKeyBoard {
 					.className("page-form-item"));
 			if (elements1.getText().contains("附加码")) {
 				/* map.put("errorInfo","出现验证码了"); */
+				PushSocket.push(map, UUID, "3000",elements1.getText());
 				map.put("errorInfo", "异常登陆,请重试");
 				map.put("errorCode", "0005");
 			} else {
 				if (elements1.getText().contains("开户地")) {
 					map.put("errorInfo", "请重试");
 					map.put("errorCode", "0001");
+					PushSocket.push(map, UUID, "3000",elements1.getText());
 				} else if (elements1.getText().contains("请输入一网通、一卡通、信用卡、存折账号")) {
+					PushSocket.push(map, UUID, "3000",elements1.getText());
 					map.put("errorInfo", "目前网络较差，请重试");
 					map.put("errorCode", "0001");
 				} else {
+					PushSocket.push(map, UUID, "3000",elements1.getText());
 					map.put("errorInfo", elements1.getText());
 					map.put("errorCode", "0001");
 				}
@@ -896,6 +921,15 @@ public class VirtualKeyBoard {
 	public static String downloadImgs(WebDriver driver, String id)
 			throws IOException {
 		WebElement keyWord = driver.findElement(By.id(id));
+		String src = keyWord.getAttribute("src");
+		String filename = new CrawlerUtil().getUUID();
+		BufferedImage inputbig = createElementImages(driver, keyWord);
+		ImageIO.write(inputbig, "png", new File("C://" + filename + ".png"));
+		String codenice = cydmDemo.getcode(filename); /* 识别yanzhengma */
+		return (codenice);
+	}
+	public static String downloadImgss(WebDriver driver, WebElement keyWord)
+			throws IOException {		
 		String src = keyWord.getAttribute("src");
 		String filename = new CrawlerUtil().getUUID();
 		BufferedImage inputbig = createElementImages(driver, keyWord);

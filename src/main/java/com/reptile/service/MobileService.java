@@ -48,14 +48,14 @@ public class MobileService {
 //				throws FailingHttpStatusCodeException, MalformedURLException, IOException, InterruptedException {
 			public Map<String, Object> Queryinfo(HttpSession session,HttpServletResponse response,String codes,String sessid,String ClientNos,String idCard,String UUID,String timeCnt)
 					throws FailingHttpStatusCodeException, MalformedURLException, IOException, InterruptedException, java.text.ParseException {
-				Map<String,Object>maps=new HashMap();
+				Map<String,Object>maps=new HashMap();				
 				Map<String,Object> map=new HashMap<String, Object>();//请求头
-				boolean isok = CountTime.getCountTime(timeCnt);
 				PushSocket.push(map, UUID, "1000","招商银行信用卡登录中");
+				Thread.sleep(2000);
+				boolean isok = CountTime.getCountTime(timeCnt);
 				if(isok==true){
 					PushState.state(idCard,"bankBillFlow", 100);
-				}
-				
+				}				
 				SimpleHttpClient httclien=new SimpleHttpClient();
 		    Map<String,Object> params=new HashMap<String, Object>();//参数
 		    Map<String,Object> paramse=new HashMap<String, Object>();//参数
@@ -66,12 +66,11 @@ public class MobileService {
 		    Map<String,Object> data=new HashMap<String, Object>();//请求头
 		    String zhangdan="";
 		    boolean codeflg=true;
-		    
-		    String cookie=session.getAttribute(sessid).toString();
-		    
+		    PushSocket.push(map, UUID, "2000","招商银行信用卡登录成功");
+		    String cookie=session.getAttribute(sessid).toString();		    
 		    
 			 if(codes.equals("0")){
-				 PushSocket.push(map, UUID, "2000","招商银行信用卡登陆成功");
+				
 				 //不需要验证码的处理
 				 	System.out.println("直接授权登陆");
 				 	Thread.sleep(1000);
@@ -113,6 +112,9 @@ public class MobileService {
 					       	String endinfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningListNew.aspx", paramend, headers);//开始发包
 					    	if(endinfo.contains("账单数据正在更新中")){
 					    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
+					    		if(isok==true){
+									PushState.state(idCard,"bankBillFlow", 200);
+								}
 					    		map.put("errorCode","0000");
 				    			map.put("errorInfo","认证成功");
 					    		return map;
@@ -130,8 +132,11 @@ public class MobileService {
 					       	String endinfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningListNew.aspx", paramend, headers);//开始发包
 					    	if(endinfo.contains("账单数据正在更新中")){
 					    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
+					    		if(isok==true){
+									PushState.state(idCard,"bankBillFlow", 200);
+								}
 					    		map.put("errorCode","0000");
-				    			map.put("errorInfo","认证成功");
+				    			map.put("errorInfo","认证失败");
 					    		return map;
 					    	}else{
 					    		lists.add(endinfo);
@@ -171,12 +176,18 @@ public class MobileService {
 				    		toke =rest1.substring(rest1.indexOf("<AuthToken>"), rest1.indexOf("</AuthResponseBody>"));
 				    	  	if(toke.contains("当前用户不允许使用该业务")){
 				    	  		PushSocket.push(map, UUID, "7000","当前用户不允许使用该业务");
+				    	  		if(isok==true){
+									PushState.state(idCard,"bankBillFlow", 200);
+								}
 				    	  		map.put("errorCode","0001");
 				    			map.put("errorInfo","当前用户不允许使用该业务");
 					    		return map;
 					    	}
 						} catch (java.lang.StringIndexOutOfBoundsException e) {
 							PushSocket.push(map, UUID, "7000","当前用户不允许使用该业务");
+							if(isok==true){
+								PushState.state(idCard,"bankBillFlow", 200);
+							}
 							map.put("errorCode","0001");
 			    			map.put("errorInfo","当前用户不允许使用该业务");
 				    		return map;
@@ -224,12 +235,21 @@ public class MobileService {
 					       	paramend.put("O_STMT_FLAG","Y");
 					       	String endinfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningListNew.aspx", paramend, headers);//开始发包
 					    	if(endinfo.contains("账单数据正在更新中")){
-					    
+					    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
+					    		if(isok==true){
+									PushState.state(idCard,"bankBillFlow", 200);
+								}
+					    		map.put("errorCode","0000");
+				    			map.put("errorInfo","账单数据正在更新中");
+					    		return map;
 					    	}else{
 					    		lists.add(endinfo);
 					    	}
 					    	if(list.size()<=0){
 					    		PushSocket.push(map, UUID, "7000","暂无账单");
+					    		if(isok==true){
+									PushState.state(idCard,"bankBillFlow", 200);
+								}
 					    		map.put("errorCode","0001");
 				    			map.put("errorInfo","暂无账单");
 					    		return map;
@@ -246,8 +266,11 @@ public class MobileService {
 						       	String endinfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningListNew.aspx", paramend, headers);//开始发包
 						    	if(endinfo.contains("账单数据正在更新中")){
 						    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
+						    		if(isok==true){
+										PushState.state(idCard,"bankBillFlow", 200);
+									}
 						    		map.put("errorCode","0000");
-					    			map.put("errorInfo","认证成功");
+					    			map.put("errorInfo","账单数据正在更新中");
 						    		return map;
 						    	}else{
 						    		lists.add(endinfo);
@@ -292,7 +315,7 @@ public class MobileService {
 		        	if(isok==true){
 		            	PushState.state(idCard, "bankBillFlow",200);
 		        	}
-		        	PushSocket.push(map, UUID, "9000","认证失败");
+		        	PushSocket.push(map, UUID, "9000",map.get("errorInfo").toString());
 		            	//---------------------数据中心推送状态----------------------
 		                map.put("errorInfo","查询失败");
 		                map.put("errorCode","0001");
@@ -301,7 +324,7 @@ public class MobileService {
 				 	if(isok==true){
 		            	PushState.state(idCard, "bankBillFlow",200);
 		        	}
-				 	PushSocket.push(map, UUID, "3000","验证码错误");
+				 	PushSocket.push(map, UUID, "3000","验证码错误，登录失败");
 					map.put("errorCode","0001");
 	    			map.put("errorInfo","验证码错误");
 			 }
@@ -348,8 +371,9 @@ public class MobileService {
 				Map<String,Object> parmcode=new HashMap<String, Object>();
 				Map<String,Object> data1=new HashMap<String, Object>();
 				Map<String,String> head1=new HashMap<String, String>();
+				PushState.state(idcard, "savings", 100);
+				PushSocket.push(params, UUID, "1000","招商储蓄卡登陆中");
 				Map status=new HashMap();
-				PushSocket.push(params, UUID, "1000","招商储蓄卡登录中");
 				HttpSession session=re.getSession();
 				String cookieid= session.getAttribute(sessid).toString();
 				parmcode.put("ClientNo", num);
@@ -362,7 +386,7 @@ public class MobileService {
 		    	String seninfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/GenLoginVerifyM2.aspx", parmcode, headers);
 		    	if(seninfo.contains("code>00</code>")){
 		    	 
-		    		System.out.println("成功登陆");
+		    		System.out.println("成功登陆");		    		
 		    		PushSocket.push(params, UUID, "2000","招商储蓄卡登陆成功");
 		    		try {
 		    			System.out.println("继续发包请求");
@@ -468,6 +492,7 @@ public class MobileService {
 					    params.put("cardNumber", num);
 					    params.put("userName", "");
 					    System.out.println(JSONObject.fromObject(params));
+					    Thread.sleep(1000);
 					    PushSocket.push(params, UUID, "6000","招商储蓄卡数据获取成功");
 						Resttemplate resttemplate=new Resttemplate();
 						status=	resttemplate.SendMessage(JSONObject.fromObject(params), application.sendip+"/HSDC/savings/authentication",idcard,UUID);
@@ -475,12 +500,16 @@ public class MobileService {
 		    		}catch(Exception e) {
 		    			params.put("errorInfo", "网络异常,请重试！！");
 		    			params.put("errorCode", "0001");
-		    			PushSocket.push(params, UUID, "7000","网络忙，无法获取数据");
+		    			PushSocket.push(params, UUID, "9000","网络异常，认证失败");
+		    			PushState.state(idcard, "savings", 200);
+		    			System.out.println("*********************************************网络异常，登录失败");
 		    		}
 				 }else {
 					 params.put("errorInfo", "查询失败");
 					 params.put("errorCode", "0002");
-					 PushSocket.push(params, UUID, "3000","网络异常，登陆失败");
+					 PushSocket.push(params, UUID, "3000","网络异常，登录失败");
+					 PushState.state(idcard, "savings", 100);
+					 System.out.println("***************************************网络异常，登录失败");
 				 }
 	    	}else{
 	    		try {
@@ -590,6 +619,7 @@ public class MobileService {
 				    params.put("cardNumber", num);
 				    params.put("userName", "");
 				  System.out.println(JSONObject.fromObject(params));
+				  Thread.sleep(1000);
 				  PushSocket.push(params, UUID, "6000","招商储蓄卡数据获取成功");
 					Resttemplate resttemplate=new Resttemplate();
 					status=	resttemplate.SendMessage(JSONObject.fromObject(params), application.sendip+"/HSDC/savings/authentication",session.getAttribute("UserCard").toString(),UUID);
@@ -597,11 +627,10 @@ public class MobileService {
 	    		}catch(Exception e) {
 	    			params.put("errorInfo", "网络异常,请重试！！");
 	    			params.put("errorCode", "0001");
-	    			PushSocket.push(params, UUID, "7000","网络异常，数据获取失败");
-	    		}
-	    		
-	    	}
-	    	
+	    			PushSocket.push(params, UUID, "9000","网络异常，认证失败");
+	    			PushState.state(idcard, "savings", 100);
+	    		}	    		
+	    	}	    	
 			 return status;
 		 }
 		 

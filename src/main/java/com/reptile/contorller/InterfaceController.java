@@ -37,6 +37,8 @@ public class InterfaceController {
 
 	@Resource
 	private MobileService mobileService;
+	
+	
 
 	@ResponseBody
 	@RequestMapping(value = "BankLogin", method = RequestMethod.POST)
@@ -45,8 +47,7 @@ public class InterfaceController {
 	public Map<String, Object> Login(HttpServletRequest request,
 			HttpServletResponse response, @RequestParam("number") String numbe,
 			@RequestParam("pwd") String pwd,
-			@RequestParam("BankType") String BankType,
-			@RequestParam("timeCnt") String timeCnt
+			@RequestParam("BankType") String BankType
 			) throws Exception {
 		VirtualKeyBoard bank = new VirtualKeyBoard();
 		CmbBank banks = new CmbBank();
@@ -56,6 +57,7 @@ public class InterfaceController {
 		HttpSession session = request.getSession();
 		String UUID = request.getParameter("UUID");
 		String userCard = request.getParameter("userCard");
+		String timeCnt = request.getParameter("timeCnt");
 		synchronized (this) {
 			if (BankType.equals("CMB")) {// 招商银行
 				map = bank.Login(numbe, pwd, session, UUID);
@@ -70,7 +72,7 @@ public class InterfaceController {
 			} else if (BankType.equals("CXCMB")) {// 招商储蓄卡
 				map = banks.CMBLogin(numbe, pwd, request, userCard, UUID);
 			} else if (BankType.equals("BCM")) {// 交通银行
-				map = BcmLogin.BcmLogins(numbe, pwd, UUID,userCard);
+				map = BcmLogin.BcmLogins(request,numbe, pwd, UUID,userCard);
 			} else if (BankType.equals("X-BCM")) {// 交通银行 信用卡
 				map = JiaoTong.BankLogin(numbe, pwd, userCard, request, UUID,timeCnt);
 			} else if (BankType.equals("ABC")) {// 农业银行储蓄卡
@@ -100,7 +102,6 @@ public class InterfaceController {
 		String UUID = request.getParameter("UUID");
 		return mobileService.Queryinfo(session, response, code, sessid,
 				ClientNo, idCard, UUID,timeCnt);
-
 	}
 
 	/**
@@ -131,6 +132,40 @@ public class InterfaceController {
 
 		return mobileService.CmbQueryInfo(code, sessid, ClientNo, idCard,
 				request, UUID, Sendcode);
+
+	}
+	
+	
+	/*
+	 * 交通储蓄卡发送短信验证码
+	 */
+	
+	@ResponseBody
+	@RequestMapping(value = "BCMSendCode", method = RequestMethod.POST)
+	@ApiOperation(value = "银行查询", notes = "测试伙伴们，这个里面需要的数据 在登陆返回的里面取")
+	// 设置标题描述
+	public Map<String, Object> BCMSendCode(HttpServletRequest request) throws Exception {
+
+		return BcmLogin.BCMSendCode(request);
+
+	}
+
+	/*
+	 * 交通储蓄卡获取数据
+	 */
+	
+	@ResponseBody
+	@RequestMapping(value = "BCMQueryInfo", method = RequestMethod.POST)
+	@ApiOperation(value = "银行查询", notes = "测试伙伴们，这个里面需要的数据 在登陆返回的里面取")
+	// 设置标题描述
+	public Map<String, Object> BCMQueryInfo(HttpServletRequest request,
+			HttpServletResponse response, @RequestParam("code") String code,
+			@RequestParam("userCard") String userCard,
+			@RequestParam("Sendcode") String Sendcode,			
+			@RequestParam("UUID") String UUID, @RequestParam("number") String numbe
+			) throws Exception {
+
+		return BcmLogin.BCMQueryInfo(request,UUID,userCard,Sendcode,numbe);
 
 	}
 

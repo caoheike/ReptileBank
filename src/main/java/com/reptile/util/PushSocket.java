@@ -28,6 +28,7 @@ public class PushSocket {
 		String seq_id = TalkframeController.getWsInfoMap().get(UUID);
 		logger.warn("----------------长连接推送开始------se：" + se + "-----seq_id:"
 				+ seq_id);
+		System.out.println("errorInfor----"+errorInfor);
 		String date=CountTime.currentTime();
 		try {
 			if (se != null && seq_id != null) {

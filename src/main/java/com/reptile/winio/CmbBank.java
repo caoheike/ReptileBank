@@ -54,7 +54,6 @@ public class CmbBank {
 		String sessid = new CrawlerUtil().getUUID(); // 生成UUid 用于区分浏览器
 		HttpSession sessions = request.getSession();
 		sessions.setAttribute("UserCard", UserCard);
-		PushState.state(UserCard, "savings", 100);
 		WebDriver driver = null;
 		try {
 			driver = DriverUtil.getDriverInstance("ie");
@@ -141,7 +140,7 @@ public class CmbBank {
 						map.put("data", params);
 
 					} else {
-						map.put("errorInfo", "失败");
+						map.put("errorInfo", "登录失败");
 						map.put("errorCode", "0001");
 						PushState.state(UserCard, "savings", 200);
 					}
@@ -156,7 +155,6 @@ public class CmbBank {
 					CMBLogin(userName, userPwd, request, UserCard, UUID);
 
 				}
-
 				map.put("errorInfo", elements1.getText());
 				map.put("errorCode", "0001");
 				PushState.state(UserCard, "savings", 200);

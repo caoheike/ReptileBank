@@ -89,13 +89,14 @@ public class Resttemplate {
   			ps.state(id, "bankBillFlow", 300);
         }else{
     		ps.state(id, "bankBillFlow", 200);
-    		PushSocket.push(map, UUID, "9000","认证失败");
+    		PushSocket.push(map, UUID, "9000",jsonObject.get("errorCode").toString());
       		message.put("errorCode",jsonObject.get("errorCode"));//异常处理
   			message.put("errorInfo",jsonObject.get("errorInfo"));
         }
          
 		} catch (Exception e) {
 			logger.warn("----------将数据推送给数据中心失败--------------",e);
+			PushSocket.push(map, UUID, "9000","网络异常，认证失败");
 			ps.state(id, "bankBillFlow", 200);
 			message.put("errorCode","0003");//异常处理
 			message.put("errorInfo","推送失败");
@@ -132,7 +133,7 @@ public class Resttemplate {
 				ps.state(id, "bankBillFlow", 300);
 			}
       }else{
-    	  PushSocket.push(map, UUID, "9000","认证失败");
+    	  PushSocket.push(map, UUID, "9000",jsonObject.get("errorInfo").toString());
     	  if(isok==true){
     		  ps.state(id, "bankBillFlow", 200);
     	  }   		  
@@ -145,7 +146,7 @@ public class Resttemplate {
 			if(isok==true){
 	    		  ps.state(id, "bankBillFlow", 200);
 	    	 } 
-			PushSocket.push(map, UUID, "9000","认证失败");
+			PushSocket.push(map, UUID, "9000","网络异常，认证失败");
 			message.put("errorCode","0003");//异常处理
 			message.put("errorInfo","推送失败");
 		}

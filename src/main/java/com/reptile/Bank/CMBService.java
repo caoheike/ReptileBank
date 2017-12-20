@@ -94,6 +94,7 @@ public class CMBService {
         Map<String,Object> map=new HashMap<String,Object>();
         Map<String,Object> data=new HashMap<String,Object>();
         PushSocket.push(map, UUID, "1000","民生储蓄卡登录中");
+        PushState.state(idCard, "savings", 100);
         WebDriver driver =null; 
     	try {
     		logger.warn("--------------民生储蓄卡------------登陆开始------------身份证号："+idCard);
@@ -104,10 +105,11 @@ public class CMBService {
 			//driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);//显示等待
 		    WebElement element=	driver.findElement(By.id("writeUserId"));
 		    element.sendKeys(userCard);//输入账号
+		    Thread.sleep(1000);
 		    String s = "Tab";//
 			KeyPresss(s);
 		//	new WebDriverWait(driver, 15).until(ExpectedConditions.)
-		    Thread.sleep(500);	
+		    Thread.sleep(1000);	
 			inputCode(passWord);//密码
 			KeyPresss("Tab");
 			Thread.sleep(2000);
@@ -143,29 +145,28 @@ public class CMBService {
     				//System.out.println("您为第一次登陆网上银行，请先登陆官网设置您的登陆名和登陆密码");
     				map.put("errorCode", "0001");
     	            map.put("errorInfo", "您为第一次登陆网上银行，请先登陆官网设置您的登陆名和登陆密码");
-    	            PushSocket.push(map, UUID, "2000","您为第一次登陆网上银行，请先登陆官网设置您的登陆名和登陆密码");
+    	            PushSocket.push(map, UUID, "3000","您为第一次登陆网上银行，请先登陆官网设置您的登陆名和登陆密码");
     	            driver.quit();
     	            return map;
     			}else{//登陆成功
     				logger.warn("--------------民生储蓄卡------------登陆成功------------身份证号："+idCard);
     				PushSocket.push(map, UUID, "2000","民生储蓄卡登陆成功");
-    				PushState.state(idCard, "savings", 100);
+    				String userName="";
+    				try {
     				WebDriverWait wait = new WebDriverWait(driver, 20);
     			    wait.until(ExpectedConditions.titleContains("中国民生银行个人网银"));
                     wait.until(ExpectedConditions.presenceOfElementLocated(By.className("v-binding")));                  
     				List<WebElement> ss = driver.findElements(By.className("v-binding"));
     				PushSocket.push(map, UUID, "5000","民生储蓄卡数据获取中");
     				//wait.until(ExpectedConditions.elementToBeClickable(ss.get(0)));
-    				String userName=	ss.get(0).getText().split("好，")[1];//用户名
+    				userName=	ss.get(0).getText().split("好，")[1];//用户名
     			    wait.until(ExpectedConditions.elementToBeClickable(ss.get(7)));
     			   	ss.get(7).click();//点击账户余额查询
     			   	//Thread.sleep(4000);
-    			   	wait.until(ExpectedConditions.presenceOfElementLocated(By.className("byue_0")));
-    			   	try {
-    			   		WebElement _vTokenId = driver.findElement(By.className("byue_0"));
-        			    _vTokenId.click();//点击账户详情
-        				wait.until(ExpectedConditions.presenceOfElementLocated(By.id("BenhangKa")));
-        			   
+    			   	wait.until(ExpectedConditions.presenceOfElementLocated(By.className("byue_0")));    			   	
+			   		WebElement _vTokenId = driver.findElement(By.className("byue_0"));
+    			    _vTokenId.click();//点击账户详情
+    				wait.until(ExpectedConditions.presenceOfElementLocated(By.id("BenhangKa")));      			   
         				//Thread.sleep(3000);
 					} catch (Exception e) {
 						PushState.state(idCard, "savings", 200);
@@ -206,7 +207,7 @@ public class CMBService {
     		           	data.put("errorCode","0000");
     		           }else{
     		           	 PushState.state(idCard, "savings", 200);
-    		           	PushSocket.push(map, UUID, "9000","认证失败");
+    		           	PushSocket.push(map, UUID, "9000",map.get("errorInfo").toString());
     		           	data.put("errorInfo","推送失败");
     		           	data.put("errorCode","0001");
     		           }
@@ -224,12 +225,14 @@ public class CMBService {
 					
 					//System.out.println("网络异常，请刷新重试");
 					 map.put("errorInfo", "网络异常，请刷新重试!");
+					 
 				}else{
 					
 					map.put("errorInfo", element1.getText());
 					//System.out.println(element1.getText());
 				} 
-				PushSocket.push(map, UUID, "7000",element1.getText());
+				PushSocket.push(map, UUID, "3000",element1.getText());
+				PushState.state(idCard, "savings", 200);
 				logger.warn("民生银行",element1.getText());
 				// driver.quit();
 				 return map;
@@ -240,6 +243,8 @@ public class CMBService {
 			// driver.quit();
 			map.put("errorCode", "0001");
             map.put("errorInfo", "网络连接异常!");
+            PushSocket.push(map, UUID, "9000","认证失败");
+			PushState.state(idCard, "savings", 200);
 			//e.printStackTrace();
 		
 		}finally{
