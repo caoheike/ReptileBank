@@ -284,8 +284,6 @@ public class BcmLogin {
 		WebDriver driver = (WebDriver) request.getAttribute("jiaotongdriver");
 		Map<String, Object> status = new HashMap<String, Object>();
 		Map<String, Object> params = new HashMap<String, Object>();
-		PushSocket.push(status, UUID, "1000","交通储蓄卡登录中");
-		PushState.state(userCard, "savings", 100);
 		Map<String, String> headers = new HashMap<String, String>();
 		Thread.sleep(1000);
 		JavascriptExecutor js = (JavascriptExecutor) driver;
