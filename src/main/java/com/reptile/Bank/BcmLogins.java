@@ -116,6 +116,19 @@ public class BcmLogins {
 			jss.executeScript("$('#cardLogin').click();", "");
 			// driver.findElement(By.id("loginBtn")).click();
 			Thread.sleep(4000);
+			
+		}catch (Exception e) {
+			logger.warn("-----------交通信用卡-----------查询失败-----------身份证号："+UserCard, e);
+			PushSocket.push(map, UUID, "3000","网络异常,登录失败");
+			if(isok==true){
+				PushState.state(UserCard, "bankBillFlow", 200);
+			}
+			map.put("errorCode", "0001");
+			map.put("errorInfo", "网络异常");
+			DriverUtil.close(driver);
+		}
+			
+			
 			String currentWindow = driver.getWindowHandle();
 			//监听是否有弹窗
 			String alertText = "";
@@ -125,7 +138,7 @@ public class BcmLogins {
 			} catch (Exception e) {
 				driver.switchTo().window(currentWindow);
 			}
-
+	
 			// 监听是否有错误信息
 			List<WebElement> msg = null;
 			try {
@@ -133,8 +146,8 @@ public class BcmLogins {
 			} catch (Exception e) {
 				msg = new ArrayList<WebElement>();
 			}
-			if (alertText.equals("") && msg.size() == 0) {
-
+					
+			if (alertText.equals("") && msg.size() == 0) {					
 				// if(driver.findElement(By.id("moibleMessages"))!=null){
 				// 识别是否需要发送验证码
 				if (driver.getPageSource().contains("moibleMessages")) {
@@ -167,6 +180,7 @@ public class BcmLogins {
 					map.put("whetherCode", "no");
 					map.put("errorCode", "0004");// 认证失败
 					map.put("errorInfo", "帐号认证异常，请你先尝试在官网登录");
+					DriverUtil.close(driver);
 					return map;
 					// 不需要发送验证码
 				} else if (driver.getPageSource().contains("查看我的买单吧")) {
@@ -210,6 +224,7 @@ public class BcmLogins {
 								+ "/HSDC/BillFlow/BillFlowByreditCard", UserCard,UUID);
 
 						map.put("whetherCode", "no");
+						DriverUtil.close(driver);
 						return map;
 					}catch (Exception e) {
 						logger.warn("-----------交通信用卡-----------查询失败-----------身份证号："+UserCard, e);
@@ -219,6 +234,7 @@ public class BcmLogins {
 						}
 						map.put("errorCode", "0001");
 						map.put("errorInfo", "网络异常");
+						DriverUtil.close(driver);
 					}
 					
 					logger.warn("--------------交通银行信用卡---------------查询成功----------------身份证号："+UserCard);
@@ -230,6 +246,7 @@ public class BcmLogins {
 					}
 					map.put("errorCode", "0001");// 认证失败
 					map.put("errorInfo", "账号密码错误");
+					DriverUtil.close(driver);
 					return map;
 				}
 				
@@ -241,6 +258,7 @@ public class BcmLogins {
 				}
 				map.put("errorCode", "0001");
 				map.put("errorInfo", alertText);
+				DriverUtil.close(driver);
 			} else if(msg.size() != 0){
 				logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因："+msg.get(1).getText());
 				PushSocket.push(map, UUID, "3000",msg.get(1).getText());
@@ -249,23 +267,18 @@ public class BcmLogins {
 				}
 				map.put("errorCode", "0001");
 				map.put("errorInfo", msg.get(1).getText());
+				DriverUtil.close(driver);
 			}
+			
+			
+			logger.warn("--------------交通银行信用卡---------------返回信息为："+map);
+			return map;
 
-		} catch (Exception e) {
-			logger.warn("-----------交通信用卡-----------查询失败-----------身份证号："+UserCard, e);
-			PushSocket.push(map, UUID, "9000","网络异常,认证失败");
-			if(isok==true){
-				PushState.state(UserCard, "bankBillFlow", 200);
-			}
-			map.put("errorCode", "0001");
-			map.put("errorInfo", "网络异常");
-		}finally{
-			DriverUtil.close(driver);
-		}
-		logger.warn("--------------交通银行信用卡---------------返回信息为："+map);
-		return map;
+		} 
 
-	}
+			
+
+	
 
 	public Map<String, Object> CodeLogin(HttpServletRequest request,
 			String sessid, String dirverid, String code, String card)
