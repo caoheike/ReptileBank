@@ -12,7 +12,6 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import javax.imageio.ImageIO;
-import javax.naming.directory.NoSuchAttributeException;
 import javax.servlet.http.HttpSession;
 
 import org.apache.http.ParseException;
@@ -40,11 +39,11 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
+import com.hoomsun.KeyBoard.SendKeys;
 import com.reptile.util.CYDMDemo;
 import com.reptile.util.CountTime;
 import com.reptile.util.CrawlerUtil;
 import com.reptile.util.DriverUtil;
-import com.reptile.util.KeysPress;
 import com.reptile.util.PushSocket;
 import com.reptile.util.PushState;
 import com.reptile.util.Resttemplate;
@@ -56,55 +55,9 @@ import com.sun.jna.NativeLibrary;
 @SuppressWarnings("deprecation")
 @Service("virtualKeyBoard")
 public class VirtualKeyBoard {
-	public static final WinIo32 winIo32 = WinIo32.INSTANCE;
 	private static CYDMDemo cydmDemo = new CYDMDemo();
 	Resttemplate resttemplate = new Resttemplate();
 	Logger logger = Logger.getLogger(VirtualKeyBoard.class);
-	static {
-		if (!WinIo32.INSTANCE.InitializeWinIo()) {
-			System.err.println("Cannot Initialize the WinIO");
-			System.exit(1);
-		}
-	}
-
-	public static void KeyDown(int key) throws Exception {
-		User32Util.KBCWait4IBE();
-		winIo32.SetPortVal(WinIo32.CONTROL_PORT, 0xd2, 1);
-		User32Util.KBCWait4IBE();
-		winIo32.SetPortVal(WinIo32.DATA_PORT, key, 1);
-	}
-
-	public static void KeyUp(int key) throws Exception {
-		User32Util.KBCWait4IBE();
-		winIo32.SetPortVal(WinIo32.CONTROL_PORT, 0xd2, 1);
-		User32Util.KBCWait4IBE();
-		winIo32.SetPortVal(WinIo32.DATA_PORT, (key | 0x80), 1);
-	}
-
-	public static void KeyPress(char key) throws Exception {
-		KeyPress(VKMapping.toVK("" + key));
-	}
-
-	public static void KeyPresss(String key) throws Exception {
-		KeyPress(VKMapping.toVK("" + key));
-	}
-
-	public static void KeyPress(int vk) throws Exception {
-		int scan = User32.INSTANCE.MapVirtualKey(vk, 0);
-		KeyDown(scan);
-		KeyUp(scan);
-	}
-
-	public static void KeyPress1(int vk) throws Exception {
-		int scan = User32.INSTANCE.MapVirtualKey(vk, 0);
-		KeyDown(scan);
-	}
-
-	public static void KeyPress2(int vk) throws Exception {
-		int scan = User32.INSTANCE.MapVirtualKey(vk, 0);
-		KeyUp(scan);
-	}
-
 	/* 名声银行 */
 
 	public synchronized Map<String, Object> CMBCLogin(String number,
@@ -124,7 +77,7 @@ public class VirtualKeyBoard {
 			driver.get("https://nper.cmbc.com.cn/pweb/static/login.html");
 			WebDriverWait wait = new WebDriverWait(driver, 15);
 			wait.until(ExpectedConditions.titleContains("中国民生银行个人网上银行"));
-			JavascriptExecutor jss = (JavascriptExecutor) driver;
+			JavascriptExecutor jss = (JavascriptExecutor) driver;	
 
 			List list = new ArrayList();
 			/* 获得输入元素 */
@@ -132,11 +85,13 @@ public class VirtualKeyBoard {
 			elements.sendKeys(number);
 			/* 执行换号 */
 			Thread.sleep(2000);
-			/* 按下Tab */
-			KeysPress.SendTab("Tab");
-			Thread.sleep(1000);
-			/* 输入密码 */
-			KeysPress.sendPassWord(pwd);
+			SendKeys.sendTab();
+			SendKeys.sendStr(pwd);
+//			/* 按下Tab */
+//			KeysPress.SendTab("Tab");
+//			Thread.sleep(1000);
+//			/* 输入密码 */
+//			KeysPress.sendPassWord(pwd);
 
 			WebElement elementss = driver.findElement(By.id("loginButton"));
 			WebElement webElement = driver.findElement(By.id("_tokenImg"));
@@ -295,14 +250,6 @@ public class VirtualKeyBoard {
 			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
-		} catch (NoSuchAttributeException e) {
-			logger.warn(e + "属性错误");
-			PushSocket.push(map, UUID, "7000","网页数据没有找到");
-			if(isok==true){
-				PushState.state(idcard, "bankBillFlow", 200);
-			}
-			map.put("errorCode", "0001");
-			map.put("errorInfo", "网络错误");
 		} catch (NoAlertPresentException e) {
 			logger.warn(e + "没有找到alert");
 			PushSocket.push(map, UUID, "7000","网页数据没有找到");
@@ -358,10 +305,11 @@ public class VirtualKeyBoard {
 			driver = DriverUtil.getDriverInstance("ie");
 			driver.get("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx");
 			String ss1 = arg1;
-			for (int i = 0; i < ss1.length(); i++) {
+			/*for (int i = 0; i < ss1.length(); i++) {
 				KeyPress(ss1.charAt(i));
 				Thread.sleep(10);
-			}
+			}*/
+			SendKeys.sendStr(ss1);
 			logger.warn("----------------招商信用卡-------------登陆-----------------"+VirtualKeyBoard.class.getResource("/").getPath());
 			/*
 			 * NativeLibrary.addSearchPath("WinIo32.dll",
@@ -371,10 +319,14 @@ public class VirtualKeyBoard {
 					.getResource("/").getPath());
 			Thread.sleep(1000);
 			/* 按下Tab */
-			KeysPress.SendTab("Tab");
-			Thread.sleep(1000);
+			/*KeysPress.SendTab("Tab");
+			Thread.sleep(1000);*/
+			SendKeys.sendTab();
+			Thread.sleep(500);
 			/* 输入密码 */
-			KeysPress.sendPassWord(arg2);
+			SendKeys.sendStr(arg2);
+			/* 输入密码 
+			KeysPress.sendPassWord(arg2);*/
 
 			Thread.sleep(300);
 			WebElement elements = driver.findElement(By.id("LoginBtn"));
@@ -448,10 +400,13 @@ public class VirtualKeyBoard {
 			elements.sendKeys(number);
 			Thread.sleep(1000);
 			/* 按下Tab */
-			KeysPress.SendTab("Tab");
-			Thread.sleep(1000);
+			/*KeysPress.SendTab("Tab");
+			Thread.sleep(1000);*/
+			SendKeys.sendTab();
+			Thread.sleep(500);
 			/* 输入密码 */
-			KeysPress.sendPassWord(pwd);
+			SendKeys.sendStr(pwd);
+			//KeysPress.sendPassWord(pwd);
 			WebElement keyWord = driver.findElement(By.id("verifyImg"));
 			String imgtext = downloadImgss(driver, keyWord);
 			System.out.println(imgtext+"************打码*********");
@@ -786,22 +741,25 @@ public class VirtualKeyBoard {
 			driver = new InternetExplorerDriver();
 			driver.get("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx");
 			String ss1 = arg1;
-			for (int i = 0; i < ss1.length(); i++) {
+			/*for (int i = 0; i < ss1.length(); i++) {
 				KeyPress(ss1.charAt(i));
 				Thread.sleep(10);
-			}
+			}*/
+			SendKeys.sendStr(ss1);
 			NativeLibrary.addSearchPath("WinIo32", VirtualKeyBoard.class
 					.getResource("/").getPath());
 			Thread.sleep(100);
-			String s = "Tab"; /*  */
-			KeyPresss(s);
+			/*String s = "Tab";   
+			KeyPresss(s);*/
+			SendKeys.sendTab();
 			Thread.sleep(20);
 			String ss = arg2; /*  */
-			for (int i = 0; i < ss.length(); i++) {
+			/*for (int i = 0; i < ss.length(); i++) {
 				KeyPress(ss.charAt(i));
 				Thread.sleep(10);
-			}
-			KeyPresss(s);
+			}*/
+			SendKeys.sendStr(ss);
+			SendKeys.sendTab();
 			Thread.sleep(300);
 			WebElement elements = driver.findElement(By.id("LoginBtn"));
 			elements.click();
@@ -857,22 +815,21 @@ public class VirtualKeyBoard {
 			driver = new InternetExplorerDriver();
 			driver.get("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx");
 			String ss1 = arg1;
-			for (int i = 0; i < ss1.length(); i++) {
+			/*for (int i = 0; i < ss1.length(); i++) {
 				KeyPress(ss1.charAt(i));
 				Thread.sleep(10);
-			}
+			}*/
+			SendKeys.sendStr(ss1);
 			NativeLibrary.addSearchPath("WinIo32", VirtualKeyBoard.class
 					.getResource("/").getPath());
 			Thread.sleep(100);
-			String s = "Tab"; /*  */
-			KeyPresss(s);
+			/*String s = "Tab";   
+			KeyPresss(s);*/
+			SendKeys.sendTab();
 			Thread.sleep(20);
 			String ss = arg2; /*  */
-			for (int i = 0; i < ss.length(); i++) {
-				KeyPress(ss.charAt(i));
-				Thread.sleep(10);
-			}
-			KeyPresss(s);
+			SendKeys.sendStr(ss);
+			SendKeys.sendTab();
 			Thread.sleep(300);
 			WebElement elements = driver.findElement(By.id("LoginBtn"));
 			elements.click();
@@ -959,10 +916,11 @@ public class VirtualKeyBoard {
      */
     public static void inputCode(String str) throws Exception{
     	Thread.sleep(200);
-    	for (int i = 0; i < str.length(); i++) {
+    	/*for (int i = 0; i < str.length(); i++) {
     		   KeyPress(str.charAt(i));
     				Thread.sleep(50);
-    			}
+    			}*/
+    	SendKeys.sendStr(str);
     		
     }
 }

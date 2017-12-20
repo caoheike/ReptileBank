@@ -23,7 +23,6 @@ import org.openqa.selenium.Point;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.ie.InternetExplorerDriver;
 import org.openqa.selenium.internal.WrapsDriver;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -31,57 +30,19 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.hoomsun.KeyBoard.SendKeys;
 import com.reptile.util.CYDMDemo;
 import com.reptile.util.DriverUtil;
 import com.reptile.util.PushSocket;
 import com.reptile.util.PushState;
 import com.reptile.util.Resttemplate;
 import com.reptile.util.application;
-import com.reptile.winio.User32;
-import com.reptile.winio.User32Util;
-import com.reptile.winio.VKMapping;
-import com.reptile.winio.WinIo32;
 
 @Service
 public class CMBService {
 	private final static String CMBlogin="https://nper.cmbc.com.cn/pweb/static/login.html";//民生银行登陆界面
-    public static final WinIo32 winIo32 = WinIo32.INSTANCE;
     private Logger logger= LoggerFactory.getLogger(CMBService.class);
-	static {
-		System.out.println(WinIo32.INSTANCE.InitializeWinIo());
-		if (!WinIo32.INSTANCE.InitializeWinIo()) {
-			System.err.println("Cannot Initialize the WinIO");
-			System.exit(1);
-		}
-	}
 
-	public static void KeyDown(int key) throws Exception {
-		User32Util.KBCWait4IBE();
-		winIo32.SetPortVal(WinIo32.CONTROL_PORT, 0xd2, 1);
-		User32Util.KBCWait4IBE();
-		winIo32.SetPortVal(WinIo32.DATA_PORT, key, 1);
-	}
-
-	public static void KeyUp(int key) throws Exception {
-		User32Util.KBCWait4IBE();
-		winIo32.SetPortVal(WinIo32.CONTROL_PORT, 0xd2, 1);
-		User32Util.KBCWait4IBE();
-		winIo32.SetPortVal(WinIo32.DATA_PORT, (key | 0x80), 1);
-	}
-
-	public static void KeyPress(char key) throws Exception {
-		KeyPress(VKMapping.toVK("" + key));
-	}
-
-	public static void KeyPresss(String key) throws Exception {
-		KeyPress(VKMapping.toVK("" + key));
-	}
-
-	public static void KeyPress(int vk) throws Exception {
-		int scan = User32.INSTANCE.MapVirtualKey(vk, 0);
-		KeyDown(scan);
-		KeyUp(scan);
-	}
 /**
  * 民生银行储蓄卡
  * @param request
@@ -106,12 +67,12 @@ public class CMBService {
 		    WebElement element=	driver.findElement(By.id("writeUserId"));
 		    element.sendKeys(userCard);//输入账号
 		    Thread.sleep(1000);
-		    String s = "Tab";//
-			KeyPresss(s);
+		    SendKeys.sendTab();
+			
 		//	new WebDriverWait(driver, 15).until(ExpectedConditions.)
 		    Thread.sleep(1000);	
-			inputCode(passWord);//密码
-			KeyPresss("Tab");
+		    SendKeys.sendStr(passWord);
+		    SendKeys.sendTab();
 			Thread.sleep(2000);
 			//new WebDriverWait(driver, 15).until(ExpectedConditions.presenceOfElementLocated(By.tagName("form")));
 		    //判断是否需要图形验证码
@@ -264,20 +225,6 @@ public class CMBService {
     }
 	
     
-    
-    /**
-     * 向input里输入值str
-     * @param str 输入的字符串
-     * @throws Exception 
-     */
-    public static void inputCode(String str) throws Exception{
-    	Thread.sleep(200);
-    	for (int i = 0; i < str.length(); i++) {
-    		   KeyPress(str.charAt(i));
-    				Thread.sleep(50);
-    			}
-    		
-    }
     /**
      * 打码结果
      * @param element 图片元素

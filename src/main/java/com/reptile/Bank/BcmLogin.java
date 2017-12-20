@@ -33,6 +33,7 @@ import org.openqa.selenium.remote.Augmenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hoomsun.KeyBoard.SendKeys;
 import com.reptile.util.CYDMDemo;
 import com.reptile.util.CrawlerUtil;
 import com.reptile.util.DriverUtil;
@@ -76,9 +77,13 @@ public class BcmLogin {
 			/* 输入账号 */
 			username.sendKeys(UserName);
 			/* 按下Tab */
-			KeysPress.SendTab("Tab");
+			/*KeysPress.SendTab("Tab");
+			Thread.sleep(1000);*/
+			SendKeys.sendTab();
+			Thread.sleep(500);
 			/* 输入密码 */
-			KeysPress.SenStr(UserPwd);
+			SendKeys.sendStr(UserPwd);
+			//KeysPress.SenStr(UserPwd);
 			WebElement element = driver.findElement(By
 					.className("captchas-img-bg"));
 			/* 判断是否有验证码 */
@@ -96,6 +101,7 @@ public class BcmLogin {
 			if (flgb == true
 					&& !driver.findElement(By.id("captchaErrMsg")).getText()
 							.equals("")) {
+				driver.quit();
 				status = BcmLogin.BcmLogins(request,UserName, UserPwd, UUID,userCard);
 			} else if (flgs == true) {
 				logger.warn("-----------交通储蓄卡-----------登陆失败----------身份证号："+userCard);

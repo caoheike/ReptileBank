@@ -15,11 +15,8 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
-import net.sf.json.JSONObject;
-
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Dimension;
@@ -30,14 +27,15 @@ import org.openqa.selenium.Point;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.remote.Augmenter;
 
+import com.hoomsun.KeyBoard.SendKeys;
 import com.reptile.util.CYDMDemo;
 import com.reptile.util.CrawlerUtil;
-import com.reptile.util.Resttemplate;
-import com.reptile.util.SimpleHttpClient;
 import com.reptile.util.KeysPress;
+import com.reptile.util.Resttemplate;
+
+import net.sf.json.JSONObject;
 
 
 /**
@@ -52,12 +50,8 @@ public class GdbBank {
 	
 	public static void main(String[] args) throws Exception {
 		
-		SimpleHttpClient httclien=new SimpleHttpClient();
 		Map<String,Object> params=new HashMap<String, Object>();
 		Map<String,String> headers=new HashMap<String, String>();
-		Map<String,Object> parmcode=new HashMap<String, Object>();
-		Map<String,Object> data1=new HashMap<String, Object>();
-		Map<String,String> head1=new HashMap<String, String>();
 		  Map status=new HashMap();
 		WebDriver driver=KeysPress.OpenUrl("ie", "https://pbank.95559.com.cn/personbank/logon.jsp#","D:/ie/IEDriverServer.exe");
 		JavascriptExecutor js = (JavascriptExecutor) driver;
@@ -71,9 +65,9 @@ public class GdbBank {
 		//输入账号
 		username.sendKeys(userName);
 		//按下Tab
-		KeysPress.SendTab("Tab");
+		SendKeys.sendTab();
 		//输入密码
-		KeysPress.SenStr(userPwd);
+		SendKeys.sendStr(userPwd);
 	
 		
 		WebElement element= driver.findElement(By.className("captchas-img-bg"));

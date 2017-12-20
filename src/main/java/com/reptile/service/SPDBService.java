@@ -21,55 +21,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.hoomsun.KeyBoard.SendKeys;
 import com.reptile.util.PushSocket;
 import com.reptile.util.PushState;
 import com.reptile.util.Resttemplate;
 import com.reptile.util.application;
-import com.reptile.winio.User32;
-import com.reptile.winio.User32Util;
-import com.reptile.winio.VKMapping;
-import com.reptile.winio.WinIo32;
 @Service
 public class SPDBService {
   private final static String SPDBLOGIN="https://ebank.spdb.com.cn/nbper2017/popInnerLogin.do?Reserve=";//浦发银行登陆界面
   private final static String GETDETAIL_URL="https://ebank.spdb.com.cn/nbper2017/PreQueryBalance.do?_viewReferer=default,account/QueryBalance&selectedMenu=menu1_1_1";
-  public static final WinIo32 winIo32 = WinIo32.INSTANCE;
   private static Logger logger= LoggerFactory.getLogger(SPDBService.class);
-	static {
-		System.out.println(WinIo32.INSTANCE.InitializeWinIo());
-		if (!WinIo32.INSTANCE.InitializeWinIo()) {
-			System.err.println("Cannot Initialize the WinIO");
-			System.exit(1);
-		}
-	}
-
-	public static void KeyDown(int key) throws Exception {
-		User32Util.KBCWait4IBE();
-		winIo32.SetPortVal(WinIo32.CONTROL_PORT, 0xd2, 1);
-		User32Util.KBCWait4IBE();
-		winIo32.SetPortVal(WinIo32.DATA_PORT, key, 1);
-	}
-
-	public static void KeyUp(int key) throws Exception {
-		User32Util.KBCWait4IBE();
-		winIo32.SetPortVal(WinIo32.CONTROL_PORT, 0xd2, 1);
-		User32Util.KBCWait4IBE();
-		winIo32.SetPortVal(WinIo32.DATA_PORT, (key | 0x80), 1);
-	}
-
-	public static void KeyPress(char key) throws Exception {
-		KeyPress(VKMapping.toVK("" + key));
-	}
-
-	public static void KeyPresss(String key) throws Exception {
-		KeyPress(VKMapping.toVK("" + key));
-	}
-
-	public static void KeyPress(int vk) throws Exception {
-		int scan = User32.INSTANCE.MapVirtualKey(vk, 0);
-		KeyDown(scan);
-		KeyUp(scan);
-	}
 	/**
 	 * 
 	 * @param userCard 身份证号码
@@ -90,9 +51,10 @@ public class SPDBService {
 		    WebElement account=  driver.findElement(By.id("LoginId"));//输入身份证框
 			Thread.sleep(300);
 		    account.sendKeys(userCard);
-		    KeyPresss("Tab");//定位到控件
-		   
-		    this.inputCode(passWord);//输入密码
+		   /* KeyPresss("Tab");//定位到控件
+*/		   
+		    SendKeys.sendTab();
+		    SendKeys.sendStr(passWord);//输入密码
 		  } catch (Exception e) {
 		 	logger.warn("浦发银行",e);
 			map.put("errorCode", "0001");
@@ -182,19 +144,6 @@ public class SPDBService {
 	 }
 	  
 	
-	 /**
-	     * 向input里输入值str
-	     * @param str 输入的字符串
-	     * @throws Exception 
-	     */
-	    public  void inputCode(String str) throws Exception{
-	    	Thread.sleep(2000);
-	    	for (int i = 0; i < str.length(); i++) {
-	    		   KeyPress(str.charAt(i));
-	    				Thread.sleep(500);
-	    			}
-	    		
-	    }
 	    
 	 /**
 	  * 打开页面并返回driver

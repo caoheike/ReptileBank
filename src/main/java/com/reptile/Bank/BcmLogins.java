@@ -59,7 +59,7 @@ public class BcmLogins {
 	public Map<String, Object> BankLogin(String UserNumber, String UserPwd,
 			String UserCard, HttpServletRequest request, String UUID,String timeCnt)
 			throws InterruptedException, ParseException {
-		boolean isok =CountTime.getCountTime("2017-10-10"); 
+		boolean isok =CountTime.getCountTime(timeCnt); 
 		List<String> list = new ArrayList<String>();
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> data = new HashMap<String, Object>();

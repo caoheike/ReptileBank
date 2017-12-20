@@ -1,4 +1,4 @@
-package com.reptile.util;
+/*package com.reptile.util;
 
 import javax.servlet.http.HttpSession;
 
@@ -11,14 +11,14 @@ import com.reptile.winio.VKMapping;
 import com.reptile.winio.VirtualKeyBoard;
 import com.reptile.winio.WinIo32;
 
-/**
+*//**
  * 
  * @author Bigyoung
  * @version V1.0
  * @Description winio特殊字符处理类
  * @date 2017-11-13 2:50
  *
- */
+ *//*
 public class SpecialStr {
 	public static final WinIo32		winIo32		= WinIo32.INSTANCE;
 	private static final HttpSession	HttpSession	= null;
@@ -103,20 +103,20 @@ public class SpecialStr {
 		for (int i = 0; i < str.length(); i++) {
 		Thread.sleep( 500 );
 		String number = String.valueOf( str.charAt( i ) );	
-		/*判断是否是数字*/
+		判断是否是数字
 		if( StringUtils.isNumeric( number)){
 			KeyPress( str.charAt(i) );
-		/*判断是否是大写*/
+		判断是否是大写
 		}else if(Character.isUpperCase( str.charAt( i ) )){
 			ShiftDown();
 			KeyPress( number.toLowerCase().charAt( 0 ) );
 			ShiftUp();	
-		/*判断是否小写*/
+		判断是否小写
 		}else if(Character.isLowerCase(str.charAt( i ))){
 			Thread.sleep( 50 );
 			KeyPress( str.charAt( i ) );
 		}else{
-		/*特殊字符处理*/
+		特殊字符处理
 			switch (number) {
 			case "@":
 				ShiftDown();
@@ -187,3 +187,4 @@ public class SpecialStr {
 	}
 
 
+*/

@@ -25,13 +25,12 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.Augmenter;
 
+import com.hoomsun.KeyBoard.SendKeys;
 import com.reptile.util.CYDMDemo;
 import com.reptile.util.CrawlerUtil;
 import com.reptile.util.DriverUtil;
 import com.reptile.util.PushState;
 import com.reptile.util.SimpleHttpClient;
-import com.reptile.util.KeysPress;
-import com.reptile.util.PushSocket;
 
 public class CmbBank {
 	private Logger logger = Logger.getLogger(CmbBank.class);
@@ -59,10 +58,17 @@ public class CmbBank {
 			driver = DriverUtil.getDriverInstance("ie");
 			driver.get("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx");
 			HttpSession session = request.getSession();
-			KeysPress.SenStr(userName);
-			KeysPress.SendTab("Tab");
-			Thread.sleep(300);
-			KeysPress.SenStr(userPwd);
+			SendKeys.sendStr(userName);
+			//KeysPress.SenStr(userName);
+			
+			/* 按下Tab */
+			/*KeysPress.SendTab("Tab");
+			Thread.sleep(1000);*/
+			SendKeys.sendTab();
+			Thread.sleep(500);
+			/* 输入密码 */
+			SendKeys.sendStr(userPwd);
+			//KeysPress.SenStr(userPwd);
 			WebElement LoginBut = driver.findElement(By.id("LoginBtn"));
 			LoginBut.click();
 			Thread.sleep(5000);// 延迟三秒
