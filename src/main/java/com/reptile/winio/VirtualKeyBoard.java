@@ -39,7 +39,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
-import com.hoomsun.KeyBoard.SendKeys;
+import com.hoomsun.keyBoard.SendKeys;
 import com.reptile.util.CYDMDemo;
 import com.reptile.util.CountTime;
 import com.reptile.util.CrawlerUtil;
@@ -71,30 +71,38 @@ public class VirtualKeyBoard {
 		Map<String, Object> map = new HashMap<String, Object>();
 		PushSocket.push(map, UUID, "1000","民生银行登录中");
 		WebDriver driver = null;
+		WebDriverWait wait = null;
+		JavascriptExecutor jss = null;
 		try {
-			logger.warn("----------------民生信用卡-------------登陆开始-----------------用户名："+number+"密码："+pwd);
-			driver = DriverUtil.getDriverInstance("ie");
-			driver.get("https://nper.cmbc.com.cn/pweb/static/login.html");
-			WebDriverWait wait = new WebDriverWait(driver, 15);
-			wait.until(ExpectedConditions.titleContains("中国民生银行个人网上银行"));
-			JavascriptExecutor jss = (JavascriptExecutor) driver;	
-
+			WebElement elementss = null;
+			WebElement webElement = null;
 			List list = new ArrayList();
-			/* 获得输入元素 */
-			WebElement elements = driver.findElement(By.id("writeUserId"));
-			elements.sendKeys(number);
-			/* 执行换号 */
-			Thread.sleep(2000);
-			SendKeys.sendTab();
-			SendKeys.sendStr(pwd);
-//			/* 按下Tab */
-//			KeysPress.SendTab("Tab");
-//			Thread.sleep(1000);
-//			/* 输入密码 */
-//			KeysPress.sendPassWord(pwd);
+			try {
+				logger.warn("----------------民生信用卡-------------登陆开始-----------------用户名："+number+"密码："+pwd);
+				driver = DriverUtil.getDriverInstance("ie");
+				driver.get("https://nper.cmbc.com.cn/pweb/static/login.html");
+				wait = new WebDriverWait(driver, 15);
+				wait.until(ExpectedConditions.titleContains("中国民生银行个人网上银行"));
+				jss = (JavascriptExecutor) driver;	
 
-			WebElement elementss = driver.findElement(By.id("loginButton"));
-			WebElement webElement = driver.findElement(By.id("_tokenImg"));
+				
+				/* 获得输入元素 */
+				WebElement elements = driver.findElement(By.id("writeUserId"));
+				elements.sendKeys(number);
+				/* 执行换号 */
+				Thread.sleep(2000);
+				SendKeys.sendTab();
+				SendKeys.sendStr(pwd);
+//				/* 按下Tab */
+//				KeysPress.SendTab("Tab");
+//				Thread.sleep(1000);
+//				/* 输入密码 */
+//				KeysPress.sendPassWord(pwd);
+
+				elementss = driver.findElement(By.id("loginButton"));
+				webElement = driver.findElement(By.id("_tokenImg"));
+			
+			
 			
 			if (webElement.getAttribute("src") == null
 					|| "".equals(webElement.getAttribute("src"))) {
@@ -108,9 +116,34 @@ public class VirtualKeyBoard {
 				_vTokenId.sendKeys(imgtext);
 				elementss.click();
 			}
+			}catch (Exception e) {
+				logger.warn(e + "网络异常，登录失败");
+				PushSocket.push(map, UUID, "3000","网络异常，登录失败");
+				if(isok==true){
+					PushState.state(idcard, "bankBillFlow", 200);
+				}
+				map.put("errorCode", "0001");
+				map.put("errorInfo", "网络错误");
+				return map;
+			} finally {
+				DriverUtil.close(driver);
+			}
 			Thread.sleep(2000);
-			WebElement errorinfo = driver.findElement(By
-					.className("alert-heading"));
+			WebElement errorinfo=null;
+			try {
+				errorinfo = driver.findElement(By.className("alert-heading"));
+			} catch (Exception e) {
+				logger.warn(e + "网络异常，登录失败");
+				PushSocket.push(map, UUID, "3000","网络异常，登录失败");
+				if(isok==true){
+					PushState.state(idcard, "bankBillFlow", 200);
+				}
+				map.put("errorCode", "0001");
+				map.put("errorInfo", "网络错误");
+				return map;
+			} finally {
+				DriverUtil.close(driver);
+			}
 			if (!"".equals(errorinfo.getText())) {
 				PushSocket.push(map, UUID, "3000",errorinfo.getText());
 				if(isok==true){
@@ -119,6 +152,7 @@ public class VirtualKeyBoard {
 				map.put("errorCode", "0001");
 				map.put("errorInfo", errorinfo.getText());
 				driver.quit();
+				return map;
 			} else {
 				wait.until(ExpectedConditions.titleContains("中国民生银行个人网银"));
 				if (driver.getTitle().contains("中国民生银行个人网银")) {
@@ -213,6 +247,9 @@ public class VirtualKeyBoard {
 							}
 							map.put("errorCode", "0001");
 							map.put("errorInfo", "网络错误");
+							return map;
+						} finally {
+							DriverUtil.close(driver);
 						}
 					}
 					
@@ -224,6 +261,8 @@ public class VirtualKeyBoard {
 					}
 					map.put("errorCode", "0001");
 					map.put("errorInfo", "失败");
+					DriverUtil.close(driver);
+					return map;
 				}
 			}
 		} catch (NoSuchElementException e) {
@@ -419,6 +458,7 @@ public class VirtualKeyBoard {
 					PushState.state(usercard, "bankBillFlow", 200);
 				}
 				logger.warn("--------广发银行信用卡--------------登陆失败---------身份证号："+ usercard+"--------返回信息为："+map);
+				DriverUtil.close(driver);
 				return map;
 			}
 			WebElement _vTokenId = driver.findElement(By.id("captcha"));
@@ -435,6 +475,7 @@ public class VirtualKeyBoard {
 			if(isok==true){
 				PushState.state(usercard, "bankBillFlow", 200);
 			}
+			return map;
 		}finally{
 			DriverUtil.close(driver);
 		}
@@ -450,6 +491,7 @@ public class VirtualKeyBoard {
 							PushState.state(usercard, "bankBillFlow", 200);
 						}
 						logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+str);
+						DriverUtil.close(driver);
 					}
 					return map;								
 			}else if(DriverUtil.waitById("errorMessage", driver, 3)){
@@ -461,6 +503,7 @@ public class VirtualKeyBoard {
 						PushState.state(usercard, "bankBillFlow", 200);
 					}
 					logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+errorMessage);
+					DriverUtil.close(driver);
 					return map;									
 			}else if(DriverUtil.waitByTitle("广发银行个人网上银行", driver, 15)){
 				try {

@@ -33,11 +33,10 @@ import org.openqa.selenium.remote.Augmenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.hoomsun.KeyBoard.SendKeys;
+import com.hoomsun.keyBoard.SendKeys;
 import com.reptile.util.CYDMDemo;
 import com.reptile.util.CrawlerUtil;
 import com.reptile.util.DriverUtil;
-import com.reptile.util.KeysPress;
 import com.reptile.util.PushSocket;
 import com.reptile.util.PushState;
 import com.reptile.util.Resttemplate;
@@ -62,13 +61,14 @@ public class BcmLogin {
 		PushSocket.push(status, UUID, "1000","交通储蓄卡登录中");	
 		PushState.state(userCard, "savings", 100);
 		WebDriver driver = null;
+		JavascriptExecutor js = (JavascriptExecutor) driver;
 		try {
 			logger.warn("-----------交通储蓄卡-----------登陆开始----------身份证号："+userCard);
 			
 			/* 打开此网页 */
 			driver = DriverUtil.getDriverInstance("ie");
 			driver.get("https://pbank.95559.com.cn/personbank/logon.jsp#");
-			JavascriptExecutor js = (JavascriptExecutor) driver;
+			
 			/* 获得账号输入框 */
 			WebElement username = driver.findElement(By.id("alias"));
 
@@ -94,6 +94,18 @@ public class BcmLogin {
 				input_captcha.sendKeys(imgtext);
 			}
 			login.click();
+		} catch (Exception e) {
+			logger.warn("-----------交通银行查询失败-------------", e);
+			status.put("errorCode", "0002");// 异常处理
+			status.put("errorInfo", "网络异常，请重试！");
+			PushSocket.push(status, UUID, "3000","账号密码错误，登录失败");
+			PushState.state(userCard, "savings", 200);
+			DriverUtil.close(driver);
+			return status;
+		}
+			
+			
+			
 			Thread.sleep(3000);
 			/* //此处判断是否登陆成功 */
 			boolean flgs = ElementExist(driver, By.className("lanse-12-b")); /* 错误表示 */
@@ -109,6 +121,8 @@ public class BcmLogin {
 				status.put( "errorCode", "0001" );
 				PushSocket.push(status, UUID, "3000","账号密码错误，登录失败");
 				PushState.state(userCard, "savings", 200);
+				DriverUtil.close(driver);
+				return status;
 			} else {
 				if(driver.getPageSource().contains("为了进一步保障您使用我行个人网银的安全性")) {
 					//发送短信验证码
@@ -116,35 +130,51 @@ public class BcmLogin {
 					request.getSession().setAttribute("BcmCodePage", driver);
 					status.put( "errorInfo", "需要短信验证码" );
 					status.put( "errorCode", "0011" );
+					
 					return status;
 				}else {
 					Map<String, Object> params = new HashMap<String, Object>();
 									
-					Thread.sleep(1000);
+					Thread.sleep(3000);
 					
 					Map<String, String> headers = new HashMap<String, String>();
 					PushSocket.push(status, UUID, "2000","交通储蓄卡登陆成功");
+					Thread.sleep(1000);
 					logger.warn("-----------交通储蓄卡-----------登陆成功----------身份证号："+userCard);
-					
-					boolean flg = ElementExist(driver, By.id("btnConf1"));
-					/* 判断是否有登陆确认信息 */
-					if (flg == true) {
-						WebElement btnConf1 = driver.findElement(By.id("btnConf1"));
-						btnConf1.click();
-					}
+					PushSocket.push(status, UUID, "5000","交通储蓄卡数据获取中");
+					try {
+						boolean flg = ElementExist(driver, By.id("btnConf1"));
+						/* 判断是否有登陆确认信息 */
+						if (flg == true) {
+							WebElement btnConf1 = driver.findElement(By.id("btnConf1"));
+							btnConf1.click();
+							Thread.sleep(3000);
+						}
 
-					/* 执行JS去点击账单查询 */
-					String zd = "Util.changeMenu('P001000');";
+						/* 执行JS去点击账单查询 */
+						String zd = "Util.changeMenu('P001000');";
 
-					js.executeScript(zd, "");
+						js.executeScript(zd, "");
 //					driver.switchTo().frame("frameMain");
 //					driver.switchTo().frame("tranArea");
 //					WebElement mx1 = driver.findElement(By.linkText("账户查询"));
 //					Thread.sleep(2000);
-					/* 切入ifrmae */
-					driver.switchTo().frame("frameMain");
-					driver.switchTo().frame("tranArea");
-					PushSocket.push(status, UUID, "5000","交通储蓄卡数据获取中");
+						/* 切入ifrmae */
+						driver.switchTo().frame("frameMain");
+						driver.switchTo().frame("tranArea");
+					}catch (Exception e) {
+						logger.warn("-----------交通银行查询失败-------------", e);
+						
+						status.put("errorCode", "0002");// 异常处理
+						status.put("errorInfo", "网络异常，请重试！");
+						PushSocket.push(status, UUID, "7000","网络异常,数据获取失败");
+						PushState.state(userCard, "savings", 200);
+						return status;
+						
+					} finally {
+						DriverUtil.close(driver);
+					}
+					
 					List<Object> list =null;
 					try {
 						List<Map<String, Object>> lists = yuefen();
@@ -205,6 +235,18 @@ public class BcmLogin {
 							map.put("currency", "");
 							list.add(map);
 						}
+					}catch (Exception e) {
+						logger.warn("-----------交通银行查询失败-------------", e);
+						
+						status.put("errorCode", "0002");// 异常处理
+						status.put("errorInfo", "网络异常，请重试！");
+						PushSocket.push(status, UUID, "7000","网络异常,数据获取失败");
+						PushState.state(userCard, "savings", 200);
+						return status;
+					} finally {
+						DriverUtil.close(driver);
+					}
+					try {
 						params.clear();
 						headers.clear();
 						headers.put("accountType", "");
@@ -236,10 +278,13 @@ public class BcmLogin {
 						status.put("errorCode", "0002");// 异常处理
 						status.put("errorInfo", "网络异常，请重试！");
 						PushSocket.push(status, UUID, "9000","网络异常,认证失败");
-						
+						PushState.state(userCard, "savings", 200);
+						return status;
 					} finally {
 						DriverUtil.close(driver);
 					}
+						
+					
 					
 					
 				
@@ -248,13 +293,7 @@ public class BcmLogin {
 			}
 				
 				
-		} catch (Exception e) {
-			logger.warn("-----------交通银行查询失败-------------", e);
-			status.put("errorCode", "0002");// 异常处理
-			status.put("errorInfo", "网络异常，请重试！");
-		} finally {
-			DriverUtil.close(driver);
-		}
+		 
 		logger.warn("-----------交通储蓄卡-----------查询结果----------返回结果："+status.toString());
 		return status;
 	}
@@ -309,6 +348,7 @@ public class BcmLogin {
             	PushState.state(userCard, "savings", 200);
             	status.put("errorCode", "0011");
             	status.put("errorInfo", errorInfo);
+            	DriverUtil.close(driver);
             	return status;
 			}catch (org.openqa.selenium.NoAlertPresentException e) {//没有弹窗时判断是否登陆成功
 			
@@ -441,6 +481,7 @@ public class BcmLogin {
         			status.put("errorCode", "0002");// 异常处理
         			status.put("errorInfo", "网络异常，登录失败！");
         			PushState.state(userCard, "savings", 200);
+        			DriverUtil.close(driver);
             	}
 			}
             

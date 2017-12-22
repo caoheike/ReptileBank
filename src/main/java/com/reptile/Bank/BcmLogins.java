@@ -126,6 +126,7 @@ public class BcmLogins {
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络异常");
 			DriverUtil.close(driver);
+			return map;
 		}
 			
 			
@@ -235,6 +236,7 @@ public class BcmLogins {
 						map.put("errorCode", "0001");
 						map.put("errorInfo", "网络异常");
 						DriverUtil.close(driver);
+						
 					}
 					
 					logger.warn("--------------交通银行信用卡---------------查询成功----------------身份证号："+UserCard);

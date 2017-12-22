@@ -15,6 +15,8 @@ import java.util.Map;
 
 import javax.imageio.ImageIO;
 
+import net.sf.json.JSONObject;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -29,13 +31,11 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.Augmenter;
 
-import com.hoomsun.KeyBoard.SendKeys;
+import com.hoomsun.keyBoard.SendKeys;
 import com.reptile.util.CYDMDemo;
 import com.reptile.util.CrawlerUtil;
 import com.reptile.util.KeysPress;
 import com.reptile.util.Resttemplate;
-
-import net.sf.json.JSONObject;
 
 
 /**

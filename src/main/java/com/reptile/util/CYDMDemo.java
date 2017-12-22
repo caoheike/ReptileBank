@@ -11,7 +11,7 @@ public class CYDMDemo
 {
 	// 下载云打码DLL http://yundama.com/apidoc/YDM_SDK.html#DLL
 	// yundamaAPI 32位, yundamaAPI-x64 64位
-	public static String	DLLPATH		= "C://yundamaAPI-x64.dll";
+	public static String	DLLPATH		= "C://yundamaAPI.dll";
 
 	public interface YDM extends Library
 	{

@@ -30,7 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.hoomsun.KeyBoard.SendKeys;
+import com.hoomsun.keyBoard.SendKeys;
 import com.reptile.util.CYDMDemo;
 import com.reptile.util.DriverUtil;
 import com.reptile.util.PushSocket;
@@ -96,6 +96,33 @@ public class CMBService {
 			}
 			//new WebDriverWait(driver, 15).until(ExpectedConditions.presenceOfElementLocated(By.id("transView")));
 			Thread.sleep(4000);
+    	} catch (Exception e) {
+			logger.warn("民生银行",e);
+			// driver.quit();
+			map.put("errorCode", "0001");
+            map.put("errorInfo", "网络连接异常!");
+            PushSocket.push(map, UUID, "3000","网络连接异常,登录失败");
+			PushState.state(idCard, "savings", 200);
+			driver.quit();
+            return map;
+			//e.printStackTrace();
+		
+		}finally{
+			  driver.quit();//关闭浏览器
+			  try {
+				  Runtime.getRuntime().exec("taskkill /F /IM IEDriverServer.exe");
+			} catch (IOException e) {
+				map.put("errorCode", "0001");
+	            map.put("errorInfo", "网络连接异常!");
+				e.printStackTrace();
+	            return map;
+			}
+
+			 // driver.quit();
+		}
+			
+			
+			
 			WebElement element6=null;
 			WebElement element7=null;
             try{
@@ -135,7 +162,8 @@ public class CMBService {
 						logger.warn("民生银行",e);
 						map.put("errorCode", "0002");
 			            map.put("errorInfo", "系统繁忙请稍后有再试!");
-			            return map;
+			            driver.quit();
+	    	            return map;
 					}
     				logger.warn("--------------民生储蓄卡------------民生银行详单获取中...------------身份证号："+idCard);
     				//开始解析账户详情
@@ -144,13 +172,25 @@ public class CMBService {
     				
     			    List<Map<String, String>>    billMes=new ArrayList<Map<String,String>>();  //存放交易明细
     			    //交易明细解析
-    			    billMes=this.parseBillMes(driver, billMes);
+    			    try {
+						billMes=this.parseBillMes(driver, billMes);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+						PushSocket.push(map, UUID, "7000","网络连接异常，数据获取失败");
+    			    	PushState.state(idCard, "savings", 200);
+    			    	map.put("errorCode", "0003");
+    			    	map.put("errorInfo", "网络连接异常!");
+    			    	driver.quit();
+        	            return map;
+					}
     			    if(billMes.contains("errorCode")){
     			    	PushSocket.push(map, UUID, "7000","网络连接异常，数据获取失败");
     			    	PushState.state(idCard, "savings", 200);
     			    	map.put("errorCode", "0003");
     			    	map.put("errorInfo", "网络连接异常!");
-    			    	return map;
+    			    	driver.quit();
+        	            return map;
     			    }
     			    map.put("bankName","中国民生银行");
     			    map.put("userName", userName.trim());//用户名
@@ -195,31 +235,12 @@ public class CMBService {
 				PushSocket.push(map, UUID, "3000",element1.getText());
 				PushState.state(idCard, "savings", 200);
 				logger.warn("民生银行",element1.getText());
-				// driver.quit();
-				 return map;
+				driver.quit();
+	            return map;
 		}
+    	
 		
-		} catch (Exception e) {
-			logger.warn("民生银行",e);
-			// driver.quit();
-			map.put("errorCode", "0001");
-            map.put("errorInfo", "网络连接异常!");
-            PushSocket.push(map, UUID, "9000","认证失败");
-			PushState.state(idCard, "savings", 200);
-			//e.printStackTrace();
 		
-		}finally{
-			  driver.close();//关闭浏览器
-			  try {
-				  Runtime.getRuntime().exec("taskkill /F /IM IEDriverServer.exe");
-			} catch (IOException e) {
-				map.put("errorCode", "0001");
-	            map.put("errorInfo", "网络连接异常!");
-				e.printStackTrace();
-			}
-
-			 // driver.quit();
-		}
 		
 		return map;
     }
