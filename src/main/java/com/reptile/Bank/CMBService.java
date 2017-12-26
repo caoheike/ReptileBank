@@ -107,20 +107,7 @@ public class CMBService {
             return map;
 			//e.printStackTrace();
 		
-		}finally{
-			  driver.quit();//关闭浏览器
-			  try {
-				  Runtime.getRuntime().exec("taskkill /F /IM IEDriverServer.exe");
-			} catch (IOException e) {
-				map.put("errorCode", "0001");
-	            map.put("errorInfo", "网络连接异常!");
-				e.printStackTrace();
-	            return map;
-			}
-
-			 // driver.quit();
 		}
-			
 			
 			
 			WebElement element6=null;
@@ -240,7 +227,7 @@ public class CMBService {
 		}
     	
 		
-		
+            driver.quit();
 		
 		return map;
     }

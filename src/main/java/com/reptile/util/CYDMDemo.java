@@ -11,7 +11,7 @@ public class CYDMDemo
 {
 	// 下载云打码DLL http://yundama.com/apidoc/YDM_SDK.html#DLL
 	// yundamaAPI 32位, yundamaAPI-x64 64位
-	public static String	DLLPATH		= "C://yundamaAPI.dll";
+	public static String	DLLPATH		= "C://yundamaAPI-x64.dll";
 
 	public interface YDM extends Library
 	{
@@ -61,7 +61,7 @@ public class CYDMDemo
 		
 		// 只需要在初始的时候登陆一次
 		int uid = 0;
-		YDM.INSTANCE.YDM_SetTimeOut(20);	
+		YDM.INSTANCE.YDM_SetTimeOut(30);	
 		YDM.INSTANCE.YDM_SetAppInfo(appid, appkey);			// 设置软件ID和密钥
 		uid = YDM.INSTANCE.YDM_Login(username, password);	// 登陆到云打码
 

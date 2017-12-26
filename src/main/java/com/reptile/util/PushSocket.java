@@ -26,8 +26,8 @@ public class PushSocket {
 		Map<String, Object> mapData = new HashMap<String, Object>();
 		Session se = TalkframeController.getWsUserMap().get(UUID);
 		String seq_id = TalkframeController.getWsInfoMap().get(UUID);
-		logger.warn("----------------长连接推送开始------se：" + se + "-----seq_id:"
-				+ seq_id);
+		logger.warn("----------------长连接推送开始------se：" + se + "-----seq_id:"+ seq_id);
+		logger.warn("----------------*****************------UUID：" + UUID);
 		System.out.println("errorInfor----"+errorInfor);
 		String date=CountTime.currentTime();
 		try {

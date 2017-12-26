@@ -53,12 +53,13 @@ public class InterfaceController {
 		CmbBank banks = new CmbBank();
 		BcmLogin BcmLogin = new BcmLogin();
 		BcmLogins JiaoTong = new BcmLogins();
+		CMBService CMB=new CMBService();
 		Map<String, Object> map = new HashMap<String, Object>();
 		HttpSession session = request.getSession();
 		String UUID = request.getParameter("UUID");
 		String userCard = request.getParameter("userCard");
 		String timeCnt = request.getParameter("timeCnt");
-		synchronized (this) {
+		synchronized (this) {			
 			if (BankType.equals("CMB")) {// 招商银行
 				map = bank.Login(numbe, pwd, session, UUID);
 			} else if (BankType.equals("SPDB")) {// 浦发银行
@@ -78,10 +79,10 @@ public class InterfaceController {
 			} else if (BankType.equals("ABC")) {// 农业银行储蓄卡
 				map = AbcBank.doGetDetail(numbe, pwd, UUID, userCard);
 			} else if (BankType.equals("CMBC2")) {// 民生储蓄卡
-				map = new CMBService().login(request, response, numbe, pwd,
+				map = CMB.login(request, response, numbe, pwd,
 						userCard, UUID);
 			} 
-
+			
 			return map;
 		}
 
@@ -138,7 +139,7 @@ public class InterfaceController {
 	
 	/*
 	 * 交通储蓄卡发送短信验证码
-	 */
+	 
 	
 	@ResponseBody
 	@RequestMapping(value = "BCMSendCode", method = RequestMethod.POST)
@@ -150,9 +151,9 @@ public class InterfaceController {
 
 	}
 
-	/*
+	
 	 * 交通储蓄卡获取数据
-	 */
+	 
 	
 	@ResponseBody
 	@RequestMapping(value = "BCMQueryInfo", method = RequestMethod.POST)
@@ -168,5 +169,5 @@ public class InterfaceController {
 		return BcmLogin.BCMQueryInfo(request,UUID,userCard,Sendcode,numbe);
 
 	}
-
+*/
 }

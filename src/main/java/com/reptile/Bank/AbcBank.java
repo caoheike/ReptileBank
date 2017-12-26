@@ -255,6 +255,11 @@ public class AbcBank {
     		           	status.put("errorInfo","网页异常,数据获取失败");
 					}
 				
+				}else if(DriverUtil.waitByTitle("您的密码过于简单,请您重新设置", driver, 10)||DriverUtil.waitByTitle("个人网上银行—重置登录密码", driver, 10)) {
+					PushSocket.push(status, UUID, "3000","您的密码过于简单,请至官网重置");
+					PushState.state(card, "savings", 200);
+					status.put("errorCode","0001");//异常处理
+		           	status.put("errorInfo","密码过于简单");
 				}else{
 					numCount=numCount+1;
 					driver.quit();

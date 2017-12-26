@@ -61,7 +61,8 @@ public class BcmLogin {
 		PushSocket.push(status, UUID, "1000","交通储蓄卡登录中");	
 		PushState.state(userCard, "savings", 100);
 		WebDriver driver = null;
-		JavascriptExecutor js = (JavascriptExecutor) driver;
+		JavascriptExecutor js = null;
+		System.out.println(js);
 		try {
 			logger.warn("-----------交通储蓄卡-----------登陆开始----------身份证号："+userCard);
 			
@@ -76,11 +77,12 @@ public class BcmLogin {
 
 			/* 输入账号 */
 			username.sendKeys(UserName);
+			Thread.sleep(1000);
 			/* 按下Tab */
 			/*KeysPress.SendTab("Tab");
 			Thread.sleep(1000);*/
 			SendKeys.sendTab();
-			Thread.sleep(500);
+			Thread.sleep(1000);
 			/* 输入密码 */
 			SendKeys.sendStr(UserPwd);
 			//KeysPress.SenStr(UserPwd);
@@ -110,6 +112,15 @@ public class BcmLogin {
 			/* //此处判断是否登陆成功 */
 			boolean flgs = ElementExist(driver, By.className("lanse-12-b")); /* 错误表示 */
 			boolean flgb = ElementExist(driver, By.id("captchaErrMsg")); /* JS错误提示 */
+			if(driver.getPageSource().contains("您未注册或登录密码输入错误")) {
+				logger.warn("-----------交通储蓄卡-----------登陆失败----------身份证号："+userCard);
+				status.put( "errorInfo", "账号密码错误" );
+				status.put( "errorCode", "0001" );
+				PushSocket.push(status, UUID, "3000","账号密码错误，登录失败");
+				PushState.state(userCard, "savings", 200);
+				DriverUtil.close(driver);
+				return status;
+			}
 			if (flgb == true
 					&& !driver.findElement(By.id("captchaErrMsg")).getText()
 							.equals("")) {
@@ -128,7 +139,7 @@ public class BcmLogin {
 					//发送短信验证码
 					
 					request.getSession().setAttribute("BcmCodePage", driver);
-					status.put( "errorInfo", "需要短信验证码" );
+					status.put( "errorInfo", "帐号认证异常，请你先尝试在官网登录！" );
 					status.put( "errorCode", "0011" );
 					
 					return status;
@@ -150,18 +161,21 @@ public class BcmLogin {
 							btnConf1.click();
 							Thread.sleep(3000);
 						}
-
-						/* 执行JS去点击账单查询 */
+						Thread.sleep(2000);
+						 //执行JS去点击账单查询 
+						js = (JavascriptExecutor) driver;
+						System.out.println(js);
 						String zd = "Util.changeMenu('P001000');";
-
 						js.executeScript(zd, "");
-//					driver.switchTo().frame("frameMain");
-//					driver.switchTo().frame("tranArea");
-//					WebElement mx1 = driver.findElement(By.linkText("账户查询"));
-//					Thread.sleep(2000);
-						/* 切入ifrmae */
-						driver.switchTo().frame("frameMain");
-						driver.switchTo().frame("tranArea");
+//						
+					driver.switchTo().frame("frameMain");
+					driver.switchTo().frame("tranArea");
+					//执行JS去点击账单查询 
+					
+					Thread.sleep(2000);
+//						/* 切入ifrmae */
+//						driver.switchTo().frame("frameMain");
+//						driver.switchTo().frame("tranArea");
 					}catch (Exception e) {
 						logger.warn("-----------交通银行查询失败-------------", e);
 						
@@ -169,11 +183,10 @@ public class BcmLogin {
 						status.put("errorInfo", "网络异常，请重试！");
 						PushSocket.push(status, UUID, "7000","网络异常,数据获取失败");
 						PushState.state(userCard, "savings", 200);
+						DriverUtil.close(driver);
 						return status;
 						
-					} finally {
-						DriverUtil.close(driver);
-					}
+					} 
 					
 					List<Object> list =null;
 					try {
@@ -242,10 +255,9 @@ public class BcmLogin {
 						status.put("errorInfo", "网络异常，请重试！");
 						PushSocket.push(status, UUID, "7000","网络异常,数据获取失败");
 						PushState.state(userCard, "savings", 200);
-						return status;
-					} finally {
 						DriverUtil.close(driver);
-					}
+						return status;
+					} 
 					try {
 						params.clear();
 						headers.clear();
@@ -279,20 +291,15 @@ public class BcmLogin {
 						status.put("errorInfo", "网络异常，请重试！");
 						PushSocket.push(status, UUID, "9000","网络异常,认证失败");
 						PushState.state(userCard, "savings", 200);
-						return status;
-					} finally {
 						DriverUtil.close(driver);
-					}
-						
-					
-					
-					
-				
+						return status;
+					}	
+
 				}
 				
 			}
 				
-				
+		DriverUtil.close(driver);
 		 
 		logger.warn("-----------交通储蓄卡-----------查询结果----------返回结果："+status.toString());
 		return status;
@@ -300,7 +307,7 @@ public class BcmLogin {
 	
 	/*
 	 * 交通储蓄卡发送短信验证码
-	 */
+	 
 	
 	public static Map<String, Object> BCMSendCode(HttpServletRequest request){
 		WebDriver driver = (WebDriver) request.getSession().getAttribute("BcmCodePage");
@@ -315,7 +322,7 @@ public class BcmLogin {
 		}
 		return status;
 	}
-	/**
+	*//**
 	 * 交通储蓄卡有验证码情况下查询
 	 * @param request
 	 * @param UUID
@@ -324,7 +331,7 @@ public class BcmLogin {
 	 * @param UserName
 	 * @return
 	 * @throws InterruptedException
-	 */
+	 *//*
 	public static Map<String, Object> BCMQueryInfo(HttpServletRequest request,String UUID,String userCard,String Sendcode,String UserName) throws InterruptedException{
 		WebDriver driver = (WebDriver) request.getAttribute("jiaotongdriver");
 		Map<String, Object> status = new HashMap<String, Object>();
@@ -359,13 +366,13 @@ public class BcmLogin {
         			logger.warn("-----------交通储蓄卡-----------登陆成功----------身份证号："+userCard);
         			
         			boolean flg = ElementExist(driver, By.id("btnConf1"));
-        			/* 判断是否有登陆确认信息 */
+        			 判断是否有登陆确认信息 
         			if (flg == true) {
         				WebElement btnConf1 = driver.findElement(By.id("btnConf1"));
         				btnConf1.click();
         			}
 
-        			/* 执行JS去点击账单查询 */
+        			 执行JS去点击账单查询 
         			String zd = "Util.changeMenu('P001000');";
 
         			js.executeScript(zd, "");
@@ -373,14 +380,14 @@ public class BcmLogin {
 //        			driver.switchTo().frame("tranArea");
 //        			WebElement mx1 = driver.findElement(By.linkText("账户查询"));
 //        			Thread.sleep(2000);
-        			/* 切入ifrmae */
+        			 切入ifrmae 
         			driver.switchTo().frame("frameMain");
         			driver.switchTo().frame("tranArea");
         			PushSocket.push(status, UUID, "5000","交通储蓄卡数据获取中");
         			List<Object> list =null;
         			try {
         				List<Map<String, Object>> lists = yuefen();
-        				/* //点击明细 */
+        				 //点击明细 
         				WebElement mx = driver.findElement(By.linkText("明细"));
         				mx.click();
         				js.executeScript(
@@ -389,7 +396,7 @@ public class BcmLogin {
         								+ "');$('#endDate_show').val('"
         								+ lists.get(5).get("end").toString()
         								+ "');$('#btnQry2').click()", "");
-        				/* 开始解析 */
+        				 开始解析 
         				Document docs = Jsoup.parse(driver.getPageSource());
         				Elements trs = docs.getElementsByClass("form-table");
         				Elements tr = trs.select("tr");
@@ -400,7 +407,7 @@ public class BcmLogin {
         					Elements td = tr.get(i).select("td");
         					for (int j = 0; j < td.size(); j++) {
         						if (j == 0) {
-        							/* 交易时间 */
+        							 交易时间 
         							if (td.get(j).text().equals("查询")) {
         							} else if (td.get(j).text().contains("保存文件格式")) {
         							} else {
@@ -408,28 +415,28 @@ public class BcmLogin {
         							}
         						}
         						if (j == 1) {
-        							/* 交易方式 */
-        							map.put("dealReferral", td.get(j).text()); /* 业务摘要 */
+        							 交易方式 
+        							map.put("dealReferral", td.get(j).text());  业务摘要 
         						}
         						if (j == 2) {
-        							/* 交易币种 */
-        							map.put("currency", td.get(j).text()); /* 业务摘要 */
+        							 交易币种 
+        							map.put("currency", td.get(j).text());  业务摘要 
         						}
         						if (j == 3) {
-        							map.put("dealAmount", td.get(j).text()); /* 交易金额 */
-        							/* 支出金额 */
+        							map.put("dealAmount", td.get(j).text());  交易金额 
+        							 支出金额 
         						}
         						if (j == 4) {
-        							/* 收入金额 */
+        							 收入金额 
         						}
         						if (j == 5) {
-        							/* 收入余额 */
-        							map.put("balanceAmount", td.get(j).text()); /* 余额 */
+        							 收入余额 
+        							map.put("balanceAmount", td.get(j).text());  余额 
         						}
 
         						if (j == 6) {
-        							/* 交易地点 */
-        							map.put("dealDitch", td.get(j).text()); /* 交易渠道 */
+        							 交易地点 
+        							map.put("dealDitch", td.get(j).text());  交易渠道 
         						}
         					}
         					map.put("oppositeSideName", "");
@@ -489,7 +496,7 @@ public class BcmLogin {
 			
 		}
 		return params;
-	}
+	}*/
 	
 	public static List<Map<String, Object>> yuefen() {
 		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();

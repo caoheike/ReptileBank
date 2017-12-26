@@ -16,6 +16,7 @@ import javax.servlet.http.HttpSession;
 
 import org.apache.http.ParseException;
 import org.apache.log4j.Logger;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.Dimension;
@@ -90,8 +91,9 @@ public class VirtualKeyBoard {
 				WebElement elements = driver.findElement(By.id("writeUserId"));
 				elements.sendKeys(number);
 				/* 执行换号 */
-				Thread.sleep(2000);
+				Thread.sleep(1000);
 				SendKeys.sendTab();
+				Thread.sleep(1000);
 				SendKeys.sendStr(pwd);
 //				/* 按下Tab */
 //				KeysPress.SendTab("Tab");
@@ -124,9 +126,8 @@ public class VirtualKeyBoard {
 				}
 				map.put("errorCode", "0001");
 				map.put("errorInfo", "网络错误");
-				return map;
-			} finally {
 				DriverUtil.close(driver);
+				return map;
 			}
 			Thread.sleep(2000);
 			WebElement errorinfo=null;
@@ -140,10 +141,9 @@ public class VirtualKeyBoard {
 				}
 				map.put("errorCode", "0001");
 				map.put("errorInfo", "网络错误");
-				return map;
-			} finally {
 				DriverUtil.close(driver);
-			}
+				return map;
+			} 
 			if (!"".equals(errorinfo.getText())) {
 				PushSocket.push(map, UUID, "3000",errorinfo.getText());
 				if(isok==true){
@@ -247,9 +247,8 @@ public class VirtualKeyBoard {
 							}
 							map.put("errorCode", "0001");
 							map.put("errorInfo", "网络错误");
-							return map;
-						} finally {
 							DriverUtil.close(driver);
+							return map;
 						}
 					}
 					
@@ -414,7 +413,6 @@ public class VirtualKeyBoard {
 	 */
 	public synchronized Map<String, Object> GDBLogin(String number, String pwd,
 			String usercard, String UUID,String timeCnt) throws Exception {
-//		
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> data = new HashMap<String, Object>();
 		PushSocket.push(map, UUID, "1000","广发银行信用卡登录中");
@@ -424,7 +422,8 @@ public class VirtualKeyBoard {
 			PushState.state(usercard, "bankBillFlow", 100);
 		}
 		WebDriver driver = null;
-		JavascriptExecutor jss = (JavascriptExecutor) driver;
+		JavascriptExecutor jss = null;
+		String imgtext = "";
 		try {
 			driver = DriverUtil.getDriverInstance("ie");
 			WebDriverWait wait = new WebDriverWait(driver, 20);
@@ -432,6 +431,9 @@ public class VirtualKeyBoard {
 			driver.manage().window().maximize();
 			
 			driver.get("https://ebanks.cgbchina.com.cn/perbank/");
+			Thread.sleep(1000);
+
+			
 			wait.until(ExpectedConditions.presenceOfElementLocated(By
 					.linkText("广发银行官方网站")));
 			WebElement elements = driver.findElement(By.id("loginId"));
@@ -442,16 +444,16 @@ public class VirtualKeyBoard {
 			/*KeysPress.SendTab("Tab");
 			Thread.sleep(1000);*/
 			SendKeys.sendTab();
-			Thread.sleep(500);
+			Thread.sleep(1000);
 			/* 输入密码 */
 			SendKeys.sendStr(pwd);
 			//KeysPress.sendPassWord(pwd);
 			WebElement keyWord = driver.findElement(By.id("verifyImg"));
-			String imgtext = downloadImgss(driver, keyWord);
+			imgtext = downloadGFImgss(driver, keyWord);
 			System.out.println(imgtext+"************打码*********");
 			logger.warn("--------广发银行信用卡--------登陆-----------验证码打码为："+imgtext+"-------------");
 			if (imgtext.contains("超时") || imgtext.equals("")) {
-				map.put("errorInfo", "查询失败");
+				map.put("errorInfo", "连接超时");
 				map.put("errorCode", "0002");
 				PushSocket.push(map, UUID, "3000","连接超时");
 				if(isok==true){
@@ -465,6 +467,7 @@ public class VirtualKeyBoard {
 			_vTokenId.sendKeys(imgtext);
 			WebElement loginButton = driver.findElement(By.id("loginButton"));
 			loginButton.click(); /* 点击登陆 */
+			Thread.sleep(3000);
 			//弹窗的内容
 			
 		} catch (Exception e) {
@@ -475,132 +478,136 @@ public class VirtualKeyBoard {
 			if(isok==true){
 				PushState.state(usercard, "bankBillFlow", 200);
 			}
+			driver.quit();
 			return map;
-		}finally{
-			DriverUtil.close(driver);
 		}
-			String str = DriverUtil.alertFlag(driver);
-			if(!str.isEmpty()){
-					if(str.contains("验证码")){
-						map = GDBLogin(number, pwd, usercard, UUID,timeCnt);
-					}else{
-						map.put("errorInfo", str);
-						map.put("errorCode", "0001");
-						PushSocket.push(map, UUID, "3000",str);
-						if(isok==true){
-							PushState.state(usercard, "bankBillFlow", 200);
-						}
-						logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+str);
-						DriverUtil.close(driver);
-					}
-					return map;								
-			}else if(DriverUtil.waitById("errorMessage", driver, 3)){
-					String errorMessage = driver.findElement(By.id("errorMessage")).getText();
-					map.put("errorInfo", errorMessage);
+		if(imgtext.length()<4) {
+			DriverUtil.close(driver);
+			map = GDBLogin(number, pwd, usercard, UUID,timeCnt);
+		}
+		String str = DriverUtil.alertFlag(driver);
+	
+		if(!str.isEmpty()){
+				if(str.contains("验证码")){
+					DriverUtil.close(driver);
+					map = GDBLogin(number, pwd, usercard, UUID,timeCnt);
+				}else{
+					map.put("errorInfo", str);
 					map.put("errorCode", "0001");
-					PushSocket.push(map, UUID, "3000",errorMessage);
+					PushSocket.push(map, UUID, "3000",str);
 					if(isok==true){
 						PushState.state(usercard, "bankBillFlow", 200);
 					}
-					logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+errorMessage);
+					logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+str);
 					DriverUtil.close(driver);
-					return map;									
-			}else if(DriverUtil.waitByTitle("广发银行个人网上银行", driver, 15)){
-				try {
-					logger.warn("--------广发银行登陆------------成功-----------用户名："+ number+"-----------");
-					PushSocket.push(map, UUID, "2000","广发银行信用卡登陆成功");
-					
-					Thread.sleep(8000);
-					PushSocket.push(map, UUID, "5000","广发银行信用卡数据获取中");
-					String jsv = "var aaa=document.getElementsByClassName('node');aaa[15].click();";
-					jss.executeScript(jsv, "");
-					
-					driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
-					
-					String head = driver.getWindowHandle();
-					
-					String sid = driver.getPageSource()
-							.substring(driver.getPageSource().indexOf("_emp_sid = '"),driver.getPageSource().indexOf("';"))
-							.replaceAll("_emp_sid = '", "");
-					logger.warn("--------广发银行登陆------------sid为："+sid);
-					/*选中第一个*/
-					for (int i = 0; i < 11; i++) {
-						/* 为了避免查询不到账单 做此次处理 */
-						List<WebElement> elements2 = driver.findElements(By
-								.tagName("IFRAME"));
-						driver.switchTo().frame(elements2.get(0));
-						if(driver.getPageSource().contains("上月账单")){
-							break;
-						}
-						//判断creditCardNo是否可点击
-						if(DriverUtil.waitById("creditCardNo", driver, 15) && DriverUtil.clickById("creditCardNo", driver, 15)){
-							driver.findElement(By.id("creditCardNo")).click();;
-						}
-						//判断cross是否可点击
-						if(DriverUtil.waitByClassName("cross", driver, 15) && DriverUtil.clickByClassName("cross", driver, 15)){
-							driver.findElement(By.className("cross")).click();;
-						}
-						new Select(driver.findElement(By.id("billDate"))).selectByIndex(i);
-						driver.findElement(By.linkText("查询")).click();
-						Thread.sleep(2000);
-						driver.switchTo().window(head);
+				}
+				return map;								
+		}else if(DriverUtil.waitById("errorMessage", driver, 3)){
+				String errorMessage = driver.findElement(By.id("errorMessage")).getText();
+				map.put("errorInfo", errorMessage);
+				map.put("errorCode", "0001");
+				PushSocket.push(map, UUID, "3000",errorMessage);
+				if(isok==true){
+					PushState.state(usercard, "bankBillFlow", 200);
+				}
+				logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+errorMessage);
+				DriverUtil.close(driver);
+				return map;									
+		}else if(DriverUtil.waitByTitle("广发银行个人网上银行", driver, 15)){
+			try {
+				logger.warn("--------广发银行登陆------------成功-----------用户名："+ number+"-----------");
+				PushSocket.push(map, UUID, "2000","广发银行信用卡登陆成功");
+				
+				Thread.sleep(8000);
+				PushSocket.push(map, UUID, "5000","广发银行信用卡数据获取中");
+				String jsv = "var aaa=document.getElementsByClassName('node');aaa[15].click();";
+				jss = (JavascriptExecutor) driver;
+				jss.executeScript(jsv, "");
+				
+				driver.manage().timeouts().implicitlyWait(10, TimeUnit.SECONDS);
+				
+				String head = driver.getWindowHandle();
+				
+				String sid = driver.getPageSource()
+						.substring(driver.getPageSource().indexOf("_emp_sid = '"),driver.getPageSource().indexOf("';"))
+						.replaceAll("_emp_sid = '", "");
+				logger.warn("--------广发银行登陆------------sid为："+sid);
+				/*选中第一个*/
+				for (int i = 0; i < 11; i++) {
+					/* 为了避免查询不到账单 做此次处理 */
+					List<WebElement> elements2 = driver.findElements(By
+							.tagName("IFRAME"));
+					driver.switchTo().frame(elements2.get(0));
+					if(driver.getPageSource().contains("上月账单")){
+						break;
 					}
-					
-					logger.warn("--------广发银行登陆------------OPEN：开始");
-					for (int i = 0; i < application.Getdate().size(); i++) {
-						Thread.sleep(1000);
-						String win = "window.open('https://ebanks.cgbchina.com.cn/perbank/CR1080.do?currencyType=&creditCardNo="
-								+ number
-								+ "&billDate="
-								+ application.Getdate().get(i)
-								+ "&billType=1&abundantFlag=0&terseFlag=0&showWarFlag=0&EMP_SID="
-								+ sid + " ');";
-						logger.warn("--------广发银行登陆------------OPEN："+i+"    url:"+win);
-						jss.executeScript(win, "");
+					//判断creditCardNo是否可点击
+					if(DriverUtil.waitById("creditCardNo", driver, 15) && DriverUtil.clickById("creditCardNo", driver, 15)){
+						driver.findElement(By.id("creditCardNo")).click();;
 					}
-					logger.warn("--------广发银行登陆------------OPEN：结束");
-					Set<String> jswin = driver.getWindowHandles();
-					logger.warn("--------广发银行登陆------------账单查询：开始");
-					List<String> listinfo = new ArrayList<String>();
-					for (String item : jswin) {
-						if (!item.equals(head)) {
-							driver.switchTo().window(item);
-							if(DriverUtil.waitByTitle("账单", driver, 8)){
-								logger.warn("-----------账单信息：-------------"+driver.getPageSource());
-								if (!driver.getPageSource().contains("var billErrMsg = '该月份账单尚未生成，请于账单日后再查询';")) {
-									logger.warn("--------广发银行登陆------------账单查询：具体内容："+driver.getPageSource());
-									listinfo.add(driver.getPageSource());
-								}
-							}
-							
-						}
+					//判断cross是否可点击
+					if(DriverUtil.waitByClassName("cross", driver, 15) && DriverUtil.clickByClassName("cross", driver, 15)){
+						driver.findElement(By.className("cross")).click();;
 					}
-					PushSocket.push(map, UUID, "6000","广发银行信用卡数据获取成功");
-					logger.warn("--------广发银行登陆------------账单查询：结束");
-					data.put("html", listinfo);
-					data.put("backtype", "GDB");
-					data.put("idcard", usercard);
-					map.put("data", data);
-					map.put("isok", isok);
-					Resttemplate ct = new Resttemplate();
-					map = ct.SendMessageX(map, application.sendip
-							+ "/HSDC/BillFlow/BillFlowByreditCard", usercard,UUID);
+					new Select(driver.findElement(By.id("billDate"))).selectByIndex(i);
+					driver.findElement(By.linkText("查询")).click();
+					Thread.sleep(2000);
 					driver.switchTo().window(head);
-					}catch (Exception e) {
-						logger.warn("-----------广发银行查询失败----------",e);
-						map.put("errorInfo", "网络异常,请重试！！");
-						map.put("errorCode", "0001");
-						PushSocket.push(map, UUID, "9000","网络异常，认证失败");
-						if(isok==true){
-							PushState.state(usercard, "bankBillFlow", 200);
-						}
-					}finally{
-						DriverUtil.close(driver);
-					}
 				}
 				
-			
-		
+				logger.warn("--------广发银行登陆------------OPEN：开始");
+				for (int i = 0; i < application.Getdate().size(); i++) {
+					Thread.sleep(1000);
+					jss = (JavascriptExecutor) driver;
+					String win = "window.open('https://ebanks.cgbchina.com.cn/perbank/CR1080.do?currencyType=&creditCardNo="
+							+ number
+							+ "&billDate="
+							+ application.Getdate().get(i)
+							+ "&billType=1&abundantFlag=0&terseFlag=0&showWarFlag=0&EMP_SID="
+							+ sid + " ');";
+					logger.warn("--------广发银行登陆------------OPEN："+i+"    url:"+win);
+					jss.executeScript(win, "");
+				}
+				logger.warn("--------广发银行登陆------------OPEN：结束");
+				Set<String> jswin = driver.getWindowHandles();
+				logger.warn("--------广发银行登陆------------账单查询：开始");
+				List<String> listinfo = new ArrayList<String>();
+				for (String item : jswin) {
+					if (!item.equals(head)) {
+						driver.switchTo().window(item);
+						if(DriverUtil.waitByTitle("账单", driver, 8)){
+							logger.warn("-----------账单信息：-------------"+driver.getPageSource());
+							if (!driver.getPageSource().contains("var billErrMsg = '该月份账单尚未生成，请于账单日后再查询';")) {
+								logger.warn("--------广发银行登陆------------账单查询：具体内容："+driver.getPageSource());
+								listinfo.add(driver.getPageSource());
+							}
+						}
+						
+					}
+				}
+				PushSocket.push(map, UUID, "6000","广发银行信用卡数据获取成功");
+				logger.warn("--------广发银行登陆------------账单查询：结束");
+				data.put("html", listinfo);
+				data.put("backtype", "GDB");
+				data.put("idcard", usercard);
+				map.put("data", data);
+				map.put("isok", isok);
+				Resttemplate ct = new Resttemplate();
+				map = ct.SendMessageX(map, application.sendip
+						+ "/HSDC/BillFlow/BillFlowByreditCard", usercard,UUID);
+				driver.switchTo().window(head);
+				}catch (Exception e) {
+					logger.warn("-----------广发银行查询失败----------",e);
+					map.put("errorInfo", "网络异常,请重试！！");
+					map.put("errorCode", "0001");
+					PushSocket.push(map, UUID, "9000","网络异常，认证失败");
+					if(isok==true){
+						PushState.state(usercard, "bankBillFlow", 200);
+					}
+				}finally{
+					DriverUtil.close(driver);
+				}			
+			}
 		logger.warn("--------------广发银行信用卡------------查询结束-----------返回信息为："+map+"---------------");
 		return (map);
 	}
@@ -759,7 +766,7 @@ public class VirtualKeyBoard {
 
 	/*
 	 * public static void main(String args[]) throws IOException{
-	 * System.setProperty("webdriver.ie.driver", "D:/ie/IEDriverServer.exe");
+	 * System.setProperty("webdriver.ie.driver", "C:/ie/IEDriverServer.exe");
 	 * WebDriver driver = new InternetExplorerDriver();
 	 * driver.get("https://sn.ac.10086.cn/login");
 	 * 
@@ -780,7 +787,7 @@ public class VirtualKeyBoard {
 			HttpSession sessions = session;
 
 			System.setProperty("webdriver.ie.driver",
-					"D:/ie/IEDriverServer.exe");
+					"C:/ie/IEDriverServer.exe");
 			driver = new InternetExplorerDriver();
 			driver.get("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx");
 			String ss1 = arg1;
@@ -854,7 +861,7 @@ public class VirtualKeyBoard {
 			HttpSession sessions = session;
 
 			System.setProperty("webdriver.ie.driver",
-					"D:/ie/IEDriverServer.exe");
+					"C:/ie/IEDriverServer.exe");
 			driver = new InternetExplorerDriver();
 			driver.get("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx");
 			String ss1 = arg1;
@@ -930,6 +937,7 @@ public class VirtualKeyBoard {
 	}
 	public static String downloadImgss(WebDriver driver, WebElement keyWord)
 			throws IOException {		
+		
 		String src = keyWord.getAttribute("src");
 		String filename = new CrawlerUtil().getUUID();
 		BufferedImage inputbig = createElementImages(driver, keyWord);
@@ -937,7 +945,16 @@ public class VirtualKeyBoard {
 		String codenice = cydmDemo.getcode(filename); /* 识别yanzhengma */
 		return (codenice);
 	}
-
+	public static String downloadGFImgss(WebDriver driver, WebElement keyWord)
+			throws IOException {		
+		
+		String src = keyWord.getAttribute("src");
+		String filename = new CrawlerUtil().getUUID();
+		BufferedImage inputbig = createGFElementImages(driver, keyWord);
+		ImageIO.write(inputbig, "png", new File("C://" + filename + ".png"));
+		String codenice = cydmDemo.getcode(filename); /* 识别yanzhengma */
+		return (codenice);
+	}
 	public static BufferedImage createElementImages(WebDriver driver,
 			WebElement webElement) throws IOException {
 		/* 获得webElement的位置和大小。 */
@@ -949,6 +966,19 @@ public class VirtualKeyBoard {
 		/* 截取webElement所在位置的子图。 */
 		BufferedImage croppedImage = originalImage.getSubimage(location.getX(),
 				location.getY(), size.getWidth(), size.getHeight());
+		return (croppedImage);
+	}
+	public static BufferedImage createGFElementImages(WebDriver driver,
+			WebElement webElement) throws IOException {
+		/* 获得webElement的位置和大小。 */
+		Point location = webElement.getLocation();
+		Dimension size = webElement.getSize();
+		/* 创建全屏截图。 */
+		BufferedImage originalImage = ImageIO.read(new ByteArrayInputStream(
+				takeScreenshot(driver)));
+		/* 截取webElement所在位置的子图。 */
+		BufferedImage croppedImage = originalImage.getSubimage(location.getX()-20,
+				location.getY(), size.getWidth()+20, size.getHeight());
 		return (croppedImage);
 	}
 	

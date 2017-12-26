@@ -67,7 +67,7 @@ public class BcmLogins {
 		if(isok==true){
 			PushState.state(UserCard, "bankBillFlow", 100);
 		}
-		System.setProperty("webdriver.chrome.driver", "D:/ie/chromedriver.exe");
+		System.setProperty("webdriver.chrome.driver", "C:/ie/chromedriver.exe");
 		ChromeOptions options = new ChromeOptions();
 		// 设置浏览器大小避免截图错乱
 		options.addArguments("start-maximized");
@@ -153,7 +153,7 @@ public class BcmLogins {
 				// 识别是否需要发送验证码
 				if (driver.getPageSource().contains("moibleMessages")) {
 					// 需要发送验证码
-					System.out.println("开始发送验证码");
+					//System.out.println("开始发送验证码");
 					// WebElement webElement=
 					// driver.findElement(By.id("send_Button"));
 					// WebElement webElements=
@@ -209,6 +209,7 @@ public class BcmLogins {
 							WebElement goback = driver.findElement(By
 									.className("goback"));
 							goback.click();
+							Thread.sleep(3000);
 							wait.until(ExpectedConditions
 									.presenceOfElementLocated(By.id("bill_date")));
 

@@ -187,8 +187,12 @@ public class  DriverUtil{
 	public static String alertFlag(WebDriver driver){
 		String str = "";
 		try {
-			Alert alt = driver.switchTo().alert();
-			str = alt.getText();
+			
+			 Alert alt = driver.switchTo().alert();
+			 str = alt.getText();
+			 System.out.println(str);
+			 alt.accept();
+			
 		} catch (Exception e) {
 			//不做任何处理
 		}
@@ -229,7 +233,7 @@ public class  DriverUtil{
 	public static WebDriver getDriverInstance(String type){
 		WebDriver driver = null;
 		if(type.equals("ie")){
-			System.setProperty("webdriver.ie.driver", "D:/ie/IEDriverServer.exe");
+			System.setProperty("webdriver.ie.driver", "C:/ie/IEDriverServer.exe");
 			DesiredCapabilities ieCapabilities = DesiredCapabilities.internetExplorer();
 			ieCapabilities.setCapability(InternetExplorerDriver.INTRODUCE_FLAKINESS_BY_IGNORING_SECURITY_DOMAINS,true);
 			ieCapabilities.setCapability(InternetExplorerDriver.BROWSER_ATTACH_TIMEOUT,15000);

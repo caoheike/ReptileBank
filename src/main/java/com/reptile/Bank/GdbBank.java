@@ -53,7 +53,7 @@ public class GdbBank {
 		Map<String,Object> params=new HashMap<String, Object>();
 		Map<String,String> headers=new HashMap<String, String>();
 		  Map status=new HashMap();
-		WebDriver driver=KeysPress.OpenUrl("ie", "https://pbank.95559.com.cn/personbank/logon.jsp#","D:/ie/IEDriverServer.exe");
+		WebDriver driver=KeysPress.OpenUrl("ie", "https://pbank.95559.com.cn/personbank/logon.jsp#","C:/ie/IEDriverServer.exe");
 		JavascriptExecutor js = (JavascriptExecutor) driver;
 		String userName = "18220834780";
 		String userPwd = "weizai9529";
