@@ -137,11 +137,11 @@ public class BcmLogin {
 			} else {
 				if(driver.getPageSource().contains("为了进一步保障您使用我行个人网银的安全性")) {
 					//发送短信验证码
-					
+					PushSocket.push(status, UUID, "3000","帐号认证异常，请你先尝试在官网登录！");
 					request.getSession().setAttribute("BcmCodePage", driver);
 					status.put( "errorInfo", "帐号认证异常，请你先尝试在官网登录！" );
 					status.put( "errorCode", "0011" );
-					
+					DriverUtil.close(driver);
 					return status;
 				}else {
 					Map<String, Object> params = new HashMap<String, Object>();

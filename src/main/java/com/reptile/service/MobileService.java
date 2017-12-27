@@ -46,7 +46,7 @@ public class MobileService {
 		
 //		public String Queryinfo(HttpSession session,HttpServletResponse response,String codes,String sessid,String ClientNos)
 //				throws FailingHttpStatusCodeException, MalformedURLException, IOException, InterruptedException {
-			public Map<String, Object> Queryinfo(HttpSession session,HttpServletResponse response,String codes,String sessid,String ClientNos,String idCard,String UUID,String timeCnt)
+			public Map<String, Object> Queryinfo(HttpSession session,HttpServletResponse response,String codes,String sessid,String ClientNos,String idCard,String UUID,String timeCnt,String numbe)
 					throws FailingHttpStatusCodeException, MalformedURLException, IOException, InterruptedException, java.text.ParseException {
 				Map<String,Object>maps=new HashMap();				
 				Map<String,Object> map=new HashMap<String, Object>();//请求头
@@ -90,7 +90,7 @@ public class MobileService {
 			       	headers.put("Accept", "image/jpeg, application/x-ms-application, image/gif, application/xaml+xml, image/pjpeg, application/x-ms-xbap, application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, */*");      		
 			       	headers.put("Accept-Encoding", "gzip, deflate");   		
 			       	headers.put("Accept-Language", "zh-CN");   		
-			       	headers.put("Cache-Control", "no-cache");//		
+			       	headers.put("Cache-Control", "no-cache");	
 			       	headers.put("Connection", "Keep-Alive");
 			       	headers.put("Content-Type", "application/x-www-form-urlencoded");
 			       	headers.put("Host", "pbsz.ebank.cmbchina.com");	       		
@@ -99,6 +99,7 @@ public class MobileService {
 			        headers.put("Cookie",cookie);
 			    	paramse.put("ClientNo",rest2.substring(rest2.indexOf("<ClientNo>"), rest2.indexOf("</ClientNo>")).replace("<ClientNo>", ""));
 			       	String rest3=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningSurveyNew.aspx", paramse, headers);//开始发包
+			       	
 			       	System.out.println(rest3);//账单获取成功
 			       	List list= getHtmlEarthBean(rest3);
 			        List lists=new ArrayList();
@@ -148,6 +149,7 @@ public class MobileService {
 			    	data.put("html", lists);
 			    	data.put("backtype", "CMB");
 			    	data.put("idcard", idCard);
+			    	data.put("userAccount", numbe);
 			    	map.put("data",data);
 //			    	zhangdan=endinfo;
 			    
@@ -198,7 +200,15 @@ public class MobileService {
 				       	params.put("AuthToken",toke);
 				       	String rest2=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Login/Login.aspx", params, headers);//开始发包
 				       	System.out.println(rest2);
-
+				       	if(rest2.contains("您的查询密码输错次数过多，建议登录我行掌上生活或手机银行重设查询密码")) {
+							  PushSocket.push(map, UUID, "7000","您的查询密码输错次数过多");
+					    		if(isok==true){
+									PushState.state(idCard,"bankBillFlow", 200);
+								}
+					    		map.put("errorCode","0000");
+				    			map.put("errorInfo","您的查询密码输错次数过多");		    		
+				    			return  map;
+						  }
 				   
 				       	headers.put("Request-Line", "POST /CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningSurveyNew.aspx HTTP/1.1");
 				       	headers.put("Accept", "image/jpeg, application/x-ms-application, image/gif, application/xaml+xml, image/pjpeg, application/x-ms-xbap, application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, */*");      		
@@ -285,6 +295,7 @@ public class MobileService {
 				    	data.put("html", lists);
 				    	data.put("backtype", "CMB");
 				    	data.put("idcard", idCard);
+				    	data.put("userAccount", numbe);
 				    	map.put("data",data);
 				    
 			    	}else{
@@ -489,7 +500,7 @@ public class MobileService {
 					    params.put("billMes", list);
 					    params.put("baseMes", headers);
 					    params.put("IDNumber", "");
-					    params.put("cardNumber", num);
+					    params.put("cardNumber", idcard);
 					    params.put("userName", "");
 					    System.out.println(JSONObject.fromObject(params));
 					    Thread.sleep(1000);
@@ -508,7 +519,7 @@ public class MobileService {
 					 params.put("errorInfo", "查询失败");
 					 params.put("errorCode", "0002");
 					 PushSocket.push(params, UUID, "3000","网络异常，登录失败");
-					 PushState.state(idcard, "savings", 100);
+					 PushState.state(idcard, "savings", 200);
 					 System.out.println("***************************************网络异常，登录失败");
 				 }
 	    	}else{
@@ -616,7 +627,7 @@ public class MobileService {
 				    params.put("billMes", list);
 				    params.put("baseMes", headers);
 				    params.put("IDNumber", "");
-				    params.put("cardNumber", num);
+				    params.put("cardNumber", idcard);
 				    params.put("userName", "");
 				  System.out.println(JSONObject.fromObject(params));
 				  Thread.sleep(1000);

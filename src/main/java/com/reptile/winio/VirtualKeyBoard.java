@@ -231,6 +231,7 @@ public class VirtualKeyBoard {
 							data.put("html", list);
 							data.put("backtype", "CMBC");
 							data.put("idcard", idcard);
+							data.put("userAccount", number);
 							map.put("data", data);
 							map.put("isok", isok);
 							map = resttemplate.SendMessageX(map, application.sendip
@@ -343,30 +344,27 @@ public class VirtualKeyBoard {
 			driver = DriverUtil.getDriverInstance("ie");
 			driver.get("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx");
 			String ss1 = arg1;
-			/*for (int i = 0; i < ss1.length(); i++) {
-				KeyPress(ss1.charAt(i));
-				Thread.sleep(10);
-			}*/
-			SendKeys.sendStr(ss1);
+			
+			SendKeys.sendStr(500, ss1);
+//			SendKeys.sendStr(1155+100, 335+10, ss1);
 			logger.warn("----------------招商信用卡-------------登陆-----------------"+VirtualKeyBoard.class.getResource("/").getPath());
-			/*
-			 * NativeLibrary.addSearchPath("WinIo32.dll",
-			 * VirtualKeyBoard.class.getResource("/").getPath());
-			 */
+			
 			NativeLibrary.addSearchPath("WinIo32", VirtualKeyBoard.class
 					.getResource("/").getPath());
-			Thread.sleep(1000);
+//			
 			/* 按下Tab */
-			/*KeysPress.SendTab("Tab");
-			Thread.sleep(1000);*/
+			/*KeysPress.SendTab("Tab");*/
+			Thread.sleep(2000);
 			SendKeys.sendTab();
-			Thread.sleep(500);
+			Thread.sleep(1500);
 			/* 输入密码 */
-			SendKeys.sendStr(arg2);
+			SendKeys.sendStr(500, arg2);
+//			SendKeys.sendStr(1155+100,391+10,arg2);
+			
 			/* 输入密码 
 			KeysPress.sendPassWord(arg2);*/
 
-			Thread.sleep(300);
+			Thread.sleep(1000);
 			WebElement elements = driver.findElement(By.id("LoginBtn"));
 			elements.click();
 			Thread.sleep(5000); /* 提交 */
@@ -491,6 +489,10 @@ public class VirtualKeyBoard {
 				if(str.contains("验证码")){
 					DriverUtil.close(driver);
 					map = GDBLogin(number, pwd, usercard, UUID,timeCnt);
+					//密码不为空并且报密码为空错误试递归
+				}else if(str.contains("请输入密码")&&!"".equals(pwd)){
+					DriverUtil.close(driver);
+					map = GDBLogin(number, pwd, usercard, UUID,timeCnt);
 				}else{
 					map.put("errorInfo", str);
 					map.put("errorCode", "0001");
@@ -590,6 +592,7 @@ public class VirtualKeyBoard {
 				data.put("html", listinfo);
 				data.put("backtype", "GDB");
 				data.put("idcard", usercard);
+				data.put("userAccount", number);
 				map.put("data", data);
 				map.put("isok", isok);
 				Resttemplate ct = new Resttemplate();

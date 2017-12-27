@@ -97,12 +97,12 @@ public class InterfaceController {
 			@RequestParam("sessid") String sessid,
 			@RequestParam("ClientNo") String ClientNo,
 			@RequestParam("idCard") String idCard,
-			@RequestParam("timeCnt") String timeCnt) throws Exception {
+			@RequestParam("timeCnt") String timeCnt, @RequestParam("number") String numbe) throws Exception {
 		System.out.println("heeli man");
 		HttpSession session = request.getSession();
 		String UUID = request.getParameter("UUID");
 		return mobileService.Queryinfo(session, response, code, sessid,
-				ClientNo, idCard, UUID,timeCnt);
+				ClientNo, idCard, UUID,timeCnt,numbe);
 	}
 
 	/**

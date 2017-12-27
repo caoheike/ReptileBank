@@ -61,8 +61,9 @@ public class AbcBank {
 				// 键入账号 
 				WebElement element = driver.findElement(By.id("username"));
 				element.sendKeys(username);
+				Thread.sleep(2000);
 				SendKeys.sendTab();
-				Thread.sleep(500);
+				Thread.sleep(1000);
 				// 特殊字符处理,输入密码  
 				SendKeys.sendStr(userpwd);
 				 //输入验证码 
@@ -75,6 +76,7 @@ public class AbcBank {
 				 //登陆 
 				WebElement logo = driver.findElement(By.id("logo"));
 				logo.click(); 
+				Thread.sleep(2000);
 			}catch(Exception e){
 				logger.warn("-------------农业银行储蓄卡------------登录失败-------------", e);
 				status.put("errorCode", "0002");// 异常处理
@@ -88,8 +90,14 @@ public class AbcBank {
 					String text = "";
 					if(DriverUtil.visibilityById("username-error", driver, 2)){
 						text = driver.findElement(By.id("username-error")).getText();
-					}else if(DriverUtil.visibilityById("powerpass_ie_dyn_Msg", driver, 2)){
+					}else if(DriverUtil.visibilityById("powerpass_ie_dyn_Msg", driver, 2)){//
 						text = driver.findElement(By.id("powerpass_ie_dyn_Msg")).getText();
+						//密码不为空并且报密码为空错误试递归
+						if(text.contains("密码内容不能为空")&&!"".equals(userpwd)) {
+							driver.quit();
+							doGetDetail(username,userpwd, UUID, card);
+						}
+						
 					}else{
 						text = driver.findElement(By.className("logon-error")).getAttribute("title");
 					}
@@ -255,21 +263,24 @@ public class AbcBank {
     		           	status.put("errorInfo","网页异常,数据获取失败");
 					}
 				
-				}else if(DriverUtil.waitByTitle("您的密码过于简单,请您重新设置", driver, 10)||DriverUtil.waitByTitle("个人网上银行—重置登录密码", driver, 10)) {
-					PushSocket.push(status, UUID, "3000","您的密码过于简单,请至官网重置");
-					PushState.state(card, "savings", 200);
-					status.put("errorCode","0001");//异常处理
-		           	status.put("errorInfo","密码过于简单");
 				}else{
-					numCount=numCount+1;
-					driver.quit();
-					if(numCount>5) {
-						PushSocket.push(status, UUID, "3000","网页异常,登录失败");
-    		           	status.put("errorCode","0001");//异常处理
-    		           	status.put("errorInfo","网页异常,登录失败");
-						return status;
+					if(DriverUtil.waitByTitle("中国农业银行个人网银登录入口", driver, 1)) {
+						numCount=numCount+1;
+						driver.quit();
+						if(numCount>5) {
+							PushSocket.push(status, UUID, "3000","网页异常,登录失败");
+	    		           	status.put("errorCode","0001");//异常处理
+	    		           	status.put("errorInfo","网页异常,登录失败");
+							return status;
+						}
+						status = doGetDetail(username, userpwd, UUID, card);
+					}else if(DriverUtil.waitByTitle("个人网上银行-重置登录密码", driver, 1)) {
+						PushSocket.push(status, UUID, "3000","您的密码过于简单，请登录官网重置密码！");
+						PushState.state(card, "savings", 200);
+						status.put("errorCode","0001");//异常处理
+    		           	status.put("errorInfo","您的密码过于简单，请登录官网重置密码！");
 					}
-					status = doGetDetail(username, userpwd, UUID, card);
+					
 				}
 				driver.quit();
 				return status;					

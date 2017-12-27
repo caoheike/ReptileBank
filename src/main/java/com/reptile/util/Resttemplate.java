@@ -86,9 +86,9 @@ public class Resttemplate {
       		message.put("errorCode","0000");
   			message.put("errorInfo","查询成功");
   			PushSocket.push(map, UUID, "8000","认证成功");
-  			ps.state(id, "bankBillFlow", 300);
+  			ps.state(id, "savings", 300);
         }else{
-    		ps.state(id, "bankBillFlow", 200);
+    		ps.state(id, "savings", 200);
     		PushSocket.push(map, UUID, "9000",jsonObject.get("errorCode").toString());
       		message.put("errorCode",jsonObject.get("errorCode"));//异常处理
   			message.put("errorInfo",jsonObject.get("errorInfo"));
@@ -97,7 +97,7 @@ public class Resttemplate {
 		} catch (Exception e) {
 			logger.warn("----------将数据推送给数据中心失败--------------",e);
 			PushSocket.push(map, UUID, "9000","网络异常，认证失败");
-			ps.state(id, "bankBillFlow", 200);
+			ps.state(id, "savings", 200);
 			message.put("errorCode","0003");//异常处理
 			message.put("errorInfo","推送失败");
 		}

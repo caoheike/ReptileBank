@@ -59,13 +59,14 @@ public class CmbBank {
 			driver.get("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx");
 			HttpSession session = request.getSession();
 			SendKeys.sendStr(userName);
+			Thread.sleep(1000);
 			//KeysPress.SenStr(userName);
 			
 			/* 按下Tab */
 			/*KeysPress.SendTab("Tab");
 			Thread.sleep(1000);*/
 			SendKeys.sendTab();
-			Thread.sleep(500);
+			Thread.sleep(1000);
 			/* 输入密码 */
 			SendKeys.sendStr(userPwd);
 			//KeysPress.SenStr(userPwd);

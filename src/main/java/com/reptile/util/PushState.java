@@ -3,6 +3,9 @@ package com.reptile.util;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 
  * @author Bigyoung
@@ -12,6 +15,7 @@ import java.util.Map;
  *
  */
 public class PushState {
+	private static Logger logger = LoggerFactory.getLogger(PushSocket.class);
 
 	
 	
@@ -25,7 +29,8 @@ public class PushState {
 		stati.put("approveState",stat+"");
 		data.put("data", stati);
 		Resttemplate resttemplatestati = new Resttemplate();
-	
+		logger.warn("----------------*****************------stat：" + stat);
+
 	map1=resttemplatestati.SendMessage(data,application.sendip+"/HSDC/authcode/Autherized");
 	}
 }

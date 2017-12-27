@@ -82,8 +82,19 @@ public class BcmLogins {
 				// TODO: handle exception
 			}
 
-			driver.findElementById("cardNo").sendKeys(UserNumber);
-			driver.findElement(By.id("cardpassword")).click();
+			/*driver.findElementById("cardNo").sendKeys(UserNumber);
+			driver.findElement(By.id("cardpassword")).click();*/
+			
+			 if(UserNumber.length()<12) {
+			        driver.findElement(By.className("ct")).click();
+			        driver.findElementById("mobileOrEmail").sendKeys(UserNumber);
+			        driver.findElement(By.id("password")).click();
+			      }else {
+			        
+			      driver.findElementById("cardNo").sendKeys(UserNumber);
+			      driver.findElement(By.id("cardpassword")).click();
+			      }
+			
 			Thread.sleep(2000);
 			WebElement element = driver.findElement(By.className("key-pop"));
 			String icbcImg1 = saveImg(element, driver);// 返回键盘中数字
@@ -218,6 +229,7 @@ public class BcmLogins {
 						data.put("html", list);
 						data.put("backtype", "BCM");
 						data.put("idcard", UserCard);
+						data.put("userAccount", UserNumber);
 						map.put("data", data);
 						map.put("isok", isok);
 						// map= resttemplate.SendMessage(map,
