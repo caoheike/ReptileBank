@@ -92,9 +92,13 @@ public class VirtualKeyBoard {
 				elements.sendKeys(number);
 				/* 执行换号 */
 				Thread.sleep(1000);
-				SendKeys.sendTab();
+//				SendKeys.sendTab();
+//				Thread.sleep(1000);
+//				SendKeys.sendStr(pwd);
+				SendKeys.sendStr(1180, 380-5, pwd);
+//				SendKeys.sendStr(1180, 380+40, pwd);//本地
 				Thread.sleep(1000);
-				SendKeys.sendStr(pwd);
+				
 //				/* 按下Tab */
 //				KeysPress.SendTab("Tab");
 //				Thread.sleep(1000);
@@ -345,8 +349,8 @@ public class VirtualKeyBoard {
 			driver.get("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx");
 			String ss1 = arg1;
 			
-			SendKeys.sendStr(500, ss1);
-//			SendKeys.sendStr(1155+100, 335+10, ss1);
+//			SendKeys.sendStr(500, ss1);
+			SendKeys.sendStr(1155+100, 335-25, ss1);
 			logger.warn("----------------招商信用卡-------------登陆-----------------"+VirtualKeyBoard.class.getResource("/").getPath());
 			
 			NativeLibrary.addSearchPath("WinIo32", VirtualKeyBoard.class
@@ -354,12 +358,13 @@ public class VirtualKeyBoard {
 //			
 			/* 按下Tab */
 			/*KeysPress.SendTab("Tab");*/
-			Thread.sleep(2000);
-			SendKeys.sendTab();
+//			Thread.sleep(2000);
+//			SendKeys.sendTab();
 			Thread.sleep(1500);
 			/* 输入密码 */
-			SendKeys.sendStr(500, arg2);
-//			SendKeys.sendStr(1155+100,391+10,arg2);
+//			SendKeys.sendStr(500, arg2);
+			SendKeys.sendStr(1155+100,391-25,arg2);
+//			SendKeys.sendStr(1155+100,391+15,arg2);//本地
 			
 			/* 输入密码 
 			KeysPress.sendPassWord(arg2);*/
@@ -441,11 +446,14 @@ public class VirtualKeyBoard {
 			/* 按下Tab */
 			/*KeysPress.SendTab("Tab");
 			Thread.sleep(1000);*/
-			SendKeys.sendTab();
+//			SendKeys.sendTab();
+//			Thread.sleep(1000);
+//			/* 输入密码 */
+//			SendKeys.sendStr(pwd);
+			SendKeys.sendStr(1193+80, 358-35, pwd);
+//			SendKeys.sendStr(1193+80, 358+15, pwd);//本地
 			Thread.sleep(1000);
-			/* 输入密码 */
-			SendKeys.sendStr(pwd);
-			//KeysPress.sendPassWord(pwd);
+			//KeysPress.sendPassWord(pwd);wy
 			WebElement keyWord = driver.findElement(By.id("verifyImg"));
 			imgtext = downloadGFImgss(driver, keyWord);
 			System.out.println(imgtext+"************打码*********");
@@ -459,7 +467,6 @@ public class VirtualKeyBoard {
 				}
 				logger.warn("--------广发银行信用卡--------------登陆失败---------身份证号："+ usercard+"--------返回信息为："+map);
 				DriverUtil.close(driver);
-				return map;
 			}
 			WebElement _vTokenId = driver.findElement(By.id("captcha"));
 			_vTokenId.sendKeys(imgtext);
@@ -467,7 +474,7 @@ public class VirtualKeyBoard {
 			loginButton.click(); /* 点击登陆 */
 			Thread.sleep(3000);
 			//弹窗的内容
-			
+			//System.out.println(driver.getPageSource());
 		} catch (Exception e) {
 			logger.warn("-----------广发银行登录失败----------",e);
 			map.put("errorInfo", "网络异常,请重试！！");
@@ -515,7 +522,7 @@ public class VirtualKeyBoard {
 				logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+errorMessage);
 				DriverUtil.close(driver);
 				return map;									
-		}else if(DriverUtil.waitByTitle("广发银行个人网上银行", driver, 15)){
+		}else if(DriverUtil.waitByTitle("广发银行个人网上银行", driver, 15)&&driver.getPageSource().contains("您好，欢迎您登录广发银行个人网银")){
 			try {
 				logger.warn("--------广发银行登陆------------成功-----------用户名："+ number+"-----------");
 				PushSocket.push(map, UUID, "2000","广发银行信用卡登陆成功");
@@ -610,6 +617,15 @@ public class VirtualKeyBoard {
 				}finally{
 					DriverUtil.close(driver);
 				}			
+			}else {
+				logger.warn("-----------广发银行登陆失败----------");
+				map.put("errorInfo", "网络异常,请重试！！");
+				map.put("errorCode", "0001");
+				PushSocket.push(map, UUID, "3000","确认信息出错，请重试");
+				if(isok==true){
+					PushState.state(usercard, "bankBillFlow", 200);
+				}
+				DriverUtil.close(driver);
 			}
 		logger.warn("--------------广发银行信用卡------------查询结束-----------返回信息为："+map+"---------------");
 		return (map);

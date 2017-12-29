@@ -81,10 +81,13 @@ public class BcmLogin {
 			/* 按下Tab */
 			/*KeysPress.SendTab("Tab");
 			Thread.sleep(1000);*/
-			SendKeys.sendTab();
+//			SendKeys.sendTab();
+//			Thread.sleep(1000);
+//			/* 输入密码 */
+//			SendKeys.sendStr(UserPwd);
+			SendKeys.sendStr(1139+80, 338-30, UserPwd);
+//			SendKeys.sendStr(1139+80, 338+15, UserPwd);//本地
 			Thread.sleep(1000);
-			/* 输入密码 */
-			SendKeys.sendStr(UserPwd);
 			//KeysPress.SenStr(UserPwd);
 			WebElement element = driver.findElement(By
 					.className("captchas-img-bg"));
@@ -112,6 +115,7 @@ public class BcmLogin {
 			/* //此处判断是否登陆成功 */
 			boolean flgs = ElementExist(driver, By.className("lanse-12-b")); /* 错误表示 */
 			boolean flgb = ElementExist(driver, By.id("captchaErrMsg")); /* JS错误提示 */
+			boolean template = ElementExist(driver, By.className("template")); 
 			if(driver.getPageSource().contains("您未注册或登录密码输入错误")) {
 				logger.warn("-----------交通储蓄卡-----------登陆失败----------身份证号："+userCard);
 				status.put( "errorInfo", "账号密码错误" );
@@ -143,7 +147,7 @@ public class BcmLogin {
 					status.put( "errorCode", "0011" );
 					DriverUtil.close(driver);
 					return status;
-				}else {
+				}else if(template){
 					Map<String, Object> params = new HashMap<String, Object>();
 									
 					Thread.sleep(3000);
@@ -295,6 +299,14 @@ public class BcmLogin {
 						return status;
 					}	
 
+				}else {
+					logger.warn("-----------交通银行登陆失败-------------");
+					status.put("errorCode", "0002");// 异常处理
+					status.put("errorInfo", "网络异常，请重试！");
+					PushSocket.push(status, UUID, "3000","网络异常,登录失败");
+					PushState.state(userCard, "savings", 200);
+					DriverUtil.close(driver);
+					return status;
 				}
 				
 			}

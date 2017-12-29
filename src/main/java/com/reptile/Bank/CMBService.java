@@ -67,13 +67,16 @@ public class CMBService {
 		    WebElement element=	driver.findElement(By.id("writeUserId"));
 		    element.sendKeys(userCard);//输入账号
 		    Thread.sleep(1000);
-		    SendKeys.sendTab();
+		    
 			
 		//	new WebDriverWait(driver, 15).until(ExpectedConditions.)
-		    Thread.sleep(1000);	
-		    SendKeys.sendStr(passWord);
-		    SendKeys.sendTab();
-			Thread.sleep(2000);
+//		    SendKeys.sendTab();
+//		    Thread.sleep(1000);	
+//		    SendKeys.sendStr(passWord);
+//		    SendKeys.sendTab();
+		    SendKeys.sendStr(1180, 380-5, passWord);
+//		    SendKeys.sendStr(1180, 380+40, passWord);//本地
+			Thread.sleep(1000);
 			//new WebDriverWait(driver, 15).until(ExpectedConditions.presenceOfElementLocated(By.tagName("form")));
 		    //判断是否需要图形验证码
 			WebElement element2=driver.findElement(By.tagName("form"));	

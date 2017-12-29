@@ -55,17 +55,20 @@ public class AbcBank {
 				try{
 				 //打开此网页 
 				driver = DriverUtil.getDriverInstance("ie");
+				driver.manage().window().maximize();
+				Thread.sleep(1000);
 				driver.get("https://perbank.abchina.com/EbankSite/startup.do");
 				 //判断是否加载页面 
 				DriverUtil.waitByTitle(driver.getTitle(), driver, 10);
 				// 键入账号 
 				WebElement element = driver.findElement(By.id("username"));
 				element.sendKeys(username);
-				Thread.sleep(2000);
-				SendKeys.sendTab();
-				Thread.sleep(1000);
+//				Thread.sleep(2000);
+//				SendKeys.sendTab();
+				Thread.sleep(1500);
 				// 特殊字符处理,输入密码  
-				SendKeys.sendStr(userpwd);
+				SendKeys.sendStr(1143+80, 378-40, userpwd);
+//				SendKeys.sendStr(1143+80, 378+15, userpwd);//本地
 				 //输入验证码 
 				Thread.sleep(1000);
 				WebElement elements = driver.findElement(By.id("vCode"));
