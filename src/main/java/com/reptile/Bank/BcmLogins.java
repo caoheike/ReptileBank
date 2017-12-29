@@ -15,7 +15,12 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.apache.http.client.ClientProtocolException;
 import org.apache.log4j.Logger;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.Dimension;
@@ -41,6 +46,7 @@ import com.reptile.util.MyCYDMDemo;
 import com.reptile.util.PushSocket;
 import com.reptile.util.PushState;
 import com.reptile.util.Resttemplate;
+import com.reptile.util.SimpleHttpClient;
 import com.reptile.util.application;
 
 /**
@@ -60,14 +66,14 @@ public class BcmLogins {
 			String UserCard, HttpServletRequest request, String UUID,String timeCnt)
 			throws InterruptedException, ParseException {
 		boolean isok =CountTime.getCountTime(timeCnt); 
-		List<String> list = new ArrayList<String>();
+		
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> data = new HashMap<String, Object>();
 		PushSocket.push(map, UUID, "1000","交通银行信用卡登录中");
 		if(isok==true){
 			PushState.state(UserCard, "bankBillFlow", 100);
 		}
-		System.setProperty("webdriver.chrome.driver", "C:/ie/chromedriver.exe");
+		System.setProperty("webdriver.chrome.driver", "D:/ie/chromedriver.exe");
 		ChromeOptions options = new ChromeOptions();
 		// 设置浏览器大小避免截图错乱
 		options.addArguments("start-maximized");
@@ -82,19 +88,8 @@ public class BcmLogins {
 				// TODO: handle exception
 			}
 
-			/*driver.findElementById("cardNo").sendKeys(UserNumber);
-			driver.findElement(By.id("cardpassword")).click();*/
-			
-			 if(UserNumber.length()<12) {
-			        driver.findElement(By.className("ct")).click();
-			        driver.findElementById("mobileOrEmail").sendKeys(UserNumber);
-			        driver.findElement(By.id("password")).click();
-			      }else {
-			        
-			      driver.findElementById("cardNo").sendKeys(UserNumber);
-			      driver.findElement(By.id("cardpassword")).click();
-			      }
-			
+			driver.findElementById("cardNo").sendKeys(UserNumber);
+			driver.findElement(By.id("cardpassword")).click();
 			Thread.sleep(2000);
 			WebElement element = driver.findElement(By.className("key-pop"));
 			String icbcImg1 = saveImg(element, driver);// 返回键盘中数字
@@ -164,7 +159,7 @@ public class BcmLogins {
 				// 识别是否需要发送验证码
 				if (driver.getPageSource().contains("moibleMessages")) {
 					// 需要发送验证码
-					//System.out.println("开始发送验证码");
+					System.out.println("开始发送验证码");
 					// WebElement webElement=
 					// driver.findElement(By.id("send_Button"));
 					// WebElement webElements=
@@ -202,34 +197,33 @@ public class BcmLogins {
 					Thread.sleep(2000);
 					PushSocket.push(map, UUID, "5000","交通银行信用卡数据获取中");
 					try {
-						driver.executeScript(
-								"javascript:gotToLink('/member/member/service/billing/detail.html');",
-								0);
-						WebDriverWait wait = new WebDriverWait(driver, 20);
-						wait.until(ExpectedConditions.presenceOfElementLocated(By
-								.id("bill_date")));
-						for (int i = 0; i < 5; i++) {
-							Select sel = new Select(driver.findElement(By
-									.id("bill_date")));
-							sel.selectByIndex(i);
-							WebElement elements = driver.findElement(By
-									.xpath("//*[@id='bill_content']/p/a"));
-							elements.click();
-							Thread.sleep(3000);
-							list.add((driver.getPageSource()));
-							WebElement goback = driver.findElement(By
-									.className("goback"));
-							goback.click();
-							Thread.sleep(3000);
-							wait.until(ExpectedConditions
-									.presenceOfElementLocated(By.id("bill_date")));
-
-						}
+//						driver.executeScript(
+//								"javascript:gotToLink('/member/member/service/billing/detail.html');",
+//								0);
+//						WebDriverWait wait = new WebDriverWait(driver, 20);
+//						wait.until(ExpectedConditions.presenceOfElementLocated(By
+//								.id("bill_date")));
+//						for (int i = 0; i < 5; i++) {
+//							Select sel = new Select(driver.findElement(By
+//									.id("bill_date")));
+//							sel.selectByIndex(i);
+//							WebElement elements = driver.findElement(By
+//									.xpath("//*[@id='bill_content']/p/a"));
+//							elements.click();
+//							Thread.sleep(3000);
+//							list.add((driver.getPageSource()));
+//							WebElement goback = driver.findElement(By
+//									.className("goback"));
+//							goback.click();
+//							wait.until(ExpectedConditions
+//									.presenceOfElementLocated(By.id("bill_date")));
+//
+//						}
+						List<String> list = this.getDetail(driver, UserNumber);
 						PushSocket.push(map, UUID, "6000","交通银行信用卡数据获取成功");
 						data.put("html", list);
 						data.put("backtype", "BCM");
 						data.put("idcard", UserCard);
-						data.put("userAccount", UserNumber);
 						map.put("data", data);
 						map.put("isok", isok);
 						// map= resttemplate.SendMessage(map,
@@ -290,9 +284,59 @@ public class BcmLogins {
 			return map;
 
 		} 
+	
+	/**
+	 * 获取账单详情
+	 * @param driver
+	 * @throws IOException 
+	 * @throws ClientProtocolException 
+	 */
+	public List<String> getDetail(WebDriver driver ,String userNumber) throws ClientProtocolException, IOException{
+		String cookie = this.getCookie(driver);
+		userNumber  = userNumber.substring(0, 4)+"%20****%20****%20"+userNumber.substring(userNumber.length()-4);
+		Map<String,String> headers = new HashMap<String, String>();
+		headers.put("Cookie", cookie);
+		headers.put("Connection", "keep-alive");
+		headers.put("Host", "creditcardapp.bankcomm.com");
+		String str = SimpleHttpClient.get("https://creditcardapp.bankcomm.com/member/member/service/billing/detail.html?cardNo="+userNumber,headers);
+		List<String> dates = this.parseDates(str);
+		List<String> list = new ArrayList<String>();
+		for (String date:dates) {
+			if(date.contains("本期")){
+				date = date.replace(" (本期)", "");
+			}
+			headers.clear();
+			headers.put("Cookie", cookie);
+			headers.put("Connection", "keep-alive");
+			headers.put("Host", "creditcardapp.bankcomm.com");
+			String str1 = SimpleHttpClient.get("https://creditcardapp.bankcomm.com/member/member/service/billing/finished.html?cardNo="+userNumber+"&billDate="+date,headers);
+			list.add(str1);
+		}
+		return list;
+	}	
 
-			
+	
+	/**
+     * 解析table
+     *
+     * @param xml
+     * @return
+     */
+    private  List<String> parseDates(String xml) {
 
+        Document doc = Jsoup.parse(xml);
+        Elements options = doc.select("select").select("option");
+
+        List<String> list = new ArrayList<String>();
+        for (Element item : options) {
+            String txt = item.text();
+            if (!txt.equals("")) {
+                list.add(txt);
+            }
+        }
+
+        return list;
+    }
 	
 
 	public Map<String, Object> CodeLogin(HttpServletRequest request,
@@ -349,6 +393,23 @@ public class BcmLogins {
 		}
 		return null;
 
+	}
+	
+    public  String getCookie(WebDriver driver)		{
+		  //获得cookie用于发包
+		Set<org.openqa.selenium.Cookie> cookies = driver.manage().getCookies();  
+	    StringBuffer tmpcookies = new StringBuffer();
+
+	   	for (org.openqa.selenium.Cookie cookie : cookies) {
+	   		String name = cookie.getName();
+	   		String value = cookie.getValue();
+ 			tmpcookies.append(name + "="+ value + ";");
+		}
+	   	String str = tmpcookies.toString();
+	   	if(!str.isEmpty()){
+	   		str = str.substring(0,str.lastIndexOf(";"));
+	   	}
+		return str; 	
 	}
 
 	public static StringBuffer Setcookie(WebDriver driver) {

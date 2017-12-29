@@ -83,6 +83,24 @@ public class SimpleHttpClient {
         return EntityUtils.toString(httpResponse.getEntity());
     }
 
+    
+    /**
+     * Get请求
+     * @param url
+     * @param headers
+     * @return
+     * @throws ClientProtocolException
+     * @throws IOException
+     */
+    public static String get(String url,Map<String,String> headers) throws ClientProtocolException, IOException {
+    	HttpGet httpGet = new HttpGet(url);
+    	for(Map.Entry<String, String> entry : headers.entrySet()){
+    		httpGet.addHeader(entry.getKey(), entry.getValue());
+        }
+    	HttpResponse httpResponse = httpClient.execute(httpGet);
+    	return EntityUtils.toString(httpResponse.getEntity());
+    }
+    
     /**
      * POST ����
      * @param url
