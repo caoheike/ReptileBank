@@ -81,6 +81,7 @@ public class VirtualKeyBoard {
 			try {
 				logger.warn("----------------民生信用卡-------------登陆开始-----------------用户名："+number+"密码："+pwd);
 				driver = DriverUtil.getDriverInstance("ie");
+				driver.manage().window().maximize();
 				driver.get("https://nper.cmbc.com.cn/pweb/static/login.html");
 				wait = new WebDriverWait(driver, 15);
 				wait.until(ExpectedConditions.titleContains("中国民生银行个人网上银行"));
@@ -346,6 +347,7 @@ public class VirtualKeyBoard {
 			HttpSession sessions = session;
 
 			driver = DriverUtil.getDriverInstance("ie");
+			driver.manage().window().maximize();
 			driver.get("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx");
 			String ss1 = arg1;
 			

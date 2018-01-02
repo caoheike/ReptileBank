@@ -56,6 +56,7 @@ public class CmbBank {
 		WebDriver driver = null;
 		try {
 			driver = DriverUtil.getDriverInstance("ie");
+			driver.manage().window().maximize();
 			driver.get("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx");
 			HttpSession session = request.getSession();
 			SendKeys.sendStr(userName);

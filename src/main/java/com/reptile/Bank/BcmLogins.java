@@ -73,7 +73,7 @@ public class BcmLogins {
 		if(isok==true){
 			PushState.state(UserCard, "bankBillFlow", 100);
 		}
-		System.setProperty("webdriver.chrome.driver", "D:/ie/chromedriver.exe");
+		System.setProperty("webdriver.chrome.driver", "C:/ie/chromedriver.exe");
 		ChromeOptions options = new ChromeOptions();
 		// 设置浏览器大小避免截图错乱
 		options.addArguments("start-maximized");

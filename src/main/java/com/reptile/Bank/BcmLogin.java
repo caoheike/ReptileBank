@@ -68,6 +68,7 @@ public class BcmLogin {
 			
 			/* 打开此网页 */
 			driver = DriverUtil.getDriverInstance("ie");
+			driver.manage().window().maximize();
 			driver.get("https://pbank.95559.com.cn/personbank/logon.jsp#");
 			
 			/* 获得账号输入框 */
