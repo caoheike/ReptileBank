@@ -97,6 +97,7 @@ public class BcmLogin {
 				WebElement input_captcha = driver.findElement(By
 						.id("input_captcha"));
 				String imgtext = downloadImgs(driver, element);
+				System.out.println("*****************打码结果****"+imgtext);
 				input_captcha.sendKeys(imgtext);
 			}
 			login.click();
@@ -104,8 +105,8 @@ public class BcmLogin {
 			logger.warn("-----------交通银行查询失败-------------", e);
 			status.put("errorCode", "0002");// 异常处理
 			status.put("errorInfo", "网络异常，请重试！");
-			PushSocket.push(status, UUID, "3000","账号密码错误，登录失败");
-			PushState.state(userCard, "savings", 200);
+			PushSocket.push(status, UUID, "3000","网络异常，登录失败");
+			PushState.state(userCard, "savings", 200,"网络异常，登录失败");
 			DriverUtil.close(driver);
 			return status;
 		}
@@ -122,7 +123,7 @@ public class BcmLogin {
 				status.put( "errorInfo", "账号密码错误" );
 				status.put( "errorCode", "0001" );
 				PushSocket.push(status, UUID, "3000","账号密码错误，登录失败");
-				PushState.state(userCard, "savings", 200);
+				PushState.state(userCard, "savings", 200,"账号密码错误，登录失败");
 				DriverUtil.close(driver);
 				return status;
 			}
@@ -136,13 +137,14 @@ public class BcmLogin {
 				status.put( "errorInfo", "账号密码错误" );
 				status.put( "errorCode", "0001" );
 				PushSocket.push(status, UUID, "3000","账号密码错误，登录失败");
-				PushState.state(userCard, "savings", 200);
+				PushState.state(userCard, "savings", 200,"账号密码错误，登录失败");
 				DriverUtil.close(driver);
 				return status;
 			} else {
 				if(driver.getPageSource().contains("为了进一步保障您使用我行个人网银的安全性")) {
 					//发送短信验证码
 					PushSocket.push(status, UUID, "3000","帐号认证异常，请你先尝试在官网登录！");
+					
 					request.getSession().setAttribute("BcmCodePage", driver);
 					status.put( "errorInfo", "帐号认证异常，请你先尝试在官网登录！" );
 					status.put( "errorCode", "0011" );
@@ -187,7 +189,7 @@ public class BcmLogin {
 						status.put("errorCode", "0002");// 异常处理
 						status.put("errorInfo", "网络异常，请重试！");
 						PushSocket.push(status, UUID, "7000","网络异常,数据获取失败");
-						PushState.state(userCard, "savings", 200);
+						PushState.state(userCard, "savings", 200,"网络异常,数据获取失败");
 						DriverUtil.close(driver);
 						return status;
 						
@@ -259,7 +261,7 @@ public class BcmLogin {
 						status.put("errorCode", "0002");// 异常处理
 						status.put("errorInfo", "网络异常，请重试！");
 						PushSocket.push(status, UUID, "7000","网络异常,数据获取失败");
-						PushState.state(userCard, "savings", 200);
+						PushState.state(userCard, "savings", 200,"网络异常,数据获取失败");
 						DriverUtil.close(driver);
 						return status;
 					} 
@@ -284,7 +286,7 @@ public class BcmLogin {
 				           	status.put("errorInfo","推送成功");
 				           	status.put("errorCode","0000");
 			           }else{
-				           	 PushState.state(userCard, "savings", 200);
+				           	PushState.state(userCard, "savings", 200,status.get("errorInfo").toString());
 				           	PushSocket.push(status, UUID, "9000",status.get("errorInfo").toString());
 				           	status.put("errorCode",status.get("errorCode"));//异常处理
 				           	status.put("errorInfo",status.get("errorInfo"));
@@ -295,7 +297,7 @@ public class BcmLogin {
 						status.put("errorCode", "0002");// 异常处理
 						status.put("errorInfo", "网络异常，请重试！");
 						PushSocket.push(status, UUID, "9000","网络异常,认证失败");
-						PushState.state(userCard, "savings", 200);
+						PushState.state(userCard, "savings", 200,"网络异常,认证失败");
 						DriverUtil.close(driver);
 						return status;
 					}	
@@ -305,7 +307,7 @@ public class BcmLogin {
 					status.put("errorCode", "0002");// 异常处理
 					status.put("errorInfo", "网络异常，请重试！");
 					PushSocket.push(status, UUID, "3000","网络异常,登录失败");
-					PushState.state(userCard, "savings", 200);
+					PushState.state(userCard, "savings", 200,"网络异常,登录失败");
 					DriverUtil.close(driver);
 					return status;
 				}

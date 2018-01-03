@@ -114,7 +114,9 @@ public class MobileService {
 					    	if(endinfo.contains("账单数据正在更新中")){
 					    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
 					    		if(isok==true){
-									PushState.state(idCard,"bankBillFlow", 200);
+									PushState.state(idCard,"bankBillFlow", 200,"账单数据正在更新中");
+								}else {
+									PushState.stateX(idCard,"bankBillFlow", 200,"账单数据正在更新中");
 								}
 					    		map.put("errorCode","0000");
 				    			map.put("errorInfo","认证成功");
@@ -134,7 +136,9 @@ public class MobileService {
 					    	if(endinfo.contains("账单数据正在更新中")){
 					    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
 					    		if(isok==true){
-									PushState.state(idCard,"bankBillFlow", 200);
+									PushState.state(idCard,"bankBillFlow", 200,"账单数据正在更新中");
+								}else {
+									PushState.stateX(idCard,"bankBillFlow", 200,"账单数据正在更新中");
 								}
 					    		map.put("errorCode","0000");
 				    			map.put("errorInfo","认证失败");
@@ -188,7 +192,9 @@ public class MobileService {
 						} catch (java.lang.StringIndexOutOfBoundsException e) {
 							PushSocket.push(map, UUID, "7000","当前用户不允许使用该业务");
 							if(isok==true){
-								PushState.state(idCard,"bankBillFlow", 200);
+								PushState.state(idCard,"bankBillFlow", 200,"当前用户不允许使用该业务");
+							}else {
+								PushState.stateX(idCard,"bankBillFlow", 200,"当前用户不允许使用该业务");
 							}
 							map.put("errorCode","0001");
 			    			map.put("errorInfo","当前用户不允许使用该业务");
@@ -203,7 +209,9 @@ public class MobileService {
 				       	if(rest2.contains("您的查询密码输错次数过多，建议登录我行掌上生活或手机银行重设查询密码")) {
 							  PushSocket.push(map, UUID, "7000","您的查询密码输错次数过多");
 					    		if(isok==true){
-									PushState.state(idCard,"bankBillFlow", 200);
+									PushState.state(idCard,"bankBillFlow", 200,"您的查询密码输错次数过多");
+								}else {
+									PushState.stateX(idCard,"bankBillFlow", 200,"您的查询密码输错次数过多");
 								}
 					    		map.put("errorCode","0000");
 				    			map.put("errorInfo","您的查询密码输错次数过多");		    		
@@ -247,7 +255,9 @@ public class MobileService {
 					    	if(endinfo.contains("账单数据正在更新中")){
 					    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
 					    		if(isok==true){
-									PushState.state(idCard,"bankBillFlow", 200);
+									PushState.state(idCard,"bankBillFlow", 200,"账单数据正在更新中");
+								}else {
+									PushState.stateX(idCard,"bankBillFlow", 200,"账单数据正在更新中");
 								}
 					    		map.put("errorCode","0000");
 				    			map.put("errorInfo","账单数据正在更新中");
@@ -258,7 +268,9 @@ public class MobileService {
 					    	if(list.size()<=0){
 					    		PushSocket.push(map, UUID, "7000","暂无账单");
 					    		if(isok==true){
-									PushState.state(idCard,"bankBillFlow", 200);
+									PushState.state(idCard,"bankBillFlow", 200,"暂无账单");
+								}else {
+									PushState.stateX(idCard,"bankBillFlow", 200,"暂无账单");
 								}
 					    		map.put("errorCode","0001");
 				    			map.put("errorInfo","暂无账单");
@@ -277,7 +289,9 @@ public class MobileService {
 						    	if(endinfo.contains("账单数据正在更新中")){
 						    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
 						    		if(isok==true){
-										PushState.state(idCard,"bankBillFlow", 200);
+										PushState.state(idCard,"bankBillFlow", 200,"账单数据正在更新中");
+									}else {
+										PushState.stateX(idCard,"bankBillFlow", 200,"账单数据正在更新中");
 									}
 						    		map.put("errorCode","0000");
 					    			map.put("errorInfo","账单数据正在更新中");
@@ -324,8 +338,10 @@ public class MobileService {
 		        }else{
 		            	//--------------------数据中心推送状态----------------------
 		        	if(isok==true){
-		            	PushState.state(idCard, "bankBillFlow",200);
-		        	}
+		            	PushState.state(idCard, "bankBillFlow",200,map.get("errorInfo").toString());
+		        	}else {
+						PushState.stateX(idCard,"bankBillFlow", 200,map.get("errorInfo").toString());
+					}
 		        	PushSocket.push(map, UUID, "9000",map.get("errorInfo").toString());
 		            	//---------------------数据中心推送状态----------------------
 		                map.put("errorInfo","查询失败");
@@ -333,8 +349,10 @@ public class MobileService {
 		            }
 			 }else{
 				 	if(isok==true){
-		            	PushState.state(idCard, "bankBillFlow",200);
-		        	}
+		            	PushState.state(idCard, "bankBillFlow",200,"验证码错误，登录失败");
+		        	}else {
+						PushState.stateX(idCard,"bankBillFlow", 200,"验证码错误，登录失败");
+					}
 				 	PushSocket.push(map, UUID, "3000","验证码错误，登录失败");
 					map.put("errorCode","0001");
 	    			map.put("errorInfo","验证码错误");
@@ -512,14 +530,14 @@ public class MobileService {
 		    			params.put("errorInfo", "网络异常,请重试！！");
 		    			params.put("errorCode", "0001");
 		    			PushSocket.push(params, UUID, "9000","网络异常，认证失败");
-		    			PushState.state(idcard, "savings", 200);
+		    			PushState.state(idcard, "savings", 200,"网络异常，认证失败");
 		    			System.out.println("*********************************************网络异常，登录失败");
 		    		}
 				 }else {
 					 params.put("errorInfo", "查询失败");
 					 params.put("errorCode", "0002");
 					 PushSocket.push(params, UUID, "3000","网络异常，登录失败");
-					 PushState.state(idcard, "savings", 200);
+					 PushState.state(idcard, "savings", 200,"网络异常，登录失败");
 					 System.out.println("***************************************网络异常，登录失败");
 				 }
 	    	}else{
@@ -639,7 +657,7 @@ public class MobileService {
 	    			params.put("errorInfo", "网络异常,请重试！！");
 	    			params.put("errorCode", "0001");
 	    			PushSocket.push(params, UUID, "9000","网络异常，认证失败");
-	    			PushState.state(idcard, "savings", 100);
+	    			PushState.state(idcard, "savings", 200,"网络异常，认证失败");
 	    		}	    		
 	    	}	    	
 			 return status;

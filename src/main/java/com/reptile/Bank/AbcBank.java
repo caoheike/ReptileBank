@@ -85,7 +85,7 @@ public class AbcBank {
 				status.put("errorCode", "0002");// 异常处理
 				status.put("errorInfo", "网络异常，请重试！");
 				PushSocket.push(status, UUID, "3000","网页异常，登录失败");
-				PushState.state(card, "savings", 200);
+				PushState.state(card, "savings", 200,"网页异常，登录失败");
 				driver.quit();
 				return status;
 			}
@@ -93,7 +93,7 @@ public class AbcBank {
 					String text = "";
 					if(DriverUtil.visibilityById("username-error", driver, 2)){
 						text = driver.findElement(By.id("username-error")).getText();
-					}else if(DriverUtil.visibilityById("powerpass_ie_dyn_Msg", driver, 2)){//
+					}else if(DriverUtil.visibilityById("powerpass_ie_dyn_Msg", driver, 2)){
 						text = driver.findElement(By.id("powerpass_ie_dyn_Msg")).getText();
 						//密码不为空并且报密码为空错误试递归
 						if(text.contains("密码内容不能为空")&&!"".equals(userpwd)) {
@@ -104,7 +104,7 @@ public class AbcBank {
 					}else{
 						text = driver.findElement(By.className("logon-error")).getAttribute("title");
 					}
-					PushState.state(card, "savings", 200);
+					PushState.state(card, "savings", 200,text);
 					PushSocket.push(status, UUID, "3000",text);
 					status.put("errorCode", "0001");// 异常处理	
 					status.put("errorInfo", text);
@@ -144,7 +144,7 @@ public class AbcBank {
 						status.put("errorCode", "0002");// 异常处理
 						status.put("errorInfo", "网络异常，请重试！");
 						PushSocket.push(status, UUID, "7000","网页异常，数据获取失败");
-						PushState.state(card, "savings", 200);
+						PushState.state(card, "savings", 200,"网页异常，数据获取失败");
 						driver.quit();
 						return status;
 					}
@@ -169,7 +169,7 @@ public class AbcBank {
 							status.put("errorCode", "0002");// 异常处理
 							status.put("errorInfo", "网络异常，请重试！");
 							PushSocket.push(status, UUID, "7000","网页异常，数据获取失败");
-							PushState.state(card, "savings", 200);
+							PushState.state(card, "savings", 200,"网页异常，数据获取失败");
 							driver.quit();
 							return status;
 						}
@@ -226,7 +226,7 @@ public class AbcBank {
 							status.put("errorCode", "0002");// 异常处理
 							status.put("errorInfo", "网络异常，请重试！");
 							PushSocket.push(status, UUID, "7000","网页异常，数据获取失败");
-							PushState.state(card, "savings", 200);
+							PushState.state(card, "savings", 200,"网页异常，数据获取失败");
 							driver.quit();
 							return status;
 						}
@@ -254,14 +254,14 @@ public class AbcBank {
 	    		           	status.put("errorInfo","推送成功");
 	    		           	status.put("errorCode","0000");
     		           }else{
-	    		           	PushState.state(card, "savings", 200);
+	    		           	PushState.state(card, "savings", 200,status.get("errorInfo").toString());
 	    		           	PushSocket.push(status, UUID, "9000",status.get("errorInfo").toString());
 	    		           	status.put("errorCode",status.get("errorCode"));//异常处理
 	    		           	status.put("errorInfo",status.get("errorInfo"));
     		           }
 					}else{
 						PushSocket.push(status, UUID, "7000","网页异常，数据获取失败");
-						PushState.state(card, "savings", 200);
+						PushState.state(card, "savings", 200,"网页异常，数据获取失败");
 						status.put("errorCode","0001");//异常处理
     		           	status.put("errorInfo","网页异常,数据获取失败");
 					}
@@ -272,6 +272,7 @@ public class AbcBank {
 						driver.quit();
 						if(numCount>5) {
 							PushSocket.push(status, UUID, "3000","网页异常,登录失败");
+							PushState.state(card, "savings", 200,"网页异常，登录失败");
 	    		           	status.put("errorCode","0001");//异常处理
 	    		           	status.put("errorInfo","网页异常,登录失败");
 							return status;
@@ -279,7 +280,7 @@ public class AbcBank {
 						status = doGetDetail(username, userpwd, UUID, card);
 					}else if(DriverUtil.waitByTitle("个人网上银行-重置登录密码", driver, 1)) {
 						PushSocket.push(status, UUID, "3000","您的密码过于简单，请登录官网重置密码！");
-						PushState.state(card, "savings", 200);
+						PushState.state(card, "savings", 200,"您的密码过于简单，请登录官网重置密码！");
 						status.put("errorCode","0001");//异常处理
     		           	status.put("errorInfo","您的密码过于简单，请登录官网重置密码！");
 					}

@@ -127,7 +127,9 @@ public class BcmLogins {
 			logger.warn("-----------交通信用卡-----------查询失败-----------身份证号："+UserCard, e);
 			PushSocket.push(map, UUID, "3000","网络异常,登录失败");
 			if(isok==true){
-				PushState.state(UserCard, "bankBillFlow", 200);
+				PushState.state(UserCard, "bankBillFlow", 200,"网络异常,登录失败");
+			}else {
+				PushState.stateX(UserCard, "bankBillFlow", 200,"网络异常,登录失败");
 			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络异常");
@@ -182,7 +184,9 @@ public class BcmLogins {
 					logger.warn(UserCard + "此帐号在登录时需要验证码，可能帐号出现异常 需要自行登录 才可认证");
 					PushSocket.push(map, UUID, "3000","帐号认证异常，请你先尝试在官网登录");
 					if(isok==true){
-						PushState.state(UserCard, "bankBillFlow", 200);
+						PushState.state(UserCard, "bankBillFlow", 200,"帐号认证异常，请你先尝试在官网登录");
+					}else {
+						PushState.stateX(UserCard, "bankBillFlow", 200,"帐号认证异常，请你先尝试在官网登录");
 					}
 					map.put("whetherCode", "no");
 					map.put("errorCode", "0004");// 认证失败
@@ -196,34 +200,31 @@ public class BcmLogins {
 					
 					Thread.sleep(2000);
 					PushSocket.push(map, UUID, "5000","交通银行信用卡数据获取中");
+					
+					List<String> list=null;
 					try {
-//						driver.executeScript(
-//								"javascript:gotToLink('/member/member/service/billing/detail.html');",
-//								0);
-//						WebDriverWait wait = new WebDriverWait(driver, 20);
-//						wait.until(ExpectedConditions.presenceOfElementLocated(By
-//								.id("bill_date")));
-//						for (int i = 0; i < 5; i++) {
-//							Select sel = new Select(driver.findElement(By
-//									.id("bill_date")));
-//							sel.selectByIndex(i);
-//							WebElement elements = driver.findElement(By
-//									.xpath("//*[@id='bill_content']/p/a"));
-//							elements.click();
-//							Thread.sleep(3000);
-//							list.add((driver.getPageSource()));
-//							WebElement goback = driver.findElement(By
-//									.className("goback"));
-//							goback.click();
-//							wait.until(ExpectedConditions
-//									.presenceOfElementLocated(By.id("bill_date")));
-//
-//						}
-						List<String> list = this.getDetail(driver, UserNumber);
+						list = this.getDetail(driver, UserNumber);
+					} catch (Exception e) {
+						// TODO Auto-generated catch block
+						logger.warn("-----------交通信用卡-----------查询失败-----------身份证号："+UserCard, e);
+						PushSocket.push(map, UUID, "7000","网络异常,数据获取失败");
+						if(isok==true){
+							PushState.state(UserCard, "bankBillFlow", 200,"网络异常,数据获取失败");
+						}else {
+							PushState.stateX(UserCard, "bankBillFlow", 200,"网络异常,数据获取失败");
+						}
+						map.put("errorCode", "0001");
+						map.put("errorInfo", "网络异常");
+						DriverUtil.close(driver);
+						return map;
+					}
+					try {				
+						
 						PushSocket.push(map, UUID, "6000","交通银行信用卡数据获取成功");
 						data.put("html", list);
 						data.put("backtype", "BCM");
 						data.put("idcard", UserCard);
+						data.put("userAccount", UserNumber);
 						map.put("data", data);
 						map.put("isok", isok);
 						// map= resttemplate.SendMessage(map,
@@ -233,12 +234,13 @@ public class BcmLogins {
 
 						map.put("whetherCode", "no");
 						DriverUtil.close(driver);
-						return map;
 					}catch (Exception e) {
 						logger.warn("-----------交通信用卡-----------查询失败-----------身份证号："+UserCard, e);
 						PushSocket.push(map, UUID, "9000","网络异常,认证失败");
 						if(isok==true){
-							PushState.state(UserCard, "bankBillFlow", 200);
+							PushState.state(UserCard, "bankBillFlow", 200,"网络异常,认证失败");
+						}else {
+							PushState.stateX(UserCard, "bankBillFlow", 200,"网络异常,认证失败");
 						}
 						map.put("errorCode", "0001");
 						map.put("errorInfo", "网络异常");
@@ -251,7 +253,9 @@ public class BcmLogins {
 					logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因：账号密码错误");
 					PushSocket.push(map, UUID, "3000","账号密码错误");
 					if(isok==true){
-						PushState.state(UserCard, "bankBillFlow", 200);
+						PushState.state(UserCard, "bankBillFlow", 200,"账号密码错误");
+					}else {
+						PushState.stateX(UserCard, "bankBillFlow", 200,"账号密码错误");
 					}
 					map.put("errorCode", "0001");// 认证失败
 					map.put("errorInfo", "账号密码错误");
@@ -263,7 +267,9 @@ public class BcmLogins {
 				logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因："+alertText);
 				PushSocket.push(map, UUID, "3000",alertText);
 				if(isok==true){
-					PushState.state(UserCard, "bankBillFlow", 200);
+					PushState.state(UserCard, "bankBillFlow", 200,alertText);
+				}else {
+					PushState.stateX(UserCard, "bankBillFlow", 200,alertText);
 				}
 				map.put("errorCode", "0001");
 				map.put("errorInfo", alertText);
@@ -272,7 +278,9 @@ public class BcmLogins {
 				logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因："+msg.get(1).getText());
 				PushSocket.push(map, UUID, "3000",msg.get(1).getText());
 				if(isok==true){
-					PushState.state(UserCard, "bankBillFlow", 200);
+					PushState.state(UserCard, "bankBillFlow", 200,msg.get(1).getText());
+				}else {
+					PushState.stateX(UserCard, "bankBillFlow", 200,msg.get(1).getText());
 				}
 				map.put("errorCode", "0001");
 				map.put("errorInfo", msg.get(1).getText());
@@ -290,8 +298,9 @@ public class BcmLogins {
 	 * @param driver
 	 * @throws IOException 
 	 * @throws ClientProtocolException 
+	 * @throws InterruptedException 
 	 */
-	public List<String> getDetail(WebDriver driver ,String userNumber) throws ClientProtocolException, IOException{
+	public List<String> getDetail(WebDriver driver ,String userNumber) throws ClientProtocolException, IOException, InterruptedException{
 		String cookie = this.getCookie(driver);
 		userNumber  = userNumber.substring(0, 4)+"%20****%20****%20"+userNumber.substring(userNumber.length()-4);
 		Map<String,String> headers = new HashMap<String, String>();
@@ -299,18 +308,26 @@ public class BcmLogins {
 		headers.put("Connection", "keep-alive");
 		headers.put("Host", "creditcardapp.bankcomm.com");
 		String str = SimpleHttpClient.get("https://creditcardapp.bankcomm.com/member/member/service/billing/detail.html?cardNo="+userNumber,headers);
+		Thread.sleep(2000);
 		List<String> dates = this.parseDates(str);
 		List<String> list = new ArrayList<String>();
-		for (String date:dates) {
-			if(date.contains("本期")){
-				date = date.replace(" (本期)", "");
+		int count = 6;
+		if(dates.size()<6) {
+			count = dates.size();			
+		}
+		for(int i=0;i<count;i++) {
+			for (String date:dates) {
+				if(date.contains("本期")){
+					date = date.replace(" (本期)", "");
+				}
+				headers.clear();
+				headers.put("Cookie", cookie);
+				headers.put("Connection", "keep-alive");
+				headers.put("Host", "creditcardapp.bankcomm.com");
+				String str1 = SimpleHttpClient.get("https://creditcardapp.bankcomm.com/member/member/service/billing/finished.html?cardNo="+userNumber+"&billDate="+date,headers);
+				Thread.sleep(1000);
+				list.add(str1);
 			}
-			headers.clear();
-			headers.put("Cookie", cookie);
-			headers.put("Connection", "keep-alive");
-			headers.put("Host", "creditcardapp.bankcomm.com");
-			String str1 = SimpleHttpClient.get("https://creditcardapp.bankcomm.com/member/member/service/billing/finished.html?cardNo="+userNumber+"&billDate="+date,headers);
-			list.add(str1);
 		}
 		return list;
 	}	

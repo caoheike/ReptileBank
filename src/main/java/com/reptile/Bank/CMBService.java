@@ -105,7 +105,7 @@ public class CMBService {
 			map.put("errorCode", "0001");
             map.put("errorInfo", "网络连接异常!");
             PushSocket.push(map, UUID, "3000","网络连接异常,登录失败");
-			PushState.state(idCard, "savings", 200);
+			PushState.state(idCard, "savings", 200,"网络连接异常,登录失败");
 			driver.quit();
             return map;
 			//e.printStackTrace();
@@ -147,7 +147,7 @@ public class CMBService {
     				wait.until(ExpectedConditions.presenceOfElementLocated(By.id("BenhangKa")));      			   
         				//Thread.sleep(3000);
 					} catch (Exception e) {
-						PushState.state(idCard, "savings", 200);
+						PushState.state(idCard, "savings", 200,"系统繁忙，数据获取失败");
 						PushSocket.push(map, UUID, "7000","系统繁忙，数据获取失败");
 						logger.warn("民生银行",e);
 						map.put("errorCode", "0002");
@@ -168,7 +168,7 @@ public class CMBService {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 						PushSocket.push(map, UUID, "7000","网络连接异常，数据获取失败");
-    			    	PushState.state(idCard, "savings", 200);
+    			    	PushState.state(idCard, "savings", 200,"网络连接异常，数据获取失败");
     			    	map.put("errorCode", "0003");
     			    	map.put("errorInfo", "网络连接异常!");
     			    	driver.quit();
@@ -176,7 +176,7 @@ public class CMBService {
 					}
     			    if(billMes.contains("errorCode")){
     			    	PushSocket.push(map, UUID, "7000","网络连接异常，数据获取失败");
-    			    	PushState.state(idCard, "savings", 200);
+    			    	PushState.state(idCard, "savings", 200,"网络连接异常，数据获取失败");
     			    	map.put("errorCode", "0003");
     			    	map.put("errorInfo", "网络连接异常!");
     			    	driver.quit();
@@ -197,7 +197,7 @@ public class CMBService {
     		           	data.put("errorInfo","推送成功");
     		           	data.put("errorCode","0000");
     		           }else{
-    		           	 PushState.state(idCard, "savings", 200);
+    		           	 PushState.state(idCard, "savings", 200,map.get("errorInfo").toString());
     		           	PushSocket.push(map, UUID, "9000",map.get("errorInfo").toString());
     		           	data.put("errorInfo","推送失败");
     		           	data.put("errorCode","0001");
@@ -223,7 +223,7 @@ public class CMBService {
 					//System.out.println(element1.getText());
 				} 
 				PushSocket.push(map, UUID, "3000",element1.getText());
-				PushState.state(idCard, "savings", 200);
+				PushState.state(idCard, "savings", 200,element1.getText());
 				logger.warn("民生银行",element1.getText());
 				driver.quit();
 	            return map;

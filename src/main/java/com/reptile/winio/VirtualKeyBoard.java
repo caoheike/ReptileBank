@@ -127,7 +127,9 @@ public class VirtualKeyBoard {
 				logger.warn(e + "网络异常，登录失败");
 				PushSocket.push(map, UUID, "3000","网络异常，登录失败");
 				if(isok==true){
-					PushState.state(idcard, "bankBillFlow", 200);
+					PushState.state(idcard, "bankBillFlow", 200,"网络异常，登录失败");
+				}else {
+					PushState.stateX(idcard, "bankBillFlow", 200,"网络异常，登录失败");
 				}
 				map.put("errorCode", "0001");
 				map.put("errorInfo", "网络错误");
@@ -142,7 +144,9 @@ public class VirtualKeyBoard {
 				logger.warn(e + "网络异常，登录失败");
 				PushSocket.push(map, UUID, "3000","网络异常，登录失败");
 				if(isok==true){
-					PushState.state(idcard, "bankBillFlow", 200);
+					PushState.state(idcard, "bankBillFlow", 200,"网络异常，登录失败");
+				}else {
+					PushState.stateX(idcard, "bankBillFlow", 200,"网络异常，登录失败");
 				}
 				map.put("errorCode", "0001");
 				map.put("errorInfo", "网络错误");
@@ -152,7 +156,9 @@ public class VirtualKeyBoard {
 			if (!"".equals(errorinfo.getText())) {
 				PushSocket.push(map, UUID, "3000",errorinfo.getText());
 				if(isok==true){
-					PushState.state(idcard, "bankBillFlow", 200);
+					PushState.state(idcard, "bankBillFlow", 200,errorinfo.getText());
+				}else {
+					PushState.stateX(idcard, "bankBillFlow", 200,errorinfo.getText());
 				}
 				map.put("errorCode", "0001");
 				map.put("errorInfo", errorinfo.getText());
@@ -231,16 +237,7 @@ public class VirtualKeyBoard {
 									.textToBePresentInElement(ifs.get(2),
 											"下载明细"));
 							list.add(driver.getPageSource());
-							PushSocket.push(map, UUID, "6000","民生银行数据获取成功");
-							logger.warn("-------------list.toString()"+"----------------------");
-							data.put("html", list);
-							data.put("backtype", "CMBC");
-							data.put("idcard", idcard);
-							data.put("userAccount", number);
-							map.put("data", data);
-							map.put("isok", isok);
-							map = resttemplate.SendMessageX(map, application.sendip
-									+ "/HSDC/BillFlow/BillFlowByreditCard", idcard,UUID);
+							
 						} catch (org.openqa.selenium.ElementNotVisibleException e) {
 							PushSocket.push(map, UUID, "9000","网络异常，认证失败");
 							WebElement we = driver
@@ -249,7 +246,9 @@ public class VirtualKeyBoard {
 													+ i + "']"));
 							logger.warn("---------民生详情查询--------------"+we.getAttribute("title")+"账单选择问题",e);
 							if(isok==true){
-								PushState.state(idcard, "bankBillFlow", 200);
+								PushState.state(idcard, "bankBillFlow", 200, "网络错误");
+							}else {
+								PushState.stateX(idcard, "bankBillFlow", 200, "网络错误");
 							}
 							map.put("errorCode", "0001");
 							map.put("errorInfo", "网络错误");
@@ -257,12 +256,23 @@ public class VirtualKeyBoard {
 							return map;
 						}
 					}
-					
+					PushSocket.push(map, UUID, "6000","民生银行数据获取成功");
+					logger.warn("-------------list.toString()"+"----------------------");
+					data.put("html", list);
+					data.put("backtype", "CMBC");
+					data.put("idcard", idcard);
+					data.put("userAccount", number);
+					map.put("data", data);
+					map.put("isok", isok);
+					map = resttemplate.SendMessageX(map, application.sendip
+							+ "/HSDC/BillFlow/BillFlowByreditCard", idcard,UUID);
 
 				} else {
 					PushSocket.push(map, UUID, "3000","网络异常，登陆失败");
 					if(isok==true){
-						PushState.state(idcard, "bankBillFlow", 200);
+						PushState.state(idcard, "bankBillFlow", 200,"网络异常，登陆失败");
+					}else {
+						PushState.stateX(idcard, "bankBillFlow", 200,"网络异常，登陆失败");
 					}
 					map.put("errorCode", "0001");
 					map.put("errorInfo", "失败");
@@ -274,7 +284,9 @@ public class VirtualKeyBoard {
 			logger.warn(e + "民生银行出现元素没有找到");
 			PushSocket.push(map, UUID, "7000","网页数据没有找到");
 			if(isok==true){
-				PushState.state(idcard, "bankBillFlow", 200);
+				PushState.state(idcard, "bankBillFlow", 200,"网页数据没有找到");
+			}else {
+				PushState.stateX(idcard, "bankBillFlow", 200,"网页数据没有找到");
 			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
@@ -282,7 +294,9 @@ public class VirtualKeyBoard {
 			logger.warn(e + "民生银行出现iframe没有找到");
 			PushSocket.push(map, UUID, "7000","网页数据没有找到");
 			if(isok==true){
-				PushState.state(idcard, "bankBillFlow", 200);
+				PushState.state(idcard, "bankBillFlow", 200,"网页数据没有找到");
+			}else {
+				PushState.stateX(idcard, "bankBillFlow", 200,"网页数据没有找到");
 			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
@@ -290,7 +304,9 @@ public class VirtualKeyBoard {
 			logger.warn(e + "handle没有找到");
 			PushSocket.push(map, UUID, "7000","网页数据没有找到");
 			if(isok==true){
-				PushState.state(idcard, "bankBillFlow", 200);
+				PushState.state(idcard, "bankBillFlow", 200,"网页数据没有找到");
+			}else {
+				PushState.stateX(idcard, "bankBillFlow", 200,"网页数据没有找到");
 			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
@@ -298,7 +314,9 @@ public class VirtualKeyBoard {
 			logger.warn(e + "没有找到alert");
 			PushSocket.push(map, UUID, "7000","网页数据没有找到");
 			if(isok==true){
-				PushState.state(idcard, "bankBillFlow", 200);
+				PushState.state(idcard, "bankBillFlow", 200,"网页数据没有找到");
+			}else {
+				PushState.stateX(idcard, "bankBillFlow", 200,"网页数据没有找到");
 			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
@@ -306,7 +324,9 @@ public class VirtualKeyBoard {
 			logger.warn(e + "超找元素超时");
 			PushSocket.push(map, UUID, "7000","网页数据没有找到");
 			if(isok==true){
-				PushState.state(idcard, "bankBillFlow", 200);
+				PushState.state(idcard, "bankBillFlow", 200,"网页数据没有找到");
+			}else {
+				PushState.stateX(idcard, "bankBillFlow", 200,"网页数据没有找到");
 			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
@@ -314,7 +334,9 @@ public class VirtualKeyBoard {
 			logger.warn("民生信用卡查询失败", e);
 			PushSocket.push(map, UUID, "7000","网页数据没有找到");
 			if(isok==true){
-				PushState.state(idcard, "bankBillFlow", 200);
+				PushState.state(idcard, "bankBillFlow", 200,"网页数据没有找到");
+			}else {
+				PushState.stateX(idcard, "bankBillFlow", 200,"网页数据没有找到");
 			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
@@ -465,7 +487,9 @@ public class VirtualKeyBoard {
 				map.put("errorCode", "0002");
 				PushSocket.push(map, UUID, "3000","连接超时");
 				if(isok==true){
-					PushState.state(usercard, "bankBillFlow", 200);
+					PushState.state(usercard, "bankBillFlow", 200,"连接超时");
+				}else {
+					PushState.stateX(usercard, "bankBillFlow", 200,"连接超时");
 				}
 				logger.warn("--------广发银行信用卡--------------登陆失败---------身份证号："+ usercard+"--------返回信息为："+map);
 				DriverUtil.close(driver);
@@ -483,7 +507,9 @@ public class VirtualKeyBoard {
 			map.put("errorCode", "0001");
 			PushSocket.push(map, UUID, "3000","网络异常");
 			if(isok==true){
-				PushState.state(usercard, "bankBillFlow", 200);
+				PushState.state(usercard, "bankBillFlow", 200,"网络异常");
+			}else {
+				PushState.stateX(usercard, "bankBillFlow", 200,"网络异常");
 			}
 			driver.quit();
 			return map;
@@ -507,7 +533,9 @@ public class VirtualKeyBoard {
 					map.put("errorCode", "0001");
 					PushSocket.push(map, UUID, "3000",str);
 					if(isok==true){
-						PushState.state(usercard, "bankBillFlow", 200);
+						PushState.state(usercard, "bankBillFlow", 200,str);
+					}else {
+						PushState.stateX(usercard, "bankBillFlow", 200,str);
 					}
 					logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+str);
 					DriverUtil.close(driver);
@@ -519,7 +547,9 @@ public class VirtualKeyBoard {
 				map.put("errorCode", "0001");
 				PushSocket.push(map, UUID, "3000",errorMessage);
 				if(isok==true){
-					PushState.state(usercard, "bankBillFlow", 200);
+					PushState.state(usercard, "bankBillFlow", 200,errorMessage);
+				}else {
+					PushState.stateX(usercard, "bankBillFlow", 200,errorMessage);
 				}
 				logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+errorMessage);
 				DriverUtil.close(driver);
@@ -614,7 +644,9 @@ public class VirtualKeyBoard {
 					map.put("errorCode", "0001");
 					PushSocket.push(map, UUID, "9000","网络异常，认证失败");
 					if(isok==true){
-						PushState.state(usercard, "bankBillFlow", 200);
+						PushState.state(usercard, "bankBillFlow", 200,"网络异常，认证失败");
+					}else {
+						PushState.stateX(usercard, "bankBillFlow", 200,"网络异常，认证失败");
 					}
 				}finally{
 					DriverUtil.close(driver);
@@ -625,7 +657,9 @@ public class VirtualKeyBoard {
 				map.put("errorCode", "0001");
 				PushSocket.push(map, UUID, "3000","确认信息出错，请重试");
 				if(isok==true){
-					PushState.state(usercard, "bankBillFlow", 200);
+					PushState.state(usercard, "bankBillFlow", 200,"确认信息出错，请重试");
+				}else {
+					PushState.stateX(usercard, "bankBillFlow", 200,"确认信息出错，请重试");
 				}
 				DriverUtil.close(driver);
 			}

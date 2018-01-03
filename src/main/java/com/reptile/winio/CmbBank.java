@@ -153,7 +153,7 @@ public class CmbBank {
 					} else {
 						map.put("errorInfo", "登录失败");
 						map.put("errorCode", "0001");
-						PushState.state(UserCard, "savings", 200);
+						PushState.state(UserCard, "savings", 200,"登录失败");
 					}
 				} else {
 					// 不需要验证码
@@ -168,7 +168,7 @@ public class CmbBank {
 				}
 				map.put("errorInfo", elements1.getText());
 				map.put("errorCode", "0001");
-				PushState.state(UserCard, "savings", 200);
+				PushState.state(UserCard, "savings", 200, elements1.getText());
 			}
 		} catch (Exception e) {
 			logger.warn("-----------招商银行储蓄卡-----------登陆失败----------身份证号："+UserCard,e);
