@@ -345,6 +345,12 @@
 			<artifactId>PhantomJs</artifactId>
 			<version>0.0.2</version>
 		</dependency>
+		<!-- httpwatch 拦截cookie -->
+		<dependency>
+			<groupId>com.hoomsun.httpwatch</groupId>
+			<artifactId>httpwatch</artifactId>
+			<version>0.0.2</version>
+		</dependency>
 	</dependencies>
 
 

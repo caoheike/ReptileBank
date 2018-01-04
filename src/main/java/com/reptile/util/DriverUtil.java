@@ -1,6 +1,7 @@
 package com.reptile.util;
 
 import java.io.IOException;
+import java.util.Set;
 
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
@@ -242,4 +243,48 @@ public class  DriverUtil{
 		return driver;
 	}
 	
+	/**
+	 * 获取cookie
+	 * @param driver
+	 * @return
+	 */
+	public static String getCookie(WebDriver driver)		{
+		  //获得cookie用于发包
+		Set<org.openqa.selenium.Cookie> cookies = driver.manage().getCookies();  
+	    StringBuffer tmpcookies = new StringBuffer();
+
+	   	for (org.openqa.selenium.Cookie cookie : cookies) {
+	   		String name = cookie.getName();
+	   		String value = cookie.getValue();
+			tmpcookies.append(name + "="+ value + ";");
+		}
+	   	String str = tmpcookies.toString();
+	   	if(!str.isEmpty()){
+	   		str = str.substring(0,str.lastIndexOf(";"));
+	   	}
+		return str; 	
+	}
+	
+	/**
+	 * 获取cookie
+	 * @param driver
+	 * @param jsession
+	 * @return
+	 */
+	public static String getCookie(WebDriver driver,String jsession)		{
+		//获得cookie用于发包
+		Set<org.openqa.selenium.Cookie> cookies = driver.manage().getCookies();  
+		StringBuffer tmpcookies = new StringBuffer();
+		
+		for (org.openqa.selenium.Cookie cookie : cookies) {
+			String name = cookie.getName();
+			String value = cookie.getValue();
+			tmpcookies.append(name + "="+ value + ";");
+		}
+		tmpcookies.append("JSESSIONID");
+		tmpcookies.append("=");
+		tmpcookies.append(jsession);
+		String str = tmpcookies.toString();
+		return str; 	
+	}
 }
