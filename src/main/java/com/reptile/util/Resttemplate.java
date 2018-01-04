@@ -105,7 +105,7 @@ public class Resttemplate {
 	  
 }
   public Map<String,Object> SendMessageX(Map<String,Object> map,String Url,String id,String UUID){
-	  boolean isok = (boolean) map.get("isok");
+	  boolean isok =  (Boolean) map.get("isok");
 	  map.remove("isok");
 		PushState ps=new PushState();
 	  Map<String,Object> message=new HashMap<String, Object>();

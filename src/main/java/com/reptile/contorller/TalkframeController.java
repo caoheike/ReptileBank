@@ -8,10 +8,10 @@ import javax.websocket.server.ServerEndpoint;
 
 import net.sf.json.JSONObject;
 
-import org.java_websocket.WebSocket;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
+import com.reptile.Bank.CustomSpringConfigurator;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,7 +22,8 @@ import java.util.Map;
  * @date 2017年11月16日10:51:14
  */
 @Component
-@ServerEndpoint("/hello")
+
+@ServerEndpoint(value = "/hello",configurator=CustomSpringConfigurator.class) 
 public class TalkframeController {
 	private static  Map<String,Session> wsUserMap = new HashMap<String,Session>();
 	private static  Map<String,String> wsInfoMap = new HashMap<String,String>();
