@@ -140,10 +140,11 @@ public class CMBService {
     				userName=	ss.get(0).getText().split("好，")[1];//用户名
     			    wait.until(ExpectedConditions.elementToBeClickable(ss.get(7)));
     			   	ss.get(7).click();//点击账户余额查询
-    			   	//Thread.sleep(4000);
+    			   	Thread.sleep(1500);
     			   	wait.until(ExpectedConditions.presenceOfElementLocated(By.className("byue_0")));    			   	
 			   		WebElement _vTokenId = driver.findElement(By.className("byue_0"));
     			    _vTokenId.click();//点击账户详情
+    			    Thread.sleep(1500);
     				wait.until(ExpectedConditions.presenceOfElementLocated(By.id("BenhangKa")));      			   
         				//Thread.sleep(3000);
 					} catch (Exception e) {
@@ -318,21 +319,23 @@ public class CMBService {
     	new WebDriverWait(driver, 15).until(ExpectedConditions.presenceOfElementLocated(By.xpath("//*[@id='transView']/div/div/div/div/div/div[1]/table[2]/tbody[1]/tr[1]/td[3]/a[4]")));
     	WebElement _vTokenId1 = driver.findElement(By.xpath("//*[@id='transView']/div/div/div/div/div/div[1]/table[2]/tbody[1]/tr[1]/td[3]/a[4]"));
 		_vTokenId1.click();
+		Thread.sleep(1000);
 		new WebDriverWait(driver, 15).until(ExpectedConditions.presenceOfElementLocated(By.className("tab_search")));
 		WebElement startDate=	driver.findElement(By.className("riqi"));
 		new WebDriverWait(driver, 15).until(ExpectedConditions.presenceOfAllElementsLocatedBy(By.className("lanzi1")));
 		WebElement td=startDate.findElements(By.className("lanzi1")).get(6);
 		td.click();
+		Thread.sleep(1000);
 		new WebDriverWait(driver, 15).until(ExpectedConditions.presenceOfElementLocated(By.className("fyxg")));
 		
 		 WebElement	 s=driver.findElement(By.className("fyxg"));
 		 if(s!=null){
 			
 			 String numStr=s.getText();
-			 Thread.sleep(500);
+			 Thread.sleep(1000);
 			 String numStr1=numStr.split("页")[1];
 			 System.out.println(numStr1.split("共")[1]);//总页数
-			 Thread.sleep(500);
+			 Thread.sleep(1000);
 			 int num=new Integer(numStr1.split("共")[1]);
 			 if(num>=1){
 				Object[] obj= this.parseBill(driver,billMes);
@@ -349,6 +352,7 @@ public class CMBService {
 	    	    	  obj= this.parseBill(driver,billMes);
 	    	    	  billMes=(List<Map<String, String>>)obj[0];
 	 		    	  driver=(WebDriver) obj[1];
+	 		    	 Thread.sleep(1000);
 		    		 // billMes=this.parseBill(driver,billMes);
 				}
 			 }else{
