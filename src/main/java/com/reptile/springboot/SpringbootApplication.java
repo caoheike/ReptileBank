@@ -19,7 +19,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 //@MapperScan("com.reptile.dao")
  @EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
-public class SpringbootApplication extends SpringBootServletInitializer {
+public class SpringbootApplication  extends SpringBootServletInitializer {
 
 //	@Override
 //	protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {

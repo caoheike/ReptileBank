@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>com.reptile</groupId>
-	<artifactId>ReptileBank</artifactId>
+	<artifactId>springboot</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>
 
@@ -69,11 +69,11 @@
 			<!--</exclusions> -->
 		</dependency>
 
-<!-- 		<dependency>
+		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-tomcat</artifactId>
 			<scope>provided</scope>
-		</dependency> -->
+		</dependency>
 
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -367,6 +367,8 @@
 		</plugins>
 	</build>
 
+
+
 	<!-- 私服开始 -->
 
 	<repositories>
@@ -374,7 +376,7 @@
 		<repository>
 			<id>test</id>
 			<name>test</name>
-			<url>http://192.168.2.116:8081/repository/NexusGr/</url>
+			<url>http://192.168.3.241:8081/repository/NexusGr/</url>
 		</repository>
 
 

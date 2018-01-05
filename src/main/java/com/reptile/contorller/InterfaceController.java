@@ -170,4 +170,13 @@ public class InterfaceController {
 
 	}
 */
+	
+	
+	@ResponseBody
+	@RequestMapping(value = "test1", method = RequestMethod.POST)
+	public String test2(HttpServletRequest request) throws Exception {
+
+		return "213";
+
+	}
 }
