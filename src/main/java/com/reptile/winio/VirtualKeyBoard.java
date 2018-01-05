@@ -575,7 +575,7 @@ public class VirtualKeyBoard {
 				logger.warn("--------广发银行登陆------------sid为："+sid);
 				/*选中第一个*/
 				for (int i = 0; i < 11; i++) {
-					/* 为了避免查询不到账单 做此次处理 */
+					/* 为了避免查询不到账单 做此次处理*/
 					List<WebElement> elements2 = driver.findElements(By
 							.tagName("IFRAME"));
 					driver.switchTo().frame(elements2.get(0));

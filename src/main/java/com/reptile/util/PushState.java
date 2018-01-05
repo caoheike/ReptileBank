@@ -40,7 +40,7 @@ public class PushState {
 	 * @param stat
 	 * @param massage
 	 */
-	public static void state(String UserCard,String approveName ,int stat,String massage){
+	public static void state(String UserCard,String approveName ,int stat,String message){
 		application applications=new application();
 		Map<String, Object> map1=new HashMap<String, Object>();
 		Map<String,Object> stati=new HashMap<String, Object>();
@@ -48,7 +48,7 @@ public class PushState {
 		stati.put("cardNumber",UserCard);
 		stati.put("approveName" , approveName);
 		stati.put("approveState",stat+"");
-		stati.put("massage", massage);
+		stati.put("message", message);
 		data.put("data", stati);
 		Resttemplate resttemplatestati = new Resttemplate();
 		logger.warn("----------------*****************------stat：" + stat);
@@ -62,7 +62,7 @@ public class PushState {
 	 * @param stat
 	 * @param massage
 	 */
-	public static void stateX(String UserCard,String approveName ,int stat,String massage){
+	public static void stateX(String UserCard,String approveName ,int stat,String message){
 		application applications=new application();
 		Map<String, Object> map1=new HashMap<String, Object>();
 		Map<String,Object> stati=new HashMap<String, Object>();
@@ -70,7 +70,7 @@ public class PushState {
 		stati.put("cardNumber",UserCard);
 		stati.put("approveName" , approveName);
 		stati.put("approveState",stat+"");
-		stati.put("massage", massage);
+		stati.put("message", message);
 		data.put("data", stati);
 		Resttemplate resttemplatestati = new Resttemplate();
 		logger.warn("----------------*****************------stat：" + stat);

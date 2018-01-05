@@ -183,7 +183,9 @@ public class MobileService {
 				    	  	if(toke.contains("当前用户不允许使用该业务")){
 				    	  		PushSocket.push(map, UUID, "7000","当前用户不允许使用该业务");
 				    	  		if(isok==true){
-									PushState.state(idCard,"bankBillFlow", 200);
+									PushState.state(idCard,"bankBillFlow", 200,"当前用户不允许使用该业务");
+								}else {
+									PushState.stateX(idCard,"bankBillFlow", 200,"当前用户不允许使用该业务");
 								}
 				    	  		map.put("errorCode","0001");
 				    			map.put("errorInfo","当前用户不允许使用该业务");
