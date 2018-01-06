@@ -92,7 +92,14 @@ public class BcmLogins {
 			driver.findElement(By.id("cardpassword")).click();
 			Thread.sleep(2000);
 			WebElement element = driver.findElement(By.className("key-pop"));
-			String icbcImg1 = saveImg(element, driver);// 返回键盘中数字
+			
+			
+			Map<String, Object> imagev = new HashMap<String, Object>();
+			imagev = saveImgJ(element, driver);// 返回键盘中数字
+			String icbcImg1 = imagev.get("strResult").toString();// 读取图片验证码
+			if("-3003".equals(imagev.get("cid").toString())) {
+				BankLogin(UserNumber,UserPwd,UserCard,request,UUID,timeCnt);
+			}
 			String[] split = icbcImg1.split("");// 将数字字符串分割为数组
 			List<WebElement> li = element.findElements(By.tagName("li"));
 			// 返回识别的字符串
@@ -325,6 +332,10 @@ public class BcmLogins {
 				headers.put("Host", "creditcardapp.bankcomm.com");
 				String str1 = SimpleHttpClient.get("https://creditcardapp.bankcomm.com/member/member/service/billing/finished.html?cardNo="+userNumber+"&billDate="+date,headers);
 				Thread.sleep(1000);
+				if(str1.contains("系统忙")&&str1.contains("请稍后再试")){
+					continue;
+				}
+				
 				list.add(str1);
 			}
 		return list;
@@ -556,6 +567,32 @@ public class BcmLogins {
 		Map<String, Object> imagev = MyCYDMDemo.Imagev(file + "/" + fileName);
 		String code = imagev.get("strResult").toString();// 读取图片验证码
 		return code;
+	}
+	/**
+	 * 返回打码后的验证码
+	 * 
+	 * @param element
+	 * @param driver
+	 * @param path
+	 *            图片绝对地址
+	 * @param prefix
+	 * @param suffix
+	 * @return
+	 * @throws Exception
+	 */
+	public static Map<String, Object> saveImgJ(WebElement element, WebDriver driver)
+			throws Exception {
+		File file = new File("C:\\img" + File.separator);
+		if (!file.exists()) {
+			file.mkdir();
+		}
+		BufferedImage bufferedImage = createElementImages(driver, element);
+		String fileName = System.currentTimeMillis() + "JTKeyBoard.png";
+		ImageIO.write(bufferedImage, "png", new File(file, fileName));
+
+		Map<String, Object> imagev = MyCYDMDemo.Imagev(file + "/" + fileName);
+		String code = imagev.get("strResult").toString();// 读取图片验证码
+		return imagev;
 	}
 
 	/**

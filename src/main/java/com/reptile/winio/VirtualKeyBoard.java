@@ -655,11 +655,11 @@ public class VirtualKeyBoard {
 				logger.warn("-----------广发银行登陆失败----------");
 				map.put("errorInfo", "网络异常,请重试！！");
 				map.put("errorCode", "0001");
-				PushSocket.push(map, UUID, "3000","确认信息出错，请重试");
+				PushSocket.push(map, UUID, "3000","系统繁忙，请重试");
 				if(isok==true){
-					PushState.state(usercard, "bankBillFlow", 200,"确认信息出错，请重试");
+					PushState.state(usercard, "bankBillFlow", 200,"系统繁忙，请重试");
 				}else {
-					PushState.stateX(usercard, "bankBillFlow", 200,"确认信息出错，请重试");
+					PushState.stateX(usercard, "bankBillFlow", 200,"系统繁忙，请重试");
 				}
 				DriverUtil.close(driver);
 			}

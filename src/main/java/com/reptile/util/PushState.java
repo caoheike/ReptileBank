@@ -41,10 +41,11 @@ public class PushState {
 	 * @param massage
 	 */
 	public static void state(String UserCard,String approveName ,int stat,String message){		
+		
 		if("bankBillFlow".equals(approveName)) {
-			message = "您提交的信用卡认证失败，失败原因："+message+"，您可以重新认证或者选择其他产品。";
+			message = "您提交的信用卡认证失败，失败原因："+message;
 		}else if("savings".equals(approveName)) {
-			message = "您提交的储蓄卡认证失败，失败原因："+message+"，您可以重新认证或者选择其他产品。";
+			message = "您提交的储蓄卡认证失败，失败原因："+message;
 		}
 		application applications=new application();
 		Map<String, Object> map1=new HashMap<String, Object>();
@@ -69,9 +70,9 @@ public class PushState {
 	 */
 	public static void stateX(String UserCard,String approveName ,int stat,String message){
 		if("bankBillFlow".equals(approveName)) {
-			message = "您提交的信用卡认证失败，失败原因："+message+"，您可以重新认证或者选择其他产品。";
+			message = "您提交的信用卡认证失败，失败原因："+message;
 		}else if("savings".equals(approveName)) {
-			message = "您提交的储蓄卡认证失败，失败原因："+message+"，您可以重新认证或者选择其他产品。";
+			message = "您提交的储蓄卡认证失败，失败原因："+message;
 		}
 		application applications=new application();
 		Map<String, Object> map1=new HashMap<String, Object>();

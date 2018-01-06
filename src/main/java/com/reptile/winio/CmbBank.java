@@ -59,10 +59,10 @@ public class CmbBank {
 			driver.manage().window().maximize();
 			driver.get("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/Login.aspx");
 			HttpSession session = request.getSession();
+			Thread.sleep(1500);
 			SendKeys.sendStr(userName);
 			Thread.sleep(1500);
 			//KeysPress.SenStr(userName);
-			
 			/* 按下Tab */
 			/*KeysPress.SendTab("Tab");
 			Thread.sleep(1000);*/
@@ -77,35 +77,46 @@ public class CmbBank {
 			WebElement LoginBut = driver.findElement(By.id("LoginBtn"));
 			LoginBut.click();
 			Thread.sleep(5000);// 延迟三秒
-
+			logger.warn("判断附加码之前********** ");
 			/* 判断是否需要验证码 */
-			WebElement elements1 = driver.findElement(By
-					.className("page-form-item"));
-			if (elements1.getText().contains("附加码")) {
-				logger.warn("-----------招商银行储蓄卡-----------登陆需要验证码----------");
-				/*
-				 * 输入验证码处理
-				 */
+			boolean isHave = DriverUtil.waitByClassName("page-form-item", driver, 1);
+			//WebElement elements1 = driver.findElement(By
+					//.className("page-form-item"));
+			WebElement elements1=null;
+			if(isHave) {
+				elements1 = driver.findElement(By
+						.className("page-form-item"));
+				logger.warn("**********"+elements1);
+				if (elements1.getText().contains("附加码")) {
+					logger.warn("-----------招商银行储蓄卡-----------登陆需要验证码----------");
+					/*
+					 * 输入验证码处理
+					 */
 
-				WebElement ImgExtraPwd = driver.findElement(By
-						.id("ImgExtraPwd"));
-				WebElement input_captcha = driver
-						.findElement(By.id("ExtraPwd"));
-				String imgtext = downloadImgs(driver, ImgExtraPwd);
-				input_captcha.sendKeys(imgtext);
-				LoginBut.click();
-				Thread.sleep(5000);// 延迟三秒
+					WebElement ImgExtraPwd = driver.findElement(By
+							.id("ImgExtraPwd"));
+					WebElement input_captcha = driver
+							.findElement(By.id("ExtraPwd"));
+					String imgtext = downloadImgs(driver, ImgExtraPwd);
+					input_captcha.sendKeys(imgtext);
+					LoginBut.click();
+					Thread.sleep(5000);// 延迟三秒
+				}
 			}
+			
+			logger.warn("获取cookie之前********** ");
 			// 获得cookie
 			StringBuffer buffer = GetCookie(driver);
-
+			logger.warn("获取cookie之后********** ");
 			// 判断是否需要验证码
 			// 需要这个加密的银行卡尽心发包
 			if (!driver.getPageSource().contains("使用旧版本登入")) {
+				logger.warn("*********进入登录页面**************");
 				WebElement ClientNo = driver.findElement(By.id("ClientNo"));// 银行卡号，需要在页面拿到然后发包
+				
 				String num = ClientNo.getAttribute("value");
 				if (driver.getTitle().equals("身份验证")) {
-
+					System.out.println("************需要身份验证*************");
 					// 短信发包开始-------------------
 					params.put("ClientNo", num);
 					params.put("PRID", "SendMSGCode");
@@ -156,6 +167,7 @@ public class CmbBank {
 						PushState.state(UserCard, "savings", 200,"登录失败");
 					}
 				} else {
+					System.out.println("************不需要身份验证*************");
 					// 不需要验证码
 					map.put("Sendcode", "no");
 

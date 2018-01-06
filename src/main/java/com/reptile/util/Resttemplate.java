@@ -136,7 +136,9 @@ public class Resttemplate {
     	  PushSocket.push(map, UUID, "9000",jsonObject.get("errorInfo").toString());
     	  if(isok==true){
     		  ps.state(id, "bankBillFlow", 200);
-    	  }   		  
+    	  } else {
+    		  ps.state(id, "bankBillFlow", 200,jsonObject.get("errorInfo").toString());
+    	  }
     		message.put("errorCode",jsonObject.get("errorCode"));//异常处理
 			message.put("errorInfo",jsonObject.get("errorInfo"));
       }
@@ -145,7 +147,9 @@ public class Resttemplate {
 			logger.warn("----------将数据推送给数据中心失败--------------",e);
 			if(isok==true){
 	    		  ps.state(id, "bankBillFlow", 200);
-	    	 } 
+	    	 }  else {
+	    		  ps.state(id, "bankBillFlow", 200,"网络异常，认证失败");
+	    	  }
 			PushSocket.push(map, UUID, "9000","网络异常，认证失败");
 			message.put("errorCode","0003");//异常处理
 			message.put("errorInfo","推送失败");
