@@ -412,7 +412,7 @@ public class MobileService {
 				parmcode.put("SendCode",code);
 	    	//是否需要验证码
 
-	    	if(!Sendcode.equals("0")){
+	    	if(!code.equals("0")){
 	    		//开始发包登陆
 		    	String seninfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/GenLoginVerifyM2.aspx", parmcode, headers);
 		    	if(seninfo.contains("code>00</code>")){

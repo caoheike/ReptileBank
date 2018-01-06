@@ -169,7 +169,19 @@ public class CmbBank {
 				} else {
 					System.out.println("************不需要身份验证*************");
 					// 不需要验证码
-					map.put("Sendcode", "no");
+					session.setAttribute(
+							sessid,
+							buffer.toString().replaceAll("path=/,", "")
+									.replaceAll("path=/", "")
+									.replace("; ;", ";"));
+					System.out.println("************不需要身份验证*************");
+					params.put("ClientNo", num);
+					params.put("sessid", sessid);
+					params.put("Sendcode", "no");
+					map.put("errorInfo", "成功");
+					map.put("errorCode", "0000");
+					
+					map.put("data", params);
 
 				}
 
