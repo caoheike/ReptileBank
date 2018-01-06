@@ -78,7 +78,7 @@ public class BcmLogin {
 
 			/* 输入账号 */
 			username.sendKeys(UserName);
-			Thread.sleep(1000);
+			Thread.sleep(2000);
 			/* 按下Tab */
 			/*KeysPress.SendTab("Tab");
 			Thread.sleep(1000);*/
@@ -86,7 +86,8 @@ public class BcmLogin {
 //			Thread.sleep(1000);
 //			/* 输入密码 */
 //			SendKeys.sendStr(UserPwd);
-			SendKeys.sendStr(1139+80, 338-30, UserPwd);
+			System.out.println("*********密码**********"+UserPwd);
+			SendKeys.sendStr(1139+80, 338-35, UserPwd);
 //			SendKeys.sendStr(1139+80, 338+15, UserPwd);//本地
 			Thread.sleep(1000);
 			//KeysPress.SenStr(UserPwd);
@@ -306,8 +307,8 @@ public class BcmLogin {
 					logger.warn("-----------交通银行登陆失败-------------");
 					status.put("errorCode", "0002");// 异常处理
 					status.put("errorInfo", "网络异常，请重试！");
-					PushSocket.push(status, UUID, "3000","网络异常,登录失败");
-					PushState.state(userCard, "savings", 200,"网络异常,登录失败");
+					PushSocket.push(status, UUID, "3000","账号密码错误，登录失败");
+					PushState.state(userCard, "savings", 200,"账号密码错误，登录失败");
 					DriverUtil.close(driver);
 					return status;
 				}

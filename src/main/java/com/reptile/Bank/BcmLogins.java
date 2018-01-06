@@ -97,18 +97,21 @@ public class BcmLogins {
 			List<WebElement> li = element.findElements(By.tagName("li"));
 			// 返回识别的字符串
 			String pwd = UserPwd;
+			System.out.println("**************"+UserPwd+"*****************");
 			String[] pwdArry = pwd.split("");
 			for (int i = 0; i < pwdArry.length; i++) { // 读取密码的每一位数字，循环找出键盘中对应的数字下标
 				String num = pwdArry[i];
 				for (int j = 0; j < split.length; j++) {
 					if (num.equals(split[j])) { // 数字部分
 						li.get(j).click();
+						System.out.println("***********"+li.get(j));
 						Thread.sleep(500);
 						break;
 					}
 					if (j == split.length - 1) { // 字符部分
 						int integer = JiaoTongKeyMap.map.get(num);
 						li.get(integer).click();
+						System.out.println("*********"+li.get(j));
 						Thread.sleep(500);
 						break;
 					}
@@ -311,11 +314,7 @@ public class BcmLogins {
 		Thread.sleep(2000);
 		List<String> dates = this.parseDates(str);
 		List<String> list = new ArrayList<String>();
-		int count = 6;
-		if(dates.size()<6) {
-			count = dates.size();			
-		}
-		for(int i=0;i<count;i++) {
+		
 			for (String date:dates) {
 				if(date.contains("本期")){
 					date = date.replace(" (本期)", "");
@@ -328,7 +327,6 @@ public class BcmLogins {
 				Thread.sleep(1000);
 				list.add(str1);
 			}
-		}
 		return list;
 	}	
 

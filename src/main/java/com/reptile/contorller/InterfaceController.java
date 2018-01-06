@@ -62,26 +62,26 @@ public class InterfaceController {
 		synchronized (this) {			
 			if (BankType.equals("CMB")) {// 招商银行
 				map = bank.Login(numbe, pwd, session, UUID);
+			} else if (BankType.equals("CXCMB")) {// 招商储蓄卡
+				map = banks.CMBLogin(numbe, pwd, request, userCard, UUID);
 			} else if (BankType.equals("SPDB")) {// 浦发银行
 				map = new SPDBService().login(request, userCard, pwd, UUID);
 			} else if (BankType.equals("BOC")) {
 
 			} else if (BankType.equals("CMBC")) {// 民生信用卡
 				map = bank.CMBCLogin(numbe, pwd, BankType, userCard, UUID,timeCnt);
+			} else if (BankType.equals("CMBC2")) {// 民生储蓄卡
+				map = CMB.login(request, response, numbe, pwd,
+						userCard, UUID);
 			} else if (BankType.equals("GDB")) {// 广发银行信用卡
 				map = bank.GDBLogin(numbe, pwd, userCard, UUID,timeCnt);
-			} else if (BankType.equals("CXCMB")) {// 招商储蓄卡
-				map = banks.CMBLogin(numbe, pwd, request, userCard, UUID);
+			} else if (BankType.equals("ABC")) {// 农业银行储蓄卡
+				map = AbcBank.doGetDetail(numbe, pwd, UUID, userCard);
 			} else if (BankType.equals("BCM")) {// 交通银行
 				map = BcmLogin.BcmLogins(request,numbe, pwd, UUID,userCard);
 			} else if (BankType.equals("X-BCM")) {// 交通银行 信用卡
 				map = JiaoTong.BankLogin(numbe, pwd, userCard, request, UUID,timeCnt);
-			} else if (BankType.equals("ABC")) {// 农业银行储蓄卡
-				map = AbcBank.doGetDetail(numbe, pwd, UUID, userCard);
-			} else if (BankType.equals("CMBC2")) {// 民生储蓄卡
-				map = CMB.login(request, response, numbe, pwd,
-						userCard, UUID);
-			} 
+			}
 			
 			return map;
 		}
@@ -172,11 +172,5 @@ public class InterfaceController {
 */
 	
 	
-	@ResponseBody
-	@RequestMapping(value = "test1", method = RequestMethod.POST)
-	public String test2(HttpServletRequest request) throws Exception {
-
-		return "213";
-
-	}
+	
 }
