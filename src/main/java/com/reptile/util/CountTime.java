@@ -4,8 +4,17 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+
+import com.reptile.winio.CmbBank;
+
 public class CountTime {
+	private static Logger logger = Logger.getLogger(CmbBank.class);
+
 	public static boolean getCountTime(String timeCnt) throws ParseException {
+		System.out.println("认证时间**************************"+timeCnt);
+		logger.warn("认证时间**************************"+timeCnt);
+
 		Date date = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		String newTime = sdf.format(date);

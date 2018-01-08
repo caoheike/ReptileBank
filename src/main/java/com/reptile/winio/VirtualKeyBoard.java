@@ -375,6 +375,7 @@ public class VirtualKeyBoard {
 			
 //			SendKeys.sendStr(500, ss1);
 			SendKeys.sendStr(1155+100, 335-25, ss1);
+//			SendKeys.sendStr(1155+100,335+15,ss1);//本地
 			logger.warn("----------------招商信用卡-------------登陆-----------------"+VirtualKeyBoard.class.getResource("/").getPath());
 			
 			NativeLibrary.addSearchPath("WinIo32", VirtualKeyBoard.class
@@ -711,9 +712,11 @@ public class VirtualKeyBoard {
 						"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; .NET4.0C; .NET4.0E)");
 				headers.put("x-requested-with", "XMLHttpRequest");
 				driver.quit();
+				logger.warn("----------------招商信用卡-------------短信验证码发包开始-----------------");
 				String rest = httclien
 						.post("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/GenLoginVerifyM2.aspx",
 								params, headers); /* 开始发包 */
+				logger.warn("----------------招商信用卡-------------短信验证码发包完成-----------------");
 				if (rest.contains("<code>00</code>")) {
 					map.put("errorCode", "0000");
 					map.put("errorInfo", "成功");
@@ -733,10 +736,12 @@ public class VirtualKeyBoard {
 
 			/*  */
 			/* 返回cookie 用于查询数据 */
+			logger.warn("----------------招商信用卡-------------返回cookie开始-----------------");
 			sessions.setAttribute(
 					sessid,
 					tmpcookies.toString().replaceAll("path=/,", "")
 							.replaceAll("path=/", ""));
+			logger.warn("----------------招商信用卡-------------返回cookie完成-----------------");
 			data.put("ClientNo", num);
 			data.put("sessids", sessid);
 		} else {

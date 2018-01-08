@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 
 import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.reptile.util.CountTime;
+import com.reptile.util.Dates;
 import com.reptile.util.PushSocket;
 import com.reptile.util.PushState;
 import com.reptile.util.Resttemplate;
@@ -395,7 +396,7 @@ public class MobileService {
 		 * @throws InterruptedException 
 		  */
 		 
-		 public Map<String,Object> CmbQueryInfo(String code,String sessid,String num,String idcard,HttpServletRequest re,String UUID,String Sendcode) throws ParseException, IOException, InterruptedException{
+		 public Map<String,Object> CmbQueryInfo(String code,String sessid,String num,String idcard,HttpServletRequest re,String UUID,String Sendcode,String numbe) throws ParseException, IOException, InterruptedException{
 				SimpleHttpClient httclien=new SimpleHttpClient();
 				Map<String,Object> params=new HashMap<String, Object>();
 				Map<String,String> headers=new HashMap<String, String>();
@@ -467,8 +468,11 @@ public class MobileService {
 			            List<Map> lists=yuefen();
 			            params.put("BeginDate",lists.get(0).get("begin"));
 			            params.put("EndDate",lists.get(5).get("end"));
-			            params.put("BeginDate","20171101");
-			            params.put("EndDate","20171109");
+			            String EndDate = Dates.currentTime();
+			            System.out.println("***************************************获取前六个月月份");
+			            String BeginDate = Dates.beforMonth(6);
+			            params.put("BeginDate",BeginDate);
+			            params.put("EndDate",EndDate);
 			            params.put("BtnOK","查 询");
 			            params.put("ClientNo",num1);
 			            params.put("ddlDebitCardList",ssid);
@@ -510,7 +514,13 @@ public class MobileService {
 						   map.put("currency", "");
 						   list.add(map);					   
 					   }
-					   
+					   if(list.size()==0) {						   
+						   params.put("errorInfo", "您的账号暂无账单");
+			    		   params.put("errorCode", "0001");
+			    		   PushSocket.push(params, UUID, "7000","您的账号暂无账单");
+			    		   PushState.state(idcard, "savings", 200,"您的账号暂无账单");
+			    		   System.out.println("*********************************************您的账号暂无账单");
+					   }
 					   params.clear();
 					   headers.clear();
 					   headers.put("accountType","");
@@ -519,8 +529,8 @@ public class MobileService {
 
 					    params.put("billMes", list);
 					    params.put("baseMes", headers);
-					    params.put("IDNumber", "");
-					    params.put("cardNumber", idcard);
+					    params.put("IDNumber", idcard);
+					    params.put("cardNumber", numbe);
 					    params.put("userName", "");
 					    System.out.println(JSONObject.fromObject(params));
 					    Thread.sleep(1000);
@@ -593,8 +603,11 @@ public class MobileService {
 		            List<Map> lists=yuefen();
 		            params.put("BeginDate",lists.get(0).get("begin"));
 		            params.put("EndDate",lists.get(5).get("end"));
-		            params.put("BeginDate","20171101");
-		            params.put("EndDate","20171109");
+		            String EndDate = Dates.currentTime();
+		            System.out.println("***************************************获取前六个月月份");
+		            String BeginDate = Dates.beforMonth(6);		            
+		            params.put("BeginDate",BeginDate);
+		            params.put("EndDate",EndDate);
 		            params.put("BtnOK","查 询");
 		            params.put("ClientNo",num1);
 		            params.put("ddlDebitCardList",ssid);
@@ -637,7 +650,13 @@ public class MobileService {
 					   list.add(map);
 					   
 				}
-				   
+				   if(list.size()==0) {						   
+					   params.put("errorInfo", "您的账号暂无账单");
+		    		   params.put("errorCode", "0001");
+		    		   PushSocket.push(params, UUID, "7000","您的账号暂无账单");
+		    		   PushState.state(idcard, "savings", 200,"您的账号暂无账单");
+		    		   System.out.println("*********************************************您的账号暂无账单");
+				   }
 				   params.clear();
 				   headers.clear();
 				   headers.put("accountType","");
@@ -646,8 +665,8 @@ public class MobileService {
 
 				    params.put("billMes", list);
 				    params.put("baseMes", headers);
-				    params.put("IDNumber", "");
-				    params.put("cardNumber", idcard);
+				    params.put("IDNumber", idcard);
+				    params.put("cardNumber",numbe);
 				    params.put("userName", "");
 				  System.out.println(JSONObject.fromObject(params));
 				  Thread.sleep(1000);
