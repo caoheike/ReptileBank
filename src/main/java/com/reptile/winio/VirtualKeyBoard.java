@@ -397,27 +397,56 @@ public class VirtualKeyBoard {
 			Thread.sleep(1000);
 			WebElement elements = driver.findElement(By.id("LoginBtn"));
 			elements.click();
-			Thread.sleep(5000); /* 提交 */
+			Thread.sleep(4000); /* 提交 */
 			StringBuffer tmpcookies = Setcookie(driver); /* 设置cookie */
-			map = statbank(driver, tmpcookies, sessid, sessions, elements,
-					httclien, UUID);
-
-			if (map.toString().toString().contains("0005")) {
-				WebElement keyWord = driver.findElement(By.id("ImgExtraPwd"));
-				String src = keyWord.getAttribute("src");
-				String filename = new CrawlerUtil().getUUID();
-				BufferedImage inputbig = createElementImage(driver, keyWord);
-				ImageIO.write(inputbig, "png", new File("C://" + filename
-						+ ".png"));
-				String codenice = cydmDemo.getcode(filename); /* 识别yanzhengma */
-				if (!codenice.equals("") && codenice != null) {
-					WebElement keyWords = driver.findElement(By.id("ExtraPwd"));
-					keyWords.sendKeys(codenice);
-					elements.click();
-					map = statbank(driver, tmpcookies, sessid, sessions,
-							elements, httclien, UUID);
+			logger.warn("----------------招商信用卡-------------判断是否需要打码");
+			boolean isHave = DriverUtil.waitByClassName("page-form-item", driver, 1);
+			
+			if (isHave) {
+				WebElement elements1 = driver.findElement(By
+						.className("page-form-item"));
+				if(elements1.getText().contains("请输入附加码")) {
+					logger.warn("----------------招商信用卡-------------需要打码");
+					WebElement keyWord = driver.findElement(By.id("ImgExtraPwd"));
+					String src = keyWord.getAttribute("src");
+					String filename = new CrawlerUtil().getUUID();
+					BufferedImage inputbig = createElementImage(driver, keyWord);
+					ImageIO.write(inputbig, "png", new File("C://" + filename
+							+ ".png"));
+					String codenice = cydmDemo.getcode(filename); /* 识别yanzhengma */
+					if (!codenice.equals("") && codenice != null) {
+						WebElement keyWords = driver.findElement(By.id("ExtraPwd"));
+						keyWords.sendKeys(codenice);
+						elements.click();
+						Thread.sleep(5000); 
+						isHave = DriverUtil.waitByClassName("page-form-item", driver, 1);
+						logger.warn("----------------招商信用卡-------------判断附加码是否正确");
+						if(isHave) {
+							elements1 = driver.findElement(By.className("page-form-item"));
+							if (elements1.getText().contains("无效附加码")) {
+								logger.warn("----------------招商信用卡-------------无效的附加码");
+								DriverUtil.close(driver);
+								Login(arg1, arg2,session, UUID);
+							}							
+						}	
+						logger.warn("----------------招商信用卡-------------附加码正确");
+						map = statbank(driver, tmpcookies, sessid, sessions,
+								elements, httclien, UUID);
+					}
+				}else {
+					logger.warn("----------------招商信用卡------------账号密码出现问题");
+					map = statbank(driver, tmpcookies, sessid, sessions, elements,
+							httclien, UUID);
 				}
+				
+			}else {
+				logger.warn("----------------招商信用卡-------------不需要打码");
+				map = statbank(driver, tmpcookies, sessid, sessions, elements,
+						httclien, UUID);
 			}
+			
+
+			
 			
 		} catch (Exception e) {
 			logger.warn("----------------招商信用卡-------------登陆失败-----------------用户名："+arg1,e);
@@ -678,6 +707,7 @@ public class VirtualKeyBoard {
 		Map<String, Object> map = new HashMap<String, Object>(); /* 请求头 */
 		Map<String, Object> data = new HashMap<String, Object>(); /* 请求头 */
 		if (!driver.getPageSource().contains("使用旧版本登入")) {
+			System.out.println("***************页面已跳转**********************");
 			/* 证明登陆成功 */
 			WebElement ClientNo = driver.findElement(By.id("ClientNo")); /*
 																		 * 银行卡号，
@@ -685,8 +715,10 @@ public class VirtualKeyBoard {
 																		 */
 			String num = ClientNo.getAttribute("value");
 
-			System.out.println("num" + num);
+			System.out.println("是否需要短信验证判断前*************"+"num" + num);
+			
 			if (driver.getTitle().equals("身份验证")) {
+				System.out.println("需要短信验证*************");
 				data.put("Verify", "yes");
 				params.put("ClientNo", num);
 				params.put("PRID", "SendMSGCode");
@@ -727,12 +759,14 @@ public class VirtualKeyBoard {
 					PushSocket.push(map, UUID, "3000","验证码发送失败,登陆失败");
 				}
 			} else {
+				System.out.println("****************不需要短信验证码*************");
 				PushSocket.push(map, UUID, "2000","招商银行信用卡登陆成功");
 				data.put("Verify", "no");
 				map.put("errorCode", "0000");
 				/* map.put("errorinfo", "操作成功"); //原始数据 */
 				map.put("errorInfo", "操作成功"); /* 2017年10月12日19:14 刘彬修改 */
 			}
+			
 
 			/*  */
 			/* 返回cookie 用于查询数据 */

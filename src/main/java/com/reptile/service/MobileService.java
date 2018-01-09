@@ -80,12 +80,23 @@ public class MobileService {
 			    	params.put("ClientNo",ClientNos);
 			    	
 			        String rest1=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/ApplyToken.aspx", params, headers);//开始发包
+			        if(rest1.contains("当前用户不允许使用该业务")) {
+			        	PushSocket.push(map, UUID, "7000","当前用户不允许使用该业务");
+			    		if(isok==true){
+							PushState.state(idCard,"bankBillFlow", 200,"当前用户不允许使用该业务");
+						}else {
+							PushState.stateX(idCard,"bankBillFlow", 200,"当前用户不允许使用该业务");
+						}
+			    		map.put("errorCode","0002");
+		    			map.put("errorInfo","认证失败");
+			    		return map;
+			        }
 			    	params.put("ClientNo",ClientNos);
-			   
+			    	System.out.println("**************rest1************"+rest1);
 			    	String toke=rest1.substring(rest1.indexOf("<AuthToken>"), rest1.indexOf("</AuthResponseBody>"));
 			       	params.put("AuthToken",toke);
 			       	String rest2=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Login/Login.aspx", params, headers);//开始发包
-
+			       	System.out.println("**************rest2************"+rest2);
 			   
 			       	headers.put("Request-Line", "POST /CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningSurveyNew.aspx HTTP/1.1");
 			       	headers.put("Accept", "image/jpeg, application/x-ms-application, image/gif, application/xaml+xml, image/pjpeg, application/x-ms-xbap, application/msword, application/vnd.ms-excel, application/vnd.ms-powerpoint, */*");      		
@@ -101,7 +112,7 @@ public class MobileService {
 			    	paramse.put("ClientNo",rest2.substring(rest2.indexOf("<ClientNo>"), rest2.indexOf("</ClientNo>")).replace("<ClientNo>", ""));
 			       	String rest3=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningSurveyNew.aspx", paramse, headers);//开始发包
 			       	
-			       	System.out.println(rest3);//账单获取成功
+			       	System.out.println("**************rest3************"+rest3);//账单获取成功
 			       	List list= getHtmlEarthBean(rest3);
 			        List lists=new ArrayList();
 			       	//获取账单详情
@@ -119,8 +130,8 @@ public class MobileService {
 								}else {
 									PushState.stateX(idCard,"bankBillFlow", 200,"账单数据正在更新中");
 								}
-					    		map.put("errorCode","0000");
-				    			map.put("errorInfo","认证成功");
+					    		map.put("errorCode","0002");
+				    			map.put("errorInfo","认证失败");
 					    		return map;
 					    	}else{
 					    		lists.add(endinfo);
@@ -177,6 +188,7 @@ public class MobileService {
 				    	params.put("ClientNo",ClientNos);
 				    	
 				        String rest1=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/ApplyToken.aspx", params, headers);//开始发包
+				        System.out.println("**************rest1**************"+rest1);
 				    	params.put("ClientNo",ClientNos);
 				    	String toke = null;
 				    	try {
@@ -208,7 +220,7 @@ public class MobileService {
 				    	System.out.println(toke);
 				       	params.put("AuthToken",toke);
 				       	String rest2=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Login/Login.aspx", params, headers);//开始发包
-				       	System.out.println(rest2);
+				       	System.out.println("**************rest2**************"+rest2);
 				       	if(rest2.contains("您的查询密码输错次数过多，建议登录我行掌上生活或手机银行重设查询密码")) {
 							  PushSocket.push(map, UUID, "7000","您的查询密码输错次数过多");
 					    		if(isok==true){
@@ -238,7 +250,7 @@ public class MobileService {
 
 				       	String rest3=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningSurveyNew.aspx", paramse, headers);//开始发包
 
-				       	System.out.println(rest3);//账单获取成功
+				       	System.out.println("**************rest3**************"+rest3);//账单获取成功
 				       	
 				       	//获取账单详情
 				        List list= getHtmlEarthBean(rest3);
@@ -407,12 +419,14 @@ public class MobileService {
 				PushSocket.push(params, UUID, "1000","招商储蓄卡登陆中");
 				Map status=new HashMap();
 				HttpSession session=re.getSession();
+				System.out.println("*******获取sessid******");
 				String cookieid= session.getAttribute(sessid).toString();
+				System.out.println("*******获取sessid之后******");
 				parmcode.put("ClientNo", num);
 				parmcode.put("PRID", "VerifyMSGCode");
 				parmcode.put("SendCode",code);
 	    	//是否需要验证码
-
+				System.out.println("num="+num+",code="+code);
 	    	if(!code.equals("0")){
 	    		//开始发包登陆
 		    	String seninfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/GenLoginVerifyM2.aspx", parmcode, headers);
@@ -619,7 +633,7 @@ public class MobileService {
 			 	   System.out.println(trs.html());
 				   Elements tr=trs.select("tr");
 				
-		    	  List list=new ArrayList();
+		    	   List list=new ArrayList();
 				   for (int i = 1; i < tr.size(); i++) {
 					   Map<String,Object>map=new HashMap<String, Object>();
 					   System.out.println("开始");
@@ -663,17 +677,18 @@ public class MobileService {
 				   headers.put("openBranch","");
 				   headers.put("openTime","");
 
-				    params.put("billMes", list);
-				    params.put("baseMes", headers);
-				    params.put("IDNumber", idcard);
-				    params.put("cardNumber",numbe);
-				    params.put("userName", "");
-				  System.out.println(JSONObject.fromObject(params));
-				  Thread.sleep(1000);
-				  PushSocket.push(params, UUID, "6000","招商储蓄卡数据获取成功");
-					Resttemplate resttemplate=new Resttemplate();
-					status=	resttemplate.SendMessage(JSONObject.fromObject(params), application.sendip+"/HSDC/savings/authentication",session.getAttribute("UserCard").toString(),UUID);
-					System.out.println(status);
+				   params.put("billMes", list);
+				   params.put("baseMes", headers);
+				   params.put("IDNumber", idcard);
+				   params.put("cardNumber",numbe);
+				   params.put("userName", "");
+				   System.out.println(JSONObject.fromObject(params));
+				   Thread.sleep(1000);
+				   
+				   PushSocket.push(params, UUID, "6000","招商储蓄卡数据获取成功");
+				   Resttemplate resttemplate=new Resttemplate();
+				   status=	resttemplate.SendMessage(JSONObject.fromObject(params), application.sendip+"/HSDC/savings/authentication",idcard,UUID);
+				   System.out.println(status);
 	    		}catch(Exception e) {
 	    			params.put("errorInfo", "网络异常,请重试！！");
 	    			params.put("errorCode", "0001");

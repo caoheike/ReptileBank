@@ -44,13 +44,14 @@ public class PushSocket {
 				}
 
 			}
-
+			System.out.println("长连接推送成功----"+errorInfor);
 
 		} catch (Exception e) {
 			logger.warn("----------------长连接推送失败------",e);
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络异常");
 		}
+		
 		return map;
 
 	}

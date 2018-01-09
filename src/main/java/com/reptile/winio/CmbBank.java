@@ -78,6 +78,7 @@ public class CmbBank {
 			LoginBut.click();
 			Thread.sleep(5000);// 延迟三秒
 			logger.warn("判断附加码之前********** ");
+			System.out.println("判断附加码之前**********" );
 			/* 判断是否需要验证码 */
 			boolean isHave = DriverUtil.waitByClassName("page-form-item", driver, 1);
 			//WebElement elements1 = driver.findElement(By
@@ -89,6 +90,7 @@ public class CmbBank {
 				logger.warn("**********"+elements1);
 				if (elements1.getText().contains("附加码")) {
 					logger.warn("-----------招商银行储蓄卡-----------登陆需要验证码----------");
+					System.out.println("招商银行储蓄卡-----------登陆需要验证码---------" );
 					/*
 					 * 输入验证码处理
 					 */
@@ -105,13 +107,16 @@ public class CmbBank {
 			}
 			
 			logger.warn("获取cookie之前********** ");
+			System.out.println("获取cookie之前**********" );
 			// 获得cookie
 			StringBuffer buffer = GetCookie(driver);
 			logger.warn("获取cookie之后********** ");
+			System.out.println("获取cookie之后***********" );
 			// 判断是否需要验证码
 			// 需要这个加密的银行卡尽心发包
 			if (!driver.getPageSource().contains("使用旧版本登入")) {
 				logger.warn("*********进入登录页面**************");
+				System.out.println("*********进入登录页面************************" );
 				WebElement ClientNo = driver.findElement(By.id("ClientNo"));// 银行卡号，需要在页面拿到然后发包
 				
 				String num = ClientNo.getAttribute("value");

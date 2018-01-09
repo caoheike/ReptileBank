@@ -330,8 +330,9 @@ public class BcmLogins {
 				headers.put("Cookie", cookie);
 				headers.put("Connection", "keep-alive");
 				headers.put("Host", "creditcardapp.bankcomm.com");
+				Thread.sleep(1500);
 				String str1 = SimpleHttpClient.get("https://creditcardapp.bankcomm.com/member/member/service/billing/finished.html?cardNo="+userNumber+"&billDate="+date,headers);
-				Thread.sleep(1000);
+				Thread.sleep(2000);
 				if(str1.contains("系统忙")&&str1.contains("请稍后再试")){
 					continue;
 				}
