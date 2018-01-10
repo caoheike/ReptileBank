@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
@@ -90,40 +91,76 @@ public class BcmLogins {
 
 			driver.findElementById("cardNo").sendKeys(UserNumber);
 			driver.findElement(By.id("cardpassword")).click();
-			Thread.sleep(2000);
+			Thread.sleep(3000);
 			WebElement element = driver.findElement(By.className("key-pop"));
 			
-			
+			Thread.sleep(500);
 			Map<String, Object> imagev = new HashMap<String, Object>();
 			imagev = saveImgJ(element, driver);// 返回键盘中数字
 			String icbcImg1 = imagev.get("strResult").toString();// 读取图片验证码
+			
+			while(icbcImg1.length()<10) {
+				System.out.println("********************键盘打码小于10位数*******************");
+				element = driver.findElement(By.className("key-pop"));
+				imagev = saveImgJ(element, driver);// 返回键盘中数字
+				icbcImg1 = imagev.get("strResult").toString();// 读取图片验证码
+			}
 			if("-3003".equals(imagev.get("cid").toString())) {
 				BankLogin(UserNumber,UserPwd,UserCard,request,UUID,timeCnt);
 			}
 			String[] split = icbcImg1.split("");// 将数字字符串分割为数组
+			logger.warn("-------------键盘分割的字符串----------------split:"+split.toString());
 			List<WebElement> li = element.findElements(By.tagName("li"));
 			// 返回识别的字符串
 			String pwd = UserPwd;
 			System.out.println("**************"+UserPwd+"*****************");
 			String[] pwdArry = pwd.split("");
+			logger.warn("-------------输入密码分割的字符串----------------pwdArry:"+pwdArry.toString());
+			boolean isNum = true;
+			//记录输入密码框中字符个数
+			int count = 0;
 			for (int i = 0; i < pwdArry.length; i++) { // 读取密码的每一位数字，循环找出键盘中对应的数字下标
-				String num = pwdArry[i];
+				String num = pwdArry[i];				
 				for (int j = 0; j < split.length; j++) {
-					if (num.equals(split[j])) { // 数字部分
-						li.get(j).click();
-						System.out.println("***********"+li.get(j));
-						Thread.sleep(500);
-						break;
+					logger.warn("-------------判断被分割登录密码单个字符是否为数字----------------");
+					isNum = BcmLogins.isInteger(num);
+					if(isNum) {
+						logger.warn("-------------登录密码数字部分----------------num:"+num);
+						if (num.equals(split[j])) { // 数字部分
+							li.get(j).click();
+							System.out.println("***********"+li.get(j));
+							Thread.sleep(500);
+							count = count+1;
+							break;
+						}
+					}else {
+//						if (j == split.length - 1) { // 字符部分
+							logger.warn("-----------------登录密码字符部分----------------num:"+num);
+							int integer = JiaoTongKeyMap.map.get(num);
+							li.get(integer).click();
+							System.out.println("*********"+li.get(j));
+							Thread.sleep(500);
+							count = count+1;
+							break;
+//						}
 					}
-					if (j == split.length - 1) { // 字符部分
-						int integer = JiaoTongKeyMap.map.get(num);
-						li.get(integer).click();
-						System.out.println("*********"+li.get(j));
-						Thread.sleep(500);
-						break;
-					}
-
+					
+					
 				}
+			}
+			logger.warn("-------------------密码框中输入字符个数count:"+count);
+			if(count!=UserPwd.length()) {
+				logger.warn("-----------交通信用卡-----------登录失败-----------");
+				PushSocket.push(map, UUID, "3000","密码输入中出错,登录失败");
+				if(isok==true){
+					PushState.state(UserCard, "bankBillFlow", 200,"密码输入中出错,登录失败");
+				}else {
+					PushState.stateX(UserCard, "bankBillFlow", 200,"密码输入中出错,登录失败");
+				}
+				map.put("errorCode", "0001");
+				map.put("errorInfo", "密码输入中出错,登录失败");
+				DriverUtil.close(driver);
+				return map;
 			}
 			// 触发登录按钮
 			driver.findElementById("cardNo").click();
@@ -172,25 +209,9 @@ public class BcmLogins {
 				if (driver.getPageSource().contains("moibleMessages")) {
 					// 需要发送验证码
 					System.out.println("开始发送验证码");
-					// WebElement webElement=
-					// driver.findElement(By.id("send_Button"));
-					// WebElement webElements=
-					// driver.findElement(By.id("moibleMessages"));
-					// WebElement sub= driver.findElement(By.id("submit"));
-					// webElement.click();
-					// Alert alt = driver.switchTo().alert();
-					// alt.accept();//验证码发送完毕监听信息框 确定
-					// //获得浏览器当前句柄
-					// String windoshandle=driver.getWindowHandle();
-					// String sessid=CrawlerUtil.getUUID();
-					// String driverid=CrawlerUtil.getUUID();
-					// session.setAttribute(sessid,windoshandle);//句柄
-					// session.setAttribute(driverid,driver);//客户端
-					// //
+					
 					map.put("whetherCode", "no");
-					// map.put("sessid", sessid);
-					// map.put("driverid",driverid);
-					// map.put("whetherCode", "yes");
+					
 					logger.warn(UserCard + "此帐号在登录时需要验证码，可能帐号出现异常 需要自行登录 才可认证");
 					PushSocket.push(map, UUID, "3000","帐号认证异常，请你先尝试在官网登录");
 					if(isok==true){
@@ -211,9 +232,37 @@ public class BcmLogins {
 					Thread.sleep(2000);
 					PushSocket.push(map, UUID, "5000","交通银行信用卡数据获取中");
 					
-					List<String> list=null;
+					List<String> list=new ArrayList<String>();
 					try {
-						list = this.getDetail(driver, UserNumber);
+//						list = this.getDetail(driver, UserNumber);
+						driver.executeScript(
+								"javascript:gotToLink('/member/member/service/billing/detail.html');",
+								0);
+						WebDriverWait wait = new WebDriverWait(driver, 20);
+						wait.until(ExpectedConditions.presenceOfElementLocated(By
+								.id("bill_date")));
+						for (int i = 0; i < 5; i++) {
+							Select sel = new Select(driver.findElement(By
+									.id("bill_date")));
+							sel.selectByIndex(i);
+							WebElement elements = driver.findElement(By
+									.xpath("//*[@id='bill_content']/p/a"));
+							elements.click();
+							Thread.sleep(3000);
+							String pageSource = driver.getPageSource();
+							System.out.println(pageSource);
+							Thread.sleep(1000);
+							list.add(pageSource);
+							wait.until(ExpectedConditions
+									.presenceOfElementLocated(By.className("goback")));
+							WebElement goback = driver.findElement(By
+									.className("goback"));
+							goback.click();
+							Thread.sleep(3000);
+							wait.until(ExpectedConditions
+									.presenceOfElementLocated(By.id("bill_date")));
+						}
+
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						logger.warn("-----------交通信用卡-----------查询失败-----------身份证号："+UserCard, e);
@@ -302,7 +351,10 @@ public class BcmLogins {
 			return map;
 
 		} 
-	
+	public static boolean isInteger(String str) {    
+	    Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");    
+	    return pattern.matcher(str).matches();    
+	  }
 	/**
 	 * 获取账单详情
 	 * @param driver
@@ -330,9 +382,9 @@ public class BcmLogins {
 				headers.put("Cookie", cookie);
 				headers.put("Connection", "keep-alive");
 				headers.put("Host", "creditcardapp.bankcomm.com");
-				Thread.sleep(1500);
+				Thread.sleep(1000);
 				String str1 = SimpleHttpClient.get("https://creditcardapp.bankcomm.com/member/member/service/billing/finished.html?cardNo="+userNumber+"&billDate="+date,headers);
-				Thread.sleep(2000);
+				
 				if(str1.contains("系统忙")&&str1.contains("请稍后再试")){
 					continue;
 				}

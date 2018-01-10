@@ -98,6 +98,12 @@ public class SimpleHttpClient {
     		httpGet.addHeader(entry.getKey(), entry.getValue());
         }
     	HttpResponse httpResponse = httpClient.execute(httpGet);
+    	try {
+			Thread.sleep(2000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
     	return EntityUtils.toString(httpResponse.getEntity());
     }
     

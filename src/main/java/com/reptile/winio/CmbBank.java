@@ -62,18 +62,11 @@ public class CmbBank {
 			Thread.sleep(1500);
 			SendKeys.sendStr(userName);
 			Thread.sleep(1500);
-			//KeysPress.SenStr(userName);
-			/* 按下Tab */
-			/*KeysPress.SendTab("Tab");
-			Thread.sleep(1000);*/
-//			SendKeys.sendTab();
-//			Thread.sleep(1000);
+			
 			/* 输入密码 */
-//			SendKeys.sendStr(userPwd);
 			SendKeys.sendStr(1156+90, 394-25, userPwd);
 //			SendKeys.sendStr(1156+90, 394+15, userPwd);//本地
 			Thread.sleep(1000);
-			//KeysPress.SenStr(userPwd);
 			WebElement LoginBut = driver.findElement(By.id("LoginBtn"));
 			LoginBut.click();
 			Thread.sleep(5000);// 延迟三秒
@@ -81,8 +74,7 @@ public class CmbBank {
 			System.out.println("判断附加码之前**********" );
 			/* 判断是否需要验证码 */
 			boolean isHave = DriverUtil.waitByClassName("page-form-item", driver, 1);
-			//WebElement elements1 = driver.findElement(By
-					//.className("page-form-item"));
+			
 			WebElement elements1=null;
 			if(isHave) {
 				elements1 = driver.findElement(By

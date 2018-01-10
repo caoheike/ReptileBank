@@ -79,18 +79,11 @@ public class BcmLogin {
 			/* 输入账号 */
 			username.sendKeys(UserName);
 			Thread.sleep(2000);
-			/* 按下Tab */
-			/*KeysPress.SendTab("Tab");
-			Thread.sleep(1000);*/
-//			SendKeys.sendTab();
-//			Thread.sleep(1000);
-//			/* 输入密码 */
-//			SendKeys.sendStr(UserPwd);
+			
 			System.out.println("*********密码**********"+UserPwd);
 			SendKeys.sendStr(1139+80, 338-35, UserPwd);
 //			SendKeys.sendStr(1139+80, 338+15, UserPwd);//本地
 			Thread.sleep(1000);
-			//KeysPress.SenStr(UserPwd);
 			WebElement element = driver.findElement(By
 					.className("captchas-img-bg"));
 			/* 判断是否有验证码 */
