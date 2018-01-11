@@ -44,6 +44,7 @@ import com.reptile.util.CountTime;
 import com.reptile.util.DriverUtil;
 import com.reptile.util.JiaoTongKeyMap;
 import com.reptile.util.MyCYDMDemo;
+import com.reptile.util.OCRHelper;
 import com.reptile.util.PushSocket;
 import com.reptile.util.PushState;
 import com.reptile.util.Resttemplate;
@@ -67,7 +68,7 @@ public class BcmLogins {
 			String UserCard, HttpServletRequest request, String UUID,String timeCnt)
 			throws InterruptedException, ParseException {
 		boolean isok =CountTime.getCountTime(timeCnt); 
-		
+		JavascriptExecutor jss = null;
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> data = new HashMap<String, Object>();
 		PushSocket.push(map, UUID, "1000","交通银行信用卡登录中");
@@ -95,21 +96,13 @@ public class BcmLogins {
 			WebElement element = driver.findElement(By.className("key-pop"));
 			
 			Thread.sleep(500);
-			Map<String, Object> imagev = new HashMap<String, Object>();
-			imagev = saveImgJ(element, driver);// 返回键盘中数字
-			String icbcImg1 = imagev.get("strResult").toString();// 读取图片验证码
+//			Map<String, Object> imagev = new HashMap<String, Object>();
+			String icbcImg1 = saveImgJ(element, driver);// 返回键盘中数字
+//			String icbcImg1 = imagev.get("strResult").toString();// 读取图片验证码
 			
-			while(icbcImg1.length()<10) {
-				System.out.println("********************键盘打码小于10位数*******************");
-				element = driver.findElement(By.className("key-pop"));
-				imagev = saveImgJ(element, driver);// 返回键盘中数字
-				icbcImg1 = imagev.get("strResult").toString();// 读取图片验证码
-			}
-			if("-3003".equals(imagev.get("cid").toString())) {
-				BankLogin(UserNumber,UserPwd,UserCard,request,UUID,timeCnt);
-			}
+			
+			logger.warn("-------------键盘打码结果----------------icbcImg1:"+icbcImg1);
 			String[] split = icbcImg1.split("");// 将数字字符串分割为数组
-			logger.warn("-------------键盘分割的字符串----------------split:"+split.toString());
 			List<WebElement> li = element.findElements(By.tagName("li"));
 			// 返回识别的字符串
 			String pwd = UserPwd;
@@ -165,7 +158,7 @@ public class BcmLogins {
 			// 触发登录按钮
 			driver.findElementById("cardNo").click();
 			Thread.sleep(3000);
-			JavascriptExecutor jss = (JavascriptExecutor) driver;
+			jss = (JavascriptExecutor) driver;
 			jss.executeScript("$('#cardLogin').click();", "");
 			// driver.findElement(By.id("loginBtn")).click();
 			Thread.sleep(4000);
@@ -248,17 +241,31 @@ public class BcmLogins {
 							WebElement elements = driver.findElement(By
 									.xpath("//*[@id='bill_content']/p/a"));
 							elements.click();
-							Thread.sleep(3000);
+							Thread.sleep(2000);
 							String pageSource = driver.getPageSource();
-							System.out.println(pageSource);
-							Thread.sleep(1000);
+							if(pageSource.contains("系统忙")) {
+								String jsv = "window.location.reload();";
+								jss = (JavascriptExecutor) driver;
+								jss.executeScript(jsv, "");
+								Thread.sleep(1000);
+								pageSource = driver.getPageSource();
+							}							
+							System.out.println(pageSource);							
 							list.add(pageSource);
 							wait.until(ExpectedConditions
 									.presenceOfElementLocated(By.className("goback")));
 							WebElement goback = driver.findElement(By
 									.className("goback"));
 							goback.click();
-							Thread.sleep(3000);
+							Thread.sleep(2000);
+							String pageSource1 = driver.getPageSource();
+							if(pageSource1.contains("系统忙")) {
+								String jsv = "window.location.reload();";
+								jss = (JavascriptExecutor) driver;
+								jss.executeScript(jsv, "");
+								Thread.sleep(1000);
+								pageSource = driver.getPageSource();
+							}
 							wait.until(ExpectedConditions
 									.presenceOfElementLocated(By.id("bill_date")));
 						}
@@ -633,7 +640,7 @@ public class BcmLogins {
 	 * @return
 	 * @throws Exception
 	 */
-	public static Map<String, Object> saveImgJ(WebElement element, WebDriver driver)
+	public static String saveImgJ(WebElement element, WebDriver driver)
 			throws Exception {
 		File file = new File("C:\\img" + File.separator);
 		if (!file.exists()) {
@@ -642,9 +649,9 @@ public class BcmLogins {
 		BufferedImage bufferedImage = createElementImages(driver, element);
 		String fileName = System.currentTimeMillis() + "JTKeyBoard.png";
 		ImageIO.write(bufferedImage, "png", new File(file, fileName));
-
-		Map<String, Object> imagev = MyCYDMDemo.Imagev(file + "/" + fileName);
-		String code = imagev.get("strResult").toString();// 读取图片验证码
+		String imagev = OCRHelper.recognizeImg("C:\\img"+File.separator, fileName);
+//		Map<String, Object> imagev = MyCYDMDemo.Imagev(file + "/" + fileName);
+//		String code = imagev.get("strResult").toString();// 读取图片验证码
 		return imagev;
 	}
 
@@ -666,8 +673,8 @@ public class BcmLogins {
 				takeScreenshot(driver)));
 		// 截取webElement所在位置的子图。
 		BufferedImage croppedImage = originalImage.getSubimage(
-				location.getX() + 10, location.getY() + 20,
-				size.getWidth() - 110, size.getHeight() - 110);
+				location.getX(), location.getY(),
+				size.getWidth(), size.getHeight());
 		return croppedImage;
 	}
 

@@ -492,7 +492,14 @@ public class MobileService {
 			            params.put("ddlDebitCardList",ssid);
 			            String loginstr1=	httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_DebitCard_AccountManager/UI/DebitCard/AccountQuery/am_QueryHistoryTrans.aspx", params, headers);
 			            System.out.println(loginstr1+"流水信息");
-			            
+			            //无流水信息
+			            if(loginstr1.contains("object moved")) {			            				
+			            	params.put("errorInfo", "您的账号暂无流水信息");
+				    		params.put("errorCode", "0001");
+				    		PushSocket.push(params, UUID, "7000","您的账号暂无流水信息");
+				    		PushState.state(idcard, "savings", 200,"您的账号暂无流水信息");
+				    		System.out.println("*********************************************您的账号暂无流水信息");
+			            }
 				        Document docs = Jsoup.parse(loginstr1);   
 				 	   Element trs = docs.getElementById("dgHistoryTransRecSet");
 				 	   System.out.println(trs.html());

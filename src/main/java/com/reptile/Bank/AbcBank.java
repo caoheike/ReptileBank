@@ -4,10 +4,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
@@ -42,7 +46,7 @@ public class AbcBank {
 		 * @throws Exception
 		 */
 		public static Map<String, Object> doGetDetail(String username,
-				String userpwd, String UUID, String card){
+				String userpwd, String UUID, String card,HttpSession session){
 			int numCount=0;//打码次数
 			logger.warn("-----------农业储蓄卡-----------登陆开始----------身份证号："+card);
 			Map<String, Object> status = new HashMap<String, Object>();
@@ -98,7 +102,7 @@ public class AbcBank {
 						//密码不为空并且报密码为空错误试递归
 						if(text.contains("密码内容不能为空")&&!"".equals(userpwd)) {
 							driver.quit();
-							doGetDetail(username,userpwd, UUID, card);
+							doGetDetail(username,userpwd, UUID, card,session);
 						}
 						
 					}else{
@@ -266,7 +270,30 @@ public class AbcBank {
     		           	status.put("errorInfo","网页异常,数据获取失败");
 					}
 				
-				}else{
+				}else if(DriverUtil.waitByTitle("个人网上银行-用户名登录-短信校验", driver, 1)) {
+					WebElement sendSms = driver.findElement(By.id("dynamicPswText_sendSms"));
+					
+					sendSms.click();
+					try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+					try {
+						Alert alt = driver.switchTo().alert();
+						alt.accept();
+					} catch (Exception e) {
+						// TODO: handle exception
+					}
+					session.setAttribute("ABCdriver", driver);
+					
+					
+					
+					
+					
+				}
+				else{
 					if(DriverUtil.waitByTitle("中国农业银行个人网银登录入口", driver, 1)) {
 						numCount=numCount+1;
 						driver.quit();
@@ -277,7 +304,7 @@ public class AbcBank {
 	    		           	status.put("errorInfo","网页异常,登录失败");
 							return status;
 						}
-						status = doGetDetail(username, userpwd, UUID, card);
+						status = doGetDetail(username, userpwd, UUID, card,session);
 					}else if(DriverUtil.waitByTitle("个人网上银行-重置登录密码", driver, 1)) {
 						PushSocket.push(status, UUID, "3000","您的密码过于简单，请登录官网重置密码！");
 						PushState.state(card, "savings", 200,"您的密码过于简单，请登录官网重置密码！");
