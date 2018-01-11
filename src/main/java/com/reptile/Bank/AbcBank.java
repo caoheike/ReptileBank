@@ -50,8 +50,7 @@ public class AbcBank {
 			int numCount=0;//打码次数
 			logger.warn("-----------农业储蓄卡-----------登陆开始----------身份证号："+card);
 			Map<String, Object> status = new HashMap<String, Object>();
-			PushSocket.push(status, UUID, "1000","农业储蓄卡登录中");
-			PushState.state(card, "savings", 100);
+			
 			WebDriver driver = null;
 			
 				Map<String, Object> params = new HashMap<String, Object>();
@@ -88,8 +87,6 @@ public class AbcBank {
 				logger.warn("-------------农业银行储蓄卡------------登录失败-------------", e);
 				status.put("errorCode", "0002");// 异常处理
 				status.put("errorInfo", "网络异常，请重试！");
-				PushSocket.push(status, UUID, "3000","网页异常，登录失败");
-				PushState.state(card, "savings", 200,"网页异常，登录失败");
 				driver.quit();
 				return status;
 			}
@@ -108,8 +105,6 @@ public class AbcBank {
 					}else{
 						text = driver.findElement(By.className("logon-error")).getAttribute("title");
 					}
-					PushState.state(card, "savings", 200,text);
-					PushSocket.push(status, UUID, "3000",text);
 					status.put("errorCode", "0001");// 异常处理	
 					status.put("errorInfo", text);
 				}else if(DriverUtil.waitByTitle("中国农业银行个人网银首页", driver, 10)){
@@ -145,16 +140,12 @@ public class AbcBank {
 						numCount=numCount+1;
 						driver.quit();
 						if(numCount>5) {
-							PushSocket.push(status, UUID, "3000","网页异常,登录失败");
-							PushState.state(card, "savings", 200,"网页异常，登录失败");
 	    		           	status.put("errorCode","0001");//异常处理
-	    		           	status.put("errorInfo","网页异常,登录失败");
+	    		           	status.put("errorInfo","网页异常，登录失败");
 							return status;
 						}
 						status = doGetDetail(username, userpwd, UUID, card,session);
 					}else if(DriverUtil.waitByTitle("个人网上银行-重置登录密码", driver, 1)) {
-						PushSocket.push(status, UUID, "3000","您的密码过于简单，请登录官网重置密码！");
-						PushState.state(card, "savings", 200,"您的密码过于简单，请登录官网重置密码！");
 						status.put("errorCode","0001");//异常处理
     		           	status.put("errorInfo","您的密码过于简单，请登录官网重置密码！");
 					}

@@ -793,7 +793,7 @@ public class VirtualKeyBoard {
 					PushSocket.push(map, UUID, "3000",elements1.getText());
 				} else if (elements1.getText().contains("请输入一网通、一卡通、信用卡、存折账号")) {
 					PushSocket.push(map, UUID, "3000",elements1.getText());
-					map.put("errorInfo", "目前网络较差，请重试");
+					map.put("errorInfo", elements1.getText());
 					map.put("errorCode", "0001");
 				} else {
 					PushSocket.push(map, UUID, "3000",elements1.getText());
