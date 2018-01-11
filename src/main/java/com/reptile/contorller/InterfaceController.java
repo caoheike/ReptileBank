@@ -59,6 +59,7 @@ public class InterfaceController {
 		String UUID = request.getParameter("UUID");
 		String userCard = request.getParameter("userCard");
 		String timeCnt = request.getParameter("timeCnt");
+		
 		synchronized (this) {			
 			if (BankType.equals("CMB")) {// 招商银行
 				map = bank.Login(numbe, pwd, session, UUID);
@@ -76,7 +77,7 @@ public class InterfaceController {
 			} else if (BankType.equals("GDB")) {// 广发银行信用卡
 				map = bank.GDBLogin(numbe, pwd, userCard, UUID,timeCnt);
 			} else if (BankType.equals("ABC")) {// 农业银行储蓄卡
-				map = AbcBank.doGetDetail(numbe, pwd, UUID, userCard);
+				map = AbcBank.doGetDetail(numbe, pwd, UUID, userCard,session);
 			} else if (BankType.equals("BCM")) {// 交通银行
 				map = BcmLogin.BcmLogins(request,numbe, pwd, UUID,userCard);
 			} else if (BankType.equals("X-BCM")) {// 交通银行 信用卡
@@ -105,15 +106,44 @@ public class InterfaceController {
 				ClientNo, idCard, UUID,timeCnt,numbe);
 	}
 
+	
 	/**
-	 * 招商储蓄卡查询
-	 * 
+	 * 农业储蓄卡查询
+	 * @param request
+	 * @param response
+	 * @param code
+	 * @param idCard
+	 * @param UUID
+	 * @param numbe
+	 * @return
+	 * @throws Exception
+	 */
+	@ResponseBody
+	@RequestMapping(value = "abcQueryInfo", method = RequestMethod.POST)
+	@ApiOperation(value = "银行查询", notes = "测试伙伴们，这个里面需要的数据 在登陆返回的里面取")
+	// 设置标题描述
+	public Map<String, Object> abcQueryInfo(HttpServletRequest request,
+			HttpServletResponse response, @RequestParam("code") String code,			
+			@RequestParam("idCard") String idCard,
+			@RequestParam("UUID") String UUID, @RequestParam("number") String numbe) throws Exception {
+		System.out.println("heeli man");
+		HttpSession session = request.getSession();
+
+		return AbcBank.abcQueryInfo(code, idCard,
+				session, UUID,numbe);
+
+	}
+	/**
+	 * 招商储蓄卡数据获取
 	 * @param request
 	 * @param response
 	 * @param code
 	 * @param sessid
 	 * @param ClientNo
 	 * @param idCard
+	 * @param UUID
+	 * @param Sendcode
+	 * @param numbe
 	 * @return
 	 * @throws Exception
 	 */
@@ -127,14 +157,15 @@ public class InterfaceController {
 			@RequestParam("ClientNo") String ClientNo,
 			@RequestParam("idCard") String idCard,
 			@RequestParam("UUID") String UUID,
-			@RequestParam("Sendcode") String Sendcode) throws Exception {
+			@RequestParam("Sendcode") String Sendcode, @RequestParam("number") String numbe) throws Exception {
 		System.out.println("heeli man");
 		HttpSession session = request.getSession();
 
 		return mobileService.CmbQueryInfo(code, sessid, ClientNo, idCard,
-				request, UUID, Sendcode);
+				request, UUID, Sendcode,numbe);
 
 	}
+	
 	
 	
 	/*
