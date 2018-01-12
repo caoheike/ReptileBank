@@ -65,12 +65,14 @@ public class VirtualKeyBoard {
 			String pwd, String banktype, String idcard, String UUID,String timeCnt)
 			throws Exception {
 		boolean isok = CountTime.getCountTime(timeCnt);
+		int flag = 0;
 		if(isok==true){
 			PushState.state(idcard, "bankBillFlow", 100);
 		}
 		Map<String, Object> data = new HashMap<String, Object>();
 		Map<String, Object> map = new HashMap<String, Object>();
 		PushSocket.push(map, UUID, "1000","民生银行登录中");
+		flag = 1;
 		WebDriver driver = null;
 		WebDriverWait wait = null;
 		JavascriptExecutor jss = null;
@@ -172,6 +174,7 @@ public class VirtualKeyBoard {
 					logger.warn("----------------民生信用卡-------------登陆成功-----------------用户名："+number);
 					Thread.sleep(2000);
 					PushSocket.push(map, UUID, "5000","民生银行数据获取中");
+					flag = 2;
 					wait.until(ExpectedConditions.presenceOfElementLocated(By
 							.className("v-binding")));
 					List<WebElement> ss = driver.findElements(By
@@ -257,6 +260,7 @@ public class VirtualKeyBoard {
 						}
 					}
 					PushSocket.push(map, UUID, "6000","民生银行数据获取成功");
+					flag = 3;
 					logger.warn("-------------list.toString()"+"----------------------");
 					data.put("html", list);
 					data.put("backtype", "CMBC");
@@ -331,12 +335,20 @@ public class VirtualKeyBoard {
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
 		} catch (Exception e) {
-			logger.warn("民生信用卡查询失败", e);
-			PushSocket.push(map, UUID, "7000","网页数据没有找到");
+			if(flag == 1) {
+				logger.warn("--------------flag="+flag+"----------网络异常，登录失败");
+				PushSocket.push(map, UUID, "3000","网络异常，登录失败");								
+			}else if(flag == 2) {
+				logger.warn("--------------flag="+flag+"----------网络异常，数据获取异常");
+				PushSocket.push(map, UUID, "7000","网络异常");					
+			}else if(flag == 3) {
+				logger.warn("--------------flag="+flag+"----------网络异常，认证失败");
+				PushSocket.push(map, UUID, "9000","网络异常");						
+			}
 			if(isok==true){
-				PushState.state(idcard, "bankBillFlow", 200,"网页数据没有找到");
+				PushState.state(idcard, "bankBillFlow", 200,"网络异常");
 			}else {
-				PushState.stateX(idcard, "bankBillFlow", 200,"网页数据没有找到");
+				PushState.stateX(idcard, "bankBillFlow", 200,"网络异常");
 			}
 			map.put("errorCode", "0001");
 			map.put("errorInfo", "网络错误");
@@ -585,12 +597,14 @@ public class VirtualKeyBoard {
 				DriverUtil.close(driver);
 				return map;									
 		}else if(DriverUtil.waitByTitle("广发银行个人网上银行", driver, 15)&&driver.getPageSource().contains("您好，欢迎您登录广发银行个人网银")){
+			int flag = 0;
 			try {
 				logger.warn("--------广发银行登陆------------成功-----------用户名："+ number+"-----------");
 				PushSocket.push(map, UUID, "2000","广发银行信用卡登陆成功");
 				
 				Thread.sleep(8000);
 				PushSocket.push(map, UUID, "5000","广发银行信用卡数据获取中");
+				flag = 1;
 				String jsv = "var aaa=document.getElementsByClassName('node');aaa[15].click();";
 				jss = (JavascriptExecutor) driver;
 				jss.executeScript(jsv, "");
@@ -657,6 +671,7 @@ public class VirtualKeyBoard {
 					}
 				}
 				PushSocket.push(map, UUID, "6000","广发银行信用卡数据获取成功");
+				flag = 2;
 				logger.warn("--------广发银行登陆------------账单查询：结束");
 				data.put("html", listinfo);
 				data.put("backtype", "GDB");
@@ -669,15 +684,22 @@ public class VirtualKeyBoard {
 						+ "/HSDC/BillFlow/BillFlowByreditCard", usercard,UUID);
 				driver.switchTo().window(head);
 				}catch (Exception e) {
-					logger.warn("-----------广发银行查询失败----------",e);
-					map.put("errorInfo", "网络异常,请重试！！");
-					map.put("errorCode", "0001");
-					PushSocket.push(map, UUID, "9000","网络异常，认证失败");
-					if(isok==true){
-						PushState.state(usercard, "bankBillFlow", 200,"网络异常，认证失败");
-					}else {
-						PushState.stateX(usercard, "bankBillFlow", 200,"网络异常，认证失败");
+					if(flag == 1) {
+						logger.warn("--------------flag="+flag+"----------网络异常，数据获取异常");
+						PushSocket.push(map, UUID, "7000","网络异常");					
+					}else if(flag == 2) {
+						logger.warn("--------------flag="+flag+"----------网络异常，认证失败");
+						PushSocket.push(map, UUID, "9000","网络异常");						
 					}
+					if(isok==true){
+						PushState.state(usercard, "bankBillFlow", 200,"网络异常");
+					}else {
+						PushState.stateX(usercard, "bankBillFlow", 200,"网络异常");
+					}
+					map.put("errorCode", "0001");
+					map.put("errorInfo", "网络错误");
+					
+					
 				}finally{
 					DriverUtil.close(driver);
 				}			

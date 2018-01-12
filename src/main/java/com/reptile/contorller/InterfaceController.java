@@ -88,7 +88,20 @@ public class InterfaceController {
 		}
 
 	}
-
+/**
+ * 招商信用卡
+ * 
+ * @param request
+ * @param response
+ * @param code
+ * @param sessid
+ * @param ClientNo
+ * @param idCard
+ * @param timeCnt
+ * @param numbe
+ * @return
+ * @throws Exception
+ */
 	@ResponseBody
 	@RequestMapping(value = "QueryInfo", method = RequestMethod.POST)
 	@ApiOperation(value = "银行查询", notes = "测试伙伴们，这个里面需要的数据 在登陆返回的里面取")

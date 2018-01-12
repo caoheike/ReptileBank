@@ -57,9 +57,11 @@ public class BcmLogin {
 
 	public static Map<String, Object> BcmLogins(HttpServletRequest request,String UserName,
 			String UserPwd, String UUID,String userCard) throws Exception {
+		int flag = 0;
 		Map<String, Object> status = new HashMap<String, Object>();
 		PushSocket.push(status, UUID, "1000","交通储蓄卡登录中");	
 		PushState.state(userCard, "savings", 100);
+		flag = 1;
 		WebDriver driver = null;
 		JavascriptExecutor js = null;
 		System.out.println(js);
@@ -95,15 +97,7 @@ public class BcmLogin {
 				input_captcha.sendKeys(imgtext);
 			}
 			login.click();
-		} catch (Exception e) {
-			logger.warn("-----------交通银行查询失败-------------", e);
-			status.put("errorCode", "0002");// 异常处理
-			status.put("errorInfo", "网络异常，请重试！");
-			PushSocket.push(status, UUID, "3000","网络异常，登录失败");
-			PushState.state(userCard, "savings", 200,"网络异常，登录失败");
-			DriverUtil.close(driver);
-			return status;
-		}
+		
 			
 			
 			
@@ -154,7 +148,7 @@ public class BcmLogin {
 					Thread.sleep(1000);
 					logger.warn("-----------交通储蓄卡-----------登陆成功----------身份证号："+userCard);
 					PushSocket.push(status, UUID, "5000","交通储蓄卡数据获取中");
-					try {
+					flag = 2;
 						boolean flg = ElementExist(driver, By.id("btnConf1"));
 						/* 判断是否有登陆确认信息 */
 						if (flg == true) {
@@ -177,20 +171,9 @@ public class BcmLogin {
 //						/* 切入ifrmae */
 //						driver.switchTo().frame("frameMain");
 //						driver.switchTo().frame("tranArea");
-					}catch (Exception e) {
-						logger.warn("-----------交通银行查询失败-------------", e);
-						
-						status.put("errorCode", "0002");// 异常处理
-						status.put("errorInfo", "网络异常，请重试！");
-						PushSocket.push(status, UUID, "7000","网络异常,数据获取失败");
-						PushState.state(userCard, "savings", 200,"网络异常,数据获取失败");
-						DriverUtil.close(driver);
-						return status;
-						
-					} 
+					
 					
 					List<Object> list =null;
-					try {
 						List<Map<String, Object>> lists = yuefen();
 						/* //点击明细 */
 						WebElement mx = driver.findElement(By.linkText("明细"));
@@ -249,17 +232,7 @@ public class BcmLogin {
 							map.put("currency", "");
 							list.add(map);
 						}
-					}catch (Exception e) {
-						logger.warn("-----------交通银行查询失败-------------", e);
-						
-						status.put("errorCode", "0002");// 异常处理
-						status.put("errorInfo", "网络异常，请重试！");
-						PushSocket.push(status, UUID, "7000","网络异常,数据获取失败");
-						PushState.state(userCard, "savings", 200,"网络异常,数据获取失败");
-						DriverUtil.close(driver);
-						return status;
-					} 
-					try {
+					
 						params.clear();
 						headers.clear();
 						headers.put("accountType", "");
@@ -273,6 +246,7 @@ public class BcmLogin {
 						params.put("cardNumber", UserName);
 						params.put("userName", "");
 						PushSocket.push(status, UUID, "6000","交通银行储蓄卡数据获取成功");
+						flag = 3;
 						status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");  //推送数据
 					    if(status!= null && "0000".equals(status.get("errorCode").toString())){
 				           	PushState.state(userCard, "savings", 300);
@@ -285,16 +259,7 @@ public class BcmLogin {
 				           	status.put("errorCode",status.get("errorCode"));//异常处理
 				           	status.put("errorInfo",status.get("errorInfo"));
 			           }
-					}catch (Exception e) {
-						logger.warn("-----------交通银行查询失败-------------", e);
-						
-						status.put("errorCode", "0002");// 异常处理
-						status.put("errorInfo", "网络异常，请重试！");
-						PushSocket.push(status, UUID, "9000","网络异常,认证失败");
-						PushState.state(userCard, "savings", 200,"网络异常,认证失败");
-						DriverUtil.close(driver);
-						return status;
-					}	
+					
 
 				}else {
 					logger.warn("-----------交通银行登陆失败-------------");
@@ -307,7 +272,23 @@ public class BcmLogin {
 				}
 				
 			}
-				
+		}catch(Exception e) {
+			if(flag == 1) {
+				logger.warn("--------------flag="+flag+"----------网络异常，登录失败");
+				PushSocket.push(status, UUID, "3000","网络异常，登录失败");								
+			}else if(flag == 2) {
+				logger.warn("--------------flag="+flag+"----------网络异常，数据获取异常");
+				PushSocket.push(status, UUID, "7000","网络异常");					
+			}else if(flag == 3) {
+				logger.warn("--------------flag="+flag+"----------网络异常，认证失败");
+				PushSocket.push(status, UUID, "9000","网络异常");						
+			}
+			
+			PushState.state(userCard, "savings", 200,"网络异常");
+			
+			status.put("errorCode", "0001");
+			status.put("errorInfo", "网络错误");
+		}
 		DriverUtil.close(driver);
 		 
 		logger.warn("-----------交通储蓄卡-----------查询结果----------返回结果："+status.toString());

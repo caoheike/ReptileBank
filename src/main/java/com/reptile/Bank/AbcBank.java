@@ -83,13 +83,7 @@ public class AbcBank {
 				WebElement logo = driver.findElement(By.id("logo"));
 				logo.click(); 
 				Thread.sleep(2000);
-			}catch(Exception e){
-				logger.warn("-------------农业银行储蓄卡------------登录失败-------------", e);
-				status.put("errorCode", "0002");// 异常处理
-				status.put("errorInfo", "网络异常，请重试！");
-				driver.quit();
-				return status;
-			}
+			
 				if(DriverUtil.visibilityById("powerpass_ie_dyn_Msg", driver, 2) || DriverUtil.visibilityById("username-error", driver, 0) || (DriverUtil.waitByClassName("logon-error", driver, 1)&&!driver.findElement(By.className("logon-error")).getAttribute("title").equals(""))){					
 					String text = "";
 					if(DriverUtil.visibilityById("username-error", driver, 2)){
@@ -154,7 +148,13 @@ public class AbcBank {
 					}
 					driver.quit();
 				}
-				
+				}catch(Exception e){
+					logger.warn("-------------农业银行储蓄卡------------登录失败-------------", e);
+					status.put("errorCode", "0002");// 异常处理
+					status.put("errorInfo", "网络异常，请重试！");
+					driver.quit();
+					return status;
+				}
 				
 				return status;					
 			}
@@ -164,42 +164,45 @@ public class AbcBank {
 			logger.warn("------农业银行储蓄卡----------idCard："+idCard+"----------numbe=:"+numbe+"----------------");
 			Map<String, Object> status = new HashMap<String, Object>();
 			Map<String, String> headers = new HashMap<String, String>();
+			int flag = 0;
 			PushSocket.push(status, UUID, "1000","农业储蓄卡登录中");
 			PushState.state(idCard, "savings", 100);
+			flag = 1;
 			Map<String, Object> params = new HashMap<String, Object>();
 			WebDriver driver = (WebDriver) session.getAttribute("ABCdriver");
-			if(!code.equals("0")) {//dynamicPswText
-				System.out.println(driver.getPageSource());
-				logger.info(driver.getPageSource());
-//				driver.switchTo().window(driver.getWindowHandle());
-				 WebElement dynamicPswText = driver.findElement(By.id("dynamicPswText"));
-				 dynamicPswText.sendKeys(code);
-				 driver.findElement(By.id("orangeBtn")).click();
-				 Thread.sleep(2000);
-				 String login = driver.getPageSource();
-				 Document  infotable=  Jsoup.parse(login);  
-		         Elements tags= infotable.getElementsByTag("title");
-		         String title = tags.get(0).text();
-		         if(title.contains("错误页面")) {	
-		        	 logger.warn("-------------农业银行储蓄卡------------错误页面-------------");
-					 status.put("errorCode", "0002");// 异常处理
-					 status.put("errorInfo", "验证码输入有误");
-					 PushSocket.push(status, UUID, "3000","验证码输入有误");
-					 PushState.state(idCard, "savings", 200,"验证码输入有误");
-					 driver.quit();
-					 return status;
-		         }
-				 
-				 String cusname = "";
-					try {
-						
+			if(!code.equals("0")) {
+				try {
+					System.out.println(driver.getPageSource());
+					logger.info(driver.getPageSource());
+	//				driver.switchTo().window(driver.getWindowHandle());
+					WebElement dynamicPswText = driver.findElement(By.id("dynamicPswText"));
+					dynamicPswText.sendKeys(code);
+					driver.findElement(By.id("orangeBtn")).click();
+					Thread.sleep(2000);
+					String login = driver.getPageSource();
+					Document  infotable=  Jsoup.parse(login);  
+			        Elements tags= infotable.getElementsByTag("title");
+			        String title = tags.get(0).text();
+			        if(title.contains("错误页面")) {	
+			        	logger.warn("-------------农业银行储蓄卡------------错误页面-------------");
+						status.put("errorCode", "0002");// 异常处理
+						status.put("errorInfo", "验证码输入有误");
+						PushSocket.push(status, UUID, "3000","验证码输入有误");
+						PushState.state(idCard, "savings", 200,"验证码输入有误");
+						driver.quit();
+						return status;
+			        }
+					 
+					String cusname = "";
+							
 					logger.warn("-----------农业储蓄卡-----------登陆成功----------身份证号："+idCard);
-					// 登陆成功 
-					
+						// 登陆成功 
+						
 					PushSocket.push(status, UUID, "2000","农业储蓄卡登陆成功");// 开始执行推送登陆成功
 					Thread.sleep(2000);
 					driver.switchTo().frame("contentFrame");
 					PushSocket.push(status, UUID, "5000","农业储蓄卡数据获取中");
+					flag = 2;
 					// 拿到姓名 
 					WebElement custName = driver
 							.findElement(By.id("show-custName"));
@@ -220,22 +223,12 @@ public class AbcBank {
 					WebElement btn_query = driver.findElement(By.id("btn_query"));
 					Thread.sleep(2000);
 					btn_query.click();
-					}catch(Exception e){
-						logger.warn("-------------农业银行储蓄卡------------数据获取失败-------------", e);
-						status.put("errorCode", "0002");// 异常处理
-						status.put("errorInfo", "网络异常，请重试！");
-						PushSocket.push(status, UUID, "7000","网页异常，数据获取失败");
-						PushState.state(idCard, "savings", 200,"网页异常，数据获取失败");
-						driver.quit();
-						return status;
-					}
+					
 					Element trs = null;
 					Elements tr = null;
 					String[] sp = null;
 					if(DriverUtil.visibilityById("AccountTradeDetailTable", driver, 15)){
 						List<Object> list = new ArrayList<Object>();
-						try {
-							
 						// 拿到开户行 以及卡号 
 						WebElement label = driver.findElement(By.className("label"));
 						// 卡号 
@@ -245,16 +238,7 @@ public class AbcBank {
 						trs = docs.getElementById("AccountTradeDetailTable");
 						tr = trs.select("tr");
 						
-						}catch(Exception e){
-							logger.warn("-------------农业银行储蓄卡------------数据获取失败-------------", e);
-							status.put("errorCode", "0002");// 异常处理
-							status.put("errorInfo", "网络异常，请重试！");
-							PushSocket.push(status, UUID, "7000","网页异常，数据获取失败");
-							PushState.state(idCard, "savings", 200,"网页异常，数据获取失败");
-							driver.quit();
-							return status;
-						}
-						try {
+						
 							
 						for (int i = 0; i < tr.size(); i++) {
 							Map<String, Object> map = new HashMap<String, Object>();
@@ -302,16 +286,8 @@ public class AbcBank {
 								list.add(map);
 							}
 						}
-						}catch(Exception e){
-							logger.warn("-------------农业银行储蓄卡------------数据获取失败-------------", e);
-							status.put("errorCode", "0002");// 异常处理
-							status.put("errorInfo", "网络异常，请重试！");
-							PushSocket.push(status, UUID, "7000","网页异常，数据获取失败");
-							PushState.state(idCard, "savings", 200,"网页异常，数据获取失败");
-							driver.quit();
-							return status;
-						}
-						
+							
+							
 						params.clear();
 						headers.clear();
 						headers.put("accountType", ""); //账号状态 
@@ -325,7 +301,7 @@ public class AbcBank {
 						params.put("cardNumber", numbe); //用户卡号 
 						params.put("userName", cusname); //用户姓名 
 						PushSocket.push(status, UUID, "6000","农业银行储蓄卡数据获取成功");
-
+						flag = 3;
 //						Resttemplate resttemplate = new Resttemplate();
 //						status = resttemplate.SendMessage(params, application.sendip+ "/HSDC/savings/authentication", card);
 						status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");  //推送数据
@@ -334,23 +310,40 @@ public class AbcBank {
 	    		           	PushSocket.push(status, UUID, "8000","认证成功");
 	    		           	status.put("errorInfo","推送成功");
 	    		           	status.put("errorCode","0000");
- 		           }else{
+	    			    }else{
 	    		           	PushState.state(idCard, "savings", 200,status.get("errorInfo").toString());
 	    		           	PushSocket.push(status, UUID, "9000",status.get("errorInfo").toString());
 	    		           	status.put("errorCode",status.get("errorCode"));//异常处理
 	    		           	status.put("errorInfo",status.get("errorInfo"));
- 		           }
+	    			    }
 					}else{
 						PushSocket.push(status, UUID, "7000","网页异常，数据获取失败");
 						PushState.state(idCard, "savings", 200,"网页异常，数据获取失败");
 						status.put("errorCode","0001");//异常处理
- 		           	status.put("errorInfo","网页异常,数据获取失败");
+ 		           		status.put("errorInfo","网页异常,数据获取失败");
 					}
-				
+					
+					 
 				 
-				 
-				 
-				 
+				}catch(Exception e) {
+					if(flag == 1) {
+						logger.warn("--------------flag="+flag+"----------网络异常，登录失败");
+						PushSocket.push(status, UUID, "3000","网络异常，登录失败");								
+					}else if(flag == 2) {
+						logger.warn("--------------flag="+flag+"----------网络异常，数据获取异常");
+						PushSocket.push(status, UUID, "7000","网络异常");					
+					}else if(flag == 3) {
+						logger.warn("--------------flag="+flag+"----------网络异常，认证失败");
+						PushSocket.push(status, UUID, "9000","网络异常");						
+					}
+					
+					PushState.state(idCard, "savings", 200,"网络异常");
+					
+					status.put("errorCode", "0001");
+					status.put("errorInfo", "网络错误");
+					
+					
+				}			
 			}else {
 				String cusname = "";
 				try {
@@ -362,6 +355,7 @@ public class AbcBank {
 				Thread.sleep(2000);
 				driver.switchTo().frame("contentFrame");
 				PushSocket.push(status, UUID, "5000","农业储蓄卡数据获取中");
+				flag = 2;
 				// 拿到姓名 
 				WebElement custName = driver
 						.findElement(By.id("show-custName"));
@@ -382,21 +376,12 @@ public class AbcBank {
 				WebElement btn_query = driver.findElement(By.id("btn_query"));
 				Thread.sleep(2000);
 				btn_query.click();
-				}catch(Exception e){
-					logger.warn("-------------农业银行储蓄卡------------数据获取失败-------------", e);
-					status.put("errorCode", "0002");// 异常处理
-					status.put("errorInfo", "网络异常，请重试！");
-					PushSocket.push(status, UUID, "7000","网页异常，数据获取失败");
-					PushState.state(idCard, "savings", 200,"网页异常，数据获取失败");
-					driver.quit();
-					return status;
-				}
+				
 				Element trs = null;
 				Elements tr = null;
 				String[] sp = null;
 				if(DriverUtil.visibilityById("AccountTradeDetailTable", driver, 15)){
 					List<Object> list = new ArrayList<Object>();
-					try {
 						
 					// 拿到开户行 以及卡号 
 					WebElement label = driver.findElement(By.className("label"));
@@ -407,16 +392,7 @@ public class AbcBank {
 					trs = docs.getElementById("AccountTradeDetailTable");
 					tr = trs.select("tr");
 					
-					}catch(Exception e){
-						logger.warn("-------------农业银行储蓄卡------------数据获取失败-------------", e);
-						status.put("errorCode", "0002");// 异常处理
-						status.put("errorInfo", "网络异常，请重试！");
-						PushSocket.push(status, UUID, "7000","网页异常，数据获取失败");
-						PushState.state(idCard, "savings", 200,"网页异常，数据获取失败");
-						driver.quit();
-						return status;
-					}
-					try {
+					
 						
 					for (int i = 0; i < tr.size(); i++) {
 						Map<String, Object> map = new HashMap<String, Object>();
@@ -464,15 +440,7 @@ public class AbcBank {
 							list.add(map);
 						}
 					}
-					}catch(Exception e){
-						logger.warn("-------------农业银行储蓄卡------------数据获取失败-------------", e);
-						status.put("errorCode", "0002");// 异常处理
-						status.put("errorInfo", "网络异常，请重试！");
-						PushSocket.push(status, UUID, "7000","网页异常，数据获取失败");
-						PushState.state(idCard, "savings", 200,"网页异常，数据获取失败");
-						driver.quit();
-						return status;
-					}
+					
 					
 					params.clear();
 					headers.clear();
@@ -487,7 +455,7 @@ public class AbcBank {
 					params.put("cardNumber", numbe); //用户卡号 
 					params.put("userName", cusname); //用户姓名 
 					PushSocket.push(status, UUID, "6000","农业银行储蓄卡数据获取成功");
-
+					flag = 3;
 //					Resttemplate resttemplate = new Resttemplate();
 //					status = resttemplate.SendMessage(params, application.sendip+ "/HSDC/savings/authentication", card);
 					status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");  //推送数据
@@ -508,7 +476,27 @@ public class AbcBank {
 					status.put("errorCode","0001");//异常处理
 		           	status.put("errorInfo","网页异常,数据获取失败");
 				}
+			}catch(Exception e) {
+				 if(flag == 1) {
+					logger.warn("--------------flag="+flag+"----------网络异常，登录失败");
+					PushSocket.push(status, UUID, "3000","网络异常，登录失败");								
+				}else if(flag == 2) {
+					logger.warn("--------------flag="+flag+"----------网络异常，数据获取异常");
+					PushSocket.push(status, UUID, "7000","网络异常");					
+				}else if(flag == 3) {
+					logger.warn("--------------flag="+flag+"----------网络异常，认证失败");
+					PushSocket.push(status, UUID, "9000","网络异常");						
+				}
+				
+				PushState.state(idCard, "savings", 200,"网络异常");
+				
+				status.put("errorCode", "0001");
+				status.put("errorInfo", "网络错误");
+				
+				
+			}			
 			}
+			
 			driver.quit();
 			return status;	
 		}
