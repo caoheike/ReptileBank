@@ -70,8 +70,8 @@ public class AbcBank {
 //				SendKeys.sendTab();
 				Thread.sleep(1500);
 				// 特殊字符处理,输入密码  
-//				SendKeys.sendStr(1143+80, 378-40, userpwd);
-				SendKeys.sendStr(1143+80, 378+15, userpwd);//本地
+				SendKeys.sendStr(1143+80, 378-40, userpwd);
+//				SendKeys.sendStr(1143+80, 378+15, userpwd);//本地
 				 //输入验证码 
 				Thread.sleep(1000);
 				WebElement elements = driver.findElement(By.id("vCode"));
@@ -90,7 +90,7 @@ public class AbcBank {
 				driver.quit();
 				return status;
 			}
-				if(DriverUtil.visibilityById("powerpass_ie_dyn_Msg", driver, 2) || DriverUtil.visibilityById("username-error", driver, 0) || (DriverUtil.waitByClassName("logon-error", driver, 1)&&!driver.findElement(By.className("logon-error")).getAttribute("title").isEmpty())){					
+				if(DriverUtil.visibilityById("powerpass_ie_dyn_Msg", driver, 2) || DriverUtil.visibilityById("username-error", driver, 0) || (DriverUtil.waitByClassName("logon-error", driver, 1)&&!driver.findElement(By.className("logon-error")).getAttribute("title").equals(""))){					
 					String text = "";
 					if(DriverUtil.visibilityById("username-error", driver, 2)){
 						text = driver.findElement(By.id("username-error")).getText();
@@ -100,22 +100,22 @@ public class AbcBank {
 						if(text.contains("密码内容不能为空")&&!"".equals(userpwd)) {
 							driver.quit();
 							doGetDetail(username,userpwd, UUID, card,session);
-						}
-						
+						}						
 					}else{
 						text = driver.findElement(By.className("logon-error")).getAttribute("title");
 					}
 					status.put("errorCode", "0001");// 异常处理	
 					status.put("errorInfo", text);
+					driver.quit();
 				}else if(DriverUtil.waitByTitle("中国农业银行个人网银首页", driver, 10)){
 					session.setAttribute("ABCdriver", driver);
 					System.out.println("不需要短信验证*************");
 					params.put("Verify", "no");
 					status.put("errorCode", "0000");
 					status.put("errorInfo", "成功");
+					status.put("data", params);
 				}else if(DriverUtil.waitByTitle("个人网上银行-用户名登录-短信校验", driver, 1)) {
-					WebElement sendSms = driver.findElement(By.id("dynamicPswText_sendSms"));
-					
+					WebElement sendSms = driver.findElement(By.id("dynamicPswText_sendSms"));					
 					sendSms.click();
 					try {
 						Thread.sleep(2000);
@@ -123,25 +123,28 @@ public class AbcBank {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
+//					String currentHandler = driver.getWindowHandle();
 					try {
 						Alert alt = driver.switchTo().alert();
 						alt.accept();
 					} catch (Exception e) {
 						// TODO: handle exception
 					}
+//					driver.switchTo().window(currentHandler);
 					session.setAttribute("ABCdriver", driver);
 					System.out.println("需要短信验证*************");
 					params.put("Verify", "yes");
 					status.put("errorCode", "0000");
 					status.put("errorInfo", "成功");
-				}
-				else{
+					status.put("data", params);
+				}else{
 					if(DriverUtil.waitByTitle("中国农业银行个人网银登录入口", driver, 1)) {
 						numCount=numCount+1;
 						driver.quit();
 						if(numCount>5) {
 	    		           	status.put("errorCode","0001");//异常处理
 	    		           	status.put("errorInfo","网页异常，登录失败");
+	    		           	driver.quit();
 							return status;
 						}
 						status = doGetDetail(username, userpwd, UUID, card,session);
@@ -149,27 +152,44 @@ public class AbcBank {
 						status.put("errorCode","0001");//异常处理
     		           	status.put("errorInfo","您的密码过于简单，请登录官网重置密码！");
 					}
-					
+					driver.quit();
 				}
+				
+				
 				return status;					
 			}
 	
 		public static Map<String, Object> abcQueryInfo(String code, String idCard,
 				HttpSession session, String UUID,String numbe) throws InterruptedException{
-			
+			logger.warn("------农业银行储蓄卡----------idCard："+idCard+"----------numbe=:"+numbe+"----------------");
 			Map<String, Object> status = new HashMap<String, Object>();
 			Map<String, String> headers = new HashMap<String, String>();
 			PushSocket.push(status, UUID, "1000","农业储蓄卡登录中");
 			PushState.state(idCard, "savings", 100);
-			WebDriver driver = null;
-			
 			Map<String, Object> params = new HashMap<String, Object>();
-			driver = (WebDriver) session.getAttribute("ABCdriver");
+			WebDriver driver = (WebDriver) session.getAttribute("ABCdriver");
 			if(!code.equals("0")) {//dynamicPswText
+				System.out.println(driver.getPageSource());
+				logger.info(driver.getPageSource());
+//				driver.switchTo().window(driver.getWindowHandle());
 				 WebElement dynamicPswText = driver.findElement(By.id("dynamicPswText"));
-				 dynamicPswText.sendKeys("code");//
+				 dynamicPswText.sendKeys(code);
 				 driver.findElement(By.id("orangeBtn")).click();
 				 Thread.sleep(2000);
+				 String login = driver.getPageSource();
+				 Document  infotable=  Jsoup.parse(login);  
+		         Elements tags= infotable.getElementsByTag("title");
+		         String title = tags.get(0).text();
+		         if(title.contains("错误页面")) {	
+		        	 logger.warn("-------------农业银行储蓄卡------------错误页面-------------");
+					 status.put("errorCode", "0002");// 异常处理
+					 status.put("errorInfo", "验证码输入有误");
+					 PushSocket.push(status, UUID, "3000","验证码输入有误");
+					 PushState.state(idCard, "savings", 200,"验证码输入有误");
+					 driver.quit();
+					 return status;
+		         }
+				 
 				 String cusname = "";
 					try {
 						
@@ -302,7 +322,7 @@ public class AbcBank {
 						params.put("baseMes", headers);
 						params.put("bankName", "中国农业银行");
 						params.put("IDNumber", idCard); //身份证 
-						params.put("cardNumber", sp[1]); //用户卡号 
+						params.put("cardNumber", numbe); //用户卡号 
 						params.put("userName", cusname); //用户姓名 
 						PushSocket.push(status, UUID, "6000","农业银行储蓄卡数据获取成功");
 
@@ -464,7 +484,7 @@ public class AbcBank {
 					params.put("baseMes", headers);
 					params.put("bankName", "中国农业银行");
 					params.put("IDNumber", idCard); //身份证 
-					params.put("cardNumber", sp[1]); //用户卡号 
+					params.put("cardNumber", numbe); //用户卡号 
 					params.put("userName", cusname); //用户姓名 
 					PushSocket.push(status, UUID, "6000","农业银行储蓄卡数据获取成功");
 

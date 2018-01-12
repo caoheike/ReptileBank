@@ -493,12 +493,16 @@ public class MobileService {
 			            String loginstr1=	httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_DebitCard_AccountManager/UI/DebitCard/AccountQuery/am_QueryHistoryTrans.aspx", params, headers);
 			            System.out.println(loginstr1+"流水信息");
 			            //无流水信息
-			            if(loginstr1.contains("object moved")) {			            				
-			            	params.put("errorInfo", "您的账号暂无流水信息");
+			            Document  infotable=  Jsoup.parse(loginstr1);  
+			            Elements tags= infotable.getElementsByTag("title");
+			            String title = tags.get(0).text();
+			            if(title.contains("moved")) {			            				
+			            	params.put("errorInfo", "请确认您的银行卡是否为储蓄卡");
 				    		params.put("errorCode", "0001");
-				    		PushSocket.push(params, UUID, "7000","您的账号暂无流水信息");
-				    		PushState.state(idcard, "savings", 200,"您的账号暂无流水信息");
-				    		System.out.println("*********************************************您的账号暂无流水信息");
+				    		PushSocket.push(params, UUID, "7000","请确认您的银行卡是否为储蓄卡");
+				    		PushState.state(idcard, "savings", 200,"请确认您的银行卡是否为储蓄卡");
+				    		System.out.println("*********************************************请确认您的银行卡是否为储蓄卡");
+				    		return params;
 			            }
 				        Document docs = Jsoup.parse(loginstr1);   
 				 	   Element trs = docs.getElementById("dgHistoryTransRecSet");
@@ -634,7 +638,17 @@ public class MobileService {
 		            params.put("ddlDebitCardList",ssid);
 		            String loginstr1=	httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_DebitCard_AccountManager/UI/DebitCard/AccountQuery/am_QueryHistoryTrans.aspx", params, headers);
 		            System.out.println(loginstr1+"流水信息");
-		            
+		            Document  infotable=  Jsoup.parse(loginstr1);  
+		            Elements tags= infotable.getElementsByTag("title");
+		            String title = tags.get(0).text();
+		            if(title.contains("moved")) {			            				
+		            	params.put("errorInfo", "请确认您的银行卡是否为储蓄卡");
+			    		params.put("errorCode", "0001");
+			    		PushSocket.push(params, UUID, "7000","请确认您的银行卡是否为储蓄卡");
+			    		PushState.state(idcard, "savings", 200,"请确认您的银行卡是否为储蓄卡");
+			    		System.out.println("*********************************************请确认您的银行卡是否为储蓄卡");
+			    		return params;
+		            }
 			        Document docs = Jsoup.parse(loginstr1);   
 			 	   Element trs = docs.getElementById("dgHistoryTransRecSet");
 			 	   System.out.println(trs.html());
