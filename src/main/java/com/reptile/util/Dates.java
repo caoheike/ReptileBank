@@ -26,7 +26,22 @@ public class Dates {
 		return mon;
 	}
 	
-	
+	/**
+	 * 获得上个月
+	 * @param year
+	 * @param month
+	 * @return
+	 */
+
+	public static  String beforMonthM(int  a){
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+		Calendar c = Calendar.getInstance();
+		c.setTime(new Date());
+	    c.add(Calendar.MONTH, -a);
+	    Date m = c.getTime();
+	    String mon = format.format(m);
+		return mon;
+	}
 	
 	/**
 	 * 获取当前时间（年月日时分秒）
@@ -34,6 +49,16 @@ public class Dates {
 	 */
 	public static String currentTime(){
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMdd");
+	    String mon = format.format(new Date());
+		return mon;
+	}
+	
+	/**
+	 * 获取当前时间（年月日时分秒）
+	 * @return
+	 */
+	public static String currentTimeM(){
+		SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 	    String mon = format.format(new Date());
 		return mon;
 	}

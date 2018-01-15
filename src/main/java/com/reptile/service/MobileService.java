@@ -124,15 +124,16 @@ public class MobileService {
 					       	paramend.put("O_STMT_FLAG","Y");
 					       	String endinfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningListNew.aspx", paramend, headers);//开始发包
 					    	if(endinfo.contains("账单数据正在更新中")){
-					    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
-					    		if(isok==true){
-									PushState.state(idCard,"bankBillFlow", 200,"账单数据正在更新中");
-								}else {
-									PushState.stateX(idCard,"bankBillFlow", 200,"账单数据正在更新中");
-								}
-					    		map.put("errorCode","0002");
-				    			map.put("errorInfo","认证失败");
-					    		return map;
+//					    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
+//					    		if(isok==true){
+//									PushState.state(idCard,"bankBillFlow", 200,"账单数据正在更新中");
+//								}else {
+//									PushState.stateX(idCard,"bankBillFlow", 200,"账单数据正在更新中");
+//								}
+//					    		map.put("errorCode","0002");
+//				    			map.put("errorInfo","认证失败");
+//					    		return map;
+					    		continue;
 					    	}else{
 					    		lists.add(endinfo);
 					    	}
@@ -146,15 +147,16 @@ public class MobileService {
 					       	paramend.put("O_STMT_FLAG","Y");
 					       	String endinfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningListNew.aspx", paramend, headers);//开始发包
 					    	if(endinfo.contains("账单数据正在更新中")){
-					    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
-					    		if(isok==true){
-									PushState.state(idCard,"bankBillFlow", 200,"账单数据正在更新中");
-								}else {
-									PushState.stateX(idCard,"bankBillFlow", 200,"账单数据正在更新中");
-								}
-					    		map.put("errorCode","0000");
-				    			map.put("errorInfo","认证失败");
-					    		return map;
+//					    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
+//					    		if(isok==true){
+//									PushState.state(idCard,"bankBillFlow", 200,"账单数据正在更新中");
+//								}else {
+//									PushState.stateX(idCard,"bankBillFlow", 200,"账单数据正在更新中");
+//								}
+//					    		map.put("errorCode","0000");
+//				    			map.put("errorInfo","认证失败");
+//					    		return map;
+					    		continue;
 					    	}else{
 					    		lists.add(endinfo);
 					    	}
@@ -268,15 +270,16 @@ public class MobileService {
 					       	paramend.put("O_STMT_FLAG","Y");
 					       	String endinfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningListNew.aspx", paramend, headers);//开始发包
 					    	if(endinfo.contains("账单数据正在更新中")){
-					    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
-					    		if(isok==true){
-									PushState.state(idCard,"bankBillFlow", 200,"账单数据正在更新中");
-								}else {
-									PushState.stateX(idCard,"bankBillFlow", 200,"账单数据正在更新中");
-								}
-					    		map.put("errorCode","0000");
-				    			map.put("errorInfo","账单数据正在更新中");
-					    		return map;
+//					    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
+//					    		if(isok==true){
+//									PushState.state(idCard,"bankBillFlow", 200,"账单数据正在更新中");
+//								}else {
+//									PushState.stateX(idCard,"bankBillFlow", 200,"账单数据正在更新中");
+//								}
+//					    		map.put("errorCode","0000");
+//				    			map.put("errorInfo","账单数据正在更新中");
+//					    		return map;
+					    		continue;
 					    	}else{
 					    		lists.add(endinfo);
 					    	}
@@ -302,15 +305,16 @@ public class MobileService {
 						       	paramend.put("O_STMT_FLAG","Y");
 						       	String endinfo=httclien.post("https://pbsz.ebank.cmbchina.com/CmbBank_CreditCard_Loan/UI/CreditCard/Loan/am_QueryReckoningListNew.aspx", paramend, headers);//开始发包
 						    	if(endinfo.contains("账单数据正在更新中")){
-						    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
-						    		if(isok==true){
-										PushState.state(idCard,"bankBillFlow", 200,"账单数据正在更新中");
-									}else {
-										PushState.stateX(idCard,"bankBillFlow", 200,"账单数据正在更新中");
-									}
-						    		map.put("errorCode","0000");
-					    			map.put("errorInfo","账单数据正在更新中");
-						    		return map;
+//						    		PushSocket.push(map, UUID, "7000","账单数据正在更新中");
+//						    		if(isok==true){
+//										PushState.state(idCard,"bankBillFlow", 200,"账单数据正在更新中");
+//									}else {
+//										PushState.stateX(idCard,"bankBillFlow", 200,"账单数据正在更新中");
+//									}
+//						    		map.put("errorCode","0000");
+//					    			map.put("errorInfo","账单数据正在更新中");
+//						    		return map;
+						    		continue;
 						    	}else{
 						    		lists.add(endinfo);
 						    	}

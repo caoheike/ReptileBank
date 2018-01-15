@@ -20,6 +20,7 @@ import com.reptile.Bank.AbcBank;
 import com.reptile.Bank.BcmLogin;
 import com.reptile.Bank.BcmLogins;
 import com.reptile.Bank.CMBService;
+import com.reptile.service.CmbSavingsService;
 import com.reptile.service.MobileService;
 import com.reptile.service.SPDBService;
 import com.reptile.winio.CmbBank;
@@ -53,6 +54,7 @@ public class InterfaceController {
 		CmbBank banks = new CmbBank();
 		BcmLogin BcmLogin = new BcmLogin();
 		BcmLogins JiaoTong = new BcmLogins();
+		CmbSavingsService cmbs = new CmbSavingsService();
 		CMBService CMB=new CMBService();
 		Map<String, Object> map = new HashMap<String, Object>();
 		HttpSession session = request.getSession();
@@ -72,7 +74,7 @@ public class InterfaceController {
 			} else if (BankType.equals("CMBC")) {// 民生信用卡
 				map = bank.CMBCLogin(numbe, pwd, BankType, userCard, UUID,timeCnt);
 			} else if (BankType.equals("CMBC2")) {// 民生储蓄卡
-				map = CMB.login(request, response, numbe, pwd,
+				map = cmbs.login(request, response, numbe, pwd,
 						userCard, UUID);
 			} else if (BankType.equals("GDB")) {// 广发银行信用卡
 				map = bank.GDBLogin(numbe, pwd, userCard, UUID,timeCnt);
