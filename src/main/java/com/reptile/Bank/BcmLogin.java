@@ -83,8 +83,8 @@ public class BcmLogin {
 			Thread.sleep(2000);
 			
 			System.out.println("*********密码**********"+UserPwd);
-			SendKeys.sendStr(1139+80, 338-35, UserPwd);
-//			SendKeys.sendStr(1139+80, 338+15, UserPwd);//本地
+//			SendKeys.sendStr(1139+80, 338-35, UserPwd);
+			SendKeys.sendStr(1139+80, 338+35, UserPwd);//本地
 			Thread.sleep(1000);
 			WebElement element = driver.findElement(By
 					.className("captchas-img-bg"));
@@ -264,7 +264,7 @@ public class BcmLogin {
 				}else {
 					logger.warn("-----------交通银行登陆失败-------------");
 					status.put("errorCode", "0002");// 异常处理
-					status.put("errorInfo", "网络异常，请重试！");
+					status.put("errorInfo", "账号密码错误，登录失败");
 					PushSocket.push(status, UUID, "3000","账号密码错误，登录失败");
 					PushState.state(userCard, "savings", 200,"账号密码错误，登录失败");
 					DriverUtil.close(driver);

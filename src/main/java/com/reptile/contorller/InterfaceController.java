@@ -20,6 +20,8 @@ import com.reptile.Bank.AbcBank;
 import com.reptile.Bank.BcmLogin;
 import com.reptile.Bank.BcmLogins;
 import com.reptile.Bank.CMBService;
+import com.reptile.service.AbcSavingService;
+import com.reptile.service.BcmSavingService;
 import com.reptile.service.CmbSavingsService;
 import com.reptile.service.MobileService;
 import com.reptile.service.SPDBService;
@@ -38,6 +40,7 @@ public class InterfaceController {
 
 	@Resource
 	private MobileService mobileService;
+	
 	
 	
 
@@ -61,7 +64,7 @@ public class InterfaceController {
 		String UUID = request.getParameter("UUID");
 		String userCard = request.getParameter("userCard");
 		String timeCnt = request.getParameter("timeCnt");
-		
+		System.out.println("---*****************-----*****************-------userCard:"+userCard);
 		synchronized (this) {			
 			if (BankType.equals("CMB")) {// 招商银行
 				map = bank.Login(numbe, pwd, session, UUID);
@@ -79,9 +82,9 @@ public class InterfaceController {
 			} else if (BankType.equals("GDB")) {// 广发银行信用卡
 				map = bank.GDBLogin(numbe, pwd, userCard, UUID,timeCnt);
 			} else if (BankType.equals("ABC")) {// 农业银行储蓄卡
-				map = AbcBank.doGetDetail(numbe, pwd, UUID, userCard,session);
+				map = AbcSavingService.doGetDetail(numbe, pwd, UUID, userCard,session);
 			} else if (BankType.equals("BCM")) {// 交通银行
-				map = BcmLogin.BcmLogins(request,numbe, pwd, UUID,userCard);
+				map = BcmSavingService.BcmLogins(request,numbe, pwd, UUID,userCard);
 			} else if (BankType.equals("X-BCM")) {// 交通银行 信用卡
 				map = JiaoTong.BankLogin(numbe, pwd, userCard, request, UUID,timeCnt);
 			}
@@ -144,7 +147,7 @@ public class InterfaceController {
 		System.out.println("heeli man");
 		HttpSession session = request.getSession();
 
-		return AbcBank.abcQueryInfo(code, idCard,
+		return AbcSavingService.abcQueryInfo(code, idCard,
 				session, UUID,numbe);
 
 	}

@@ -15,7 +15,8 @@ import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.springframework.stereotype.Service;
 
-import com.hoomsun.httpwatch.HttpWatchUtil;
+import com.hoomsun.keyBoard.HttpWatchUtil;
+import com.hoomsun.keyBoard.SendKeys;
 import com.reptile.util.CountTime;
 import com.reptile.util.DriverUtil;
 import com.reptile.util.ImgUtil;
@@ -88,7 +89,7 @@ public class CmbcCreditService {
 //					HttpWatchUtil.sendTab();
 //					HttpWatchUtil.sendStr(pwd);
 					// SendKeys.sendStr(1180, 380 - 5, pwd);
-					 HttpWatchUtil.sendStr(1180, 380+40, pwd);//本地
+					SendKeys.sendStr(1180, 380+40, pwd);//本地
 					Thread.sleep(1000);
 
 					WebElement loginButton = driver.findElement(By.id("loginButton"));
@@ -198,7 +199,7 @@ public class CmbcCreditService {
 
 		List<List<String>> list = new ArrayList<List<String>>(16);
 
-		String jsession = HttpWatchUtil.getCookie();
+		String jsession = HttpWatchUtil.getJsessionStr("JSESSION");
 		Map<String, String> headers = new HashMap<String, String>(16);
 		headers.put("Cookie", jsession);
 		headers.put("Referer", "https://nper.cmbc.com.cn/pweb/static/main.html");

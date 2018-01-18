@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import com.hoomsun.httpwatch.HttpWatchUtil;
+import com.hoomsun.keyBoard.HttpWatchUtil;
 import com.hoomsun.keyBoard.SendKeys;
 import com.reptile.util.CYDMDemo;
 import com.reptile.util.Dates;
@@ -55,8 +55,9 @@ public class CmbSavingsService {
  * @param userCard
  * @param passWord
  * @return
+ * @throws InterruptedException 
  */
-    public    Map<String,Object> login(HttpServletRequest request,HttpServletResponse response,String userCard,String passWord,String idCard,String UUID){
+    public    Map<String,Object> login(HttpServletRequest request,HttpServletResponse response,String userCard,String passWord,String idCard,String UUID) {
         Map<String,Object> map=new HashMap<String,Object>();
         Map<String,Object> data=new HashMap<String,Object>();
         PushSocket.push(map, UUID, "1000","民生储蓄卡登录中");
@@ -64,10 +65,11 @@ public class CmbSavingsService {
         WebDriver driver =null; 
     	try {
     		logger.warn("--------------民生储蓄卡------------登陆开始------------身份证号："+idCard);
-			driver=DriverUtil.getDriverInstance("ie");
-			
-			driver.get(CMBlogin);
+			driver=DriverUtil.getDriverInstance("ie");	
+			System.setProperty("java.awt.headless", "false");
+			driver.get(CMBlogin);			
 			driver.manage().window().maximize();
+			
 			driver.navigate().refresh();
 			//driver.manage().timeouts().implicitlyWait(20, TimeUnit.SECONDS);//显示等待
 		    WebElement element=	driver.findElement(By.id("writeUserId"));
@@ -75,18 +77,12 @@ public class CmbSavingsService {
 		    Thread.sleep(1000);
 		    
 			
-		//	new WebDriverWait(driver, 15).until(ExpectedConditions.)
-//		    SendKeys.sendTab();
-//		    Thread.sleep(1000);	
-//		    SendKeys.sendStr(passWord);
-//		    SendKeys.sendTab();
-//		    SendKeys.sendStr(1180, 380-5, passWord);
-		    SendKeys.sendStr(1180, 380+60, passWord);//本地
-		    HttpWatchUtil.button(1);
-		    HttpWatchUtil.button(2);
-			HttpWatchUtil.httpWatchStart();
+	
+		    SendKeys.sendStr(1180, 380+15, passWord);
+//		    SendKeys.sendStr(1180, 380+60, passWord);//本地
+		    
+		
 			Thread.sleep(1000);
-			//new WebDriverWait(driver, 15).until(ExpectedConditions.presenceOfElementLocated(By.tagName("form")));
 		    //判断是否需要图形验证码
 			
 			WebElement element2=driver.findElement(By.tagName("form"));	
@@ -94,8 +90,9 @@ public class CmbSavingsService {
 			WebElement loginButton = driver.findElement(By.id("loginButton"));
 			WebElement webElement= driver.findElement(By.id("_tokenImg"));
 			if(webElement.getAttribute("src")==null||"".equals(webElement.getAttribute("src"))){
-				//System.out.println("不要图形验证码");
 				//不需要验证码直接提交		
+				
+				Thread.sleep(1000);
 				loginButton.click();//点击登陆
 			}else{
 				//System.out.println("需要图形验证码");
@@ -105,11 +102,20 @@ public class CmbSavingsService {
 				WebElement element5=element2.findElement(By.id("_vTokenName"));//验证码输入框
 				Thread.sleep(2000);
 				element5.sendKeys(imageCode);
+				
+				Thread.sleep(1000);
 				loginButton.click();//点击登陆
 			}
+			try {
+				HttpWatchUtil.startHttpWatch(50,575);
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			Thread.sleep(2000);
+		    
+
 			
-			//new WebDriverWait(driver, 15).until(ExpectedConditions.presenceOfElementLocated(By.id("transView")));
-			Thread.sleep(4000);
     	} catch (Exception e) {
 			logger.warn("民生银行",e);
 			// driver.quit();
@@ -140,6 +146,14 @@ public class CmbSavingsService {
     			}else{//登陆成功
     				logger.warn("--------------民生储蓄卡------------登陆成功------------身份证号："+idCard);
     				PushSocket.push(map, UUID, "2000","民生储蓄卡登陆成功");
+    				
+    				try {
+						Thread.sleep(2000);
+					} catch (InterruptedException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+//    				System.out.println(HttpWatchUtil.getJsessionStr("JSESSIONID"));
     				String userName="";
     				try {
     				WebDriverWait wait = new WebDriverWait(driver, 20);
@@ -149,18 +163,9 @@ public class CmbSavingsService {
     				PushSocket.push(map, UUID, "5000","民生储蓄卡数据获取中");
     				//wait.until(ExpectedConditions.elementToBeClickable(ss.get(0)));
     				userName=	ss.get(0).getText().split("好，")[1];//用户名
-    			    wait.until(ExpectedConditions.elementToBeClickable(ss.get(7)));
-    			   	ss.get(7).click();//点击账户余额查询
-    			   	Thread.sleep(1500);
-    			   	
-    			   	
-    			   	
-    			   	wait.until(ExpectedConditions.presenceOfElementLocated(By.className("byue_0")));    			   	
-			   		WebElement _vTokenId = driver.findElement(By.className("byue_0"));
-    			    _vTokenId.click();//点击账户详情
-    			    Thread.sleep(1500);
-//    				wait.until(ExpectedConditions.presenceOfElementLocated(By.id("BenhangKa")));      			   
-        				//Thread.sleep(3000);
+    				
+    			    
+ 
 					} catch (Exception e) {
 						PushState.state(idCard, "savings", 200,"系统繁忙，数据获取失败");
 						PushSocket.push(map, UUID, "7000","系统繁忙，数据获取失败");
@@ -171,11 +176,13 @@ public class CmbSavingsService {
 	    	            return map;
 					}
     				logger.warn("--------------民生储蓄卡------------民生银行详单获取中...------------身份证号："+idCard);
-    				//开始解析账户详情
-    				Map<String, String>    baseMes=new HashMap<String, String>();//存放基本信息
-    				baseMes=this.parseBaseMes(driver, baseMes);
-    				
-    			    List<Map<String, String>>    billMes=new ArrayList<Map<String,String>>();  //存放交易明细
+////    				//开始解析账户详情
+    				Map<String, Object>    baseMes=new HashMap<String, Object>();//存放基本信息
+    				baseMes.put("openBranch", "");	//开户网点
+    			    baseMes.put("openTime", "");	//	 开户日期
+    			    baseMes.put("accountType", "");	//账号状态
+//    				System.out.println(HttpWatchUtil.getJsessionStr("JSESSIONID"));
+    			    List<Map<String, Object>>    billMes=new ArrayList<Map<String,Object>>();  //存放交易明细
     			    //交易明细解析
     			    try {
 						billMes=this.parseBillMes(driver, billMes,userCard,userName);
@@ -301,7 +308,7 @@ public class CmbSavingsService {
      * @throws ParseException 
      * @throws InterruptedException 
      */
-    public static Map<String, String> parseBaseMes(WebDriver driver,Map<String, String> baseMes){
+    public static Map<String, Object> parseBaseMes(WebDriver driver,Map<String, Object> baseMes){
     	Document	docs= Jsoup.parse(driver.getPageSource());
   	   try {
 		Element	tables	= docs.getElementById("BenhangKa");//获取账户基本信息的table
@@ -331,17 +338,18 @@ public class CmbSavingsService {
     * @return
  * @throws Exception 
     */
-    public  List<Map<String, String>> parseBillMes(WebDriver driver,List<Map<String, String>> billMes,String userCard,String userName) throws Exception{
-    	String jsession = HttpWatchUtil.getCookie();
+    public  List<Map<String, Object>> parseBillMes(WebDriver driver,List<Map<String, Object>> billMes,String userCard,String userName) throws Exception{
+    	
+    	String jsession = HttpWatchUtil.getCookie("JSESSIONID");
+    	System.out.println("-----------------jsession=:"+jsession);
     	Map<String, Object> params = null;
 		Map<String, String> headers = new HashMap<String, String>(16);
 		headers.put("Referer", "https://nper.cmbc.com.cn/pweb/static/main.html");
 		headers.put("Host", "nper.cmbc.com.cn");
+		headers.put("Cookie", jsession);
 		params = new HashMap<String, Object>(16);
-		
 		// 请求1  明细
-		String response = SimpleHttpClient.post("https://nper.cmbc.com.cn/pweb/static/ActTrsQry/ActTrsQryPre_new.html", params,headers);
-    	
+		String response = SimpleHttpClient.get("https://nper.cmbc.com.cn/pweb/static/ActTrsQry/ActTrsQryPre_new.html",headers);
 		// 请求1  近三个月
 		params.put("AcNo", userCard);
 		params.put("BankAcType", "03");
@@ -365,15 +373,16 @@ public class CmbSavingsService {
 		// 请求2   近三个月
 		response = SimpleHttpClient.post("https://nper.cmbc.com.cn/pweb/ActTrsQry.do",params, headers);
 		Map<String, Object> pageHeader = new HashMap<String, Object>();
-		List<Map<String, String>> list = new ArrayList<Map<String, String>>();//明细
+		List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();//明细
 		
 		pageHeader = (Map<String, Object>) JsonUtil.getJsonValue1(response, "_PageHeader");//TotalCount
 		String totalCount = (String) pageHeader.get("TotalCount");
 		int cCount = (int) pageHeader.get("Ccount");//总页数
+		List<Map<String, Object>> getInfo = new ArrayList<Map<String, Object>>();
 		if(cCount>1) {
 			for(int i=0;i<cCount;i++) {
-				list = (List<Map<String, String>>) JsonUtil.getJsonValue1(response, "List");//明细集合
-				billMes = this.parseBill(list);
+				list = (List<Map<String, Object>>) JsonUtil.getJsonValue1(response, "List");//明细集合
+				billMes = this.parseBill(list,getInfo);
 				if(i<cCount-1) {
 					params.put("pageNo", i+2);
     				params.put("recordNumber", Integer.parseInt(totalCount));
@@ -383,7 +392,7 @@ public class CmbSavingsService {
 				}
 			}
 		}else {
-			billMes = this.parseBill(list);
+			billMes = this.parseBill(list,getInfo);
 		}
     	
 		params.clear();
@@ -398,9 +407,10 @@ public class CmbSavingsService {
      * @param billMes
      * @return
      */
-    public  List<Map<String, String>> parseBill(List<Map<String, String>> billMes){
+    public  List<Map<String, Object>> parseBill(List<Map<String, Object>> billMes,List<Map<String, Object>> getInfo){
+    	logger.warn("--------------行数据："+billMes);
     	for(int i=0;i<billMes.size();i++) {
-    		Map<String, String> datas=new HashMap<String, String>();
+    		Map<String, Object> datas=new HashMap<String, Object>();
     		datas.put("dealTime", billMes.get(i).get("TransDate"));//交易日期	
     		String flagName = (String) billMes.get(i).get("DCFlagName");
     		if("存".equals(flagName)) {
@@ -416,13 +426,10 @@ public class CmbSavingsService {
 				datas.put("dealReferral", billMes.get(i).get("Remark"));//业务摘要
 				datas.put("oppositeSideName","");//对方账户名
 				datas.put("currency", "");//币种	
-				datas.put("oppositeSideNumber ", billMes.get(i).get("PayeeAc"));//对方账户
-				
-				billMes.add(datas);
-    		
-    		
+				datas.put("oppositeSideNumber ", billMes.get(i).get("PayeeAc"));//对方账户				
+				getInfo.add(datas);
     	}
-    	return billMes;
+    	return getInfo;
     	
     } 
 }
