@@ -36,6 +36,7 @@ import org.openqa.selenium.remote.Augmenter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.hoomsun.keyBoard.HttpWatchUtil;
 import com.hoomsun.keyBoard.SendKeys;
 import com.reptile.util.CYDMDemo;
 import com.reptile.util.CrawlerUtil;
@@ -77,6 +78,7 @@ public class BcmSavingService {
 			/* 打开此网页 */
 			driver = DriverUtil.getDriverInstance("ie");
 			driver.manage().window().maximize();
+			
 			driver.get("https://pbank.95559.com.cn/personbank/logon.jsp#");
 			
 			/* 获得账号输入框 */
@@ -100,12 +102,11 @@ public class BcmSavingService {
 				String imgtext = downloadImgs(driver, element);
 				logger.warn("-----------打码结果------------"+imgtext);
 				input_captcha.sendKeys(imgtext);
+
 			}
+			//调出httpwatch
+			HttpWatchUtil.openHttpWatch();
 			login.click();
-		
-			
-			
-			
 			Thread.sleep(3000);
 			/* //此处判断是否登陆成功 */
 			boolean flgs = ElementExist(driver, By.className("lanse-12-b")); /* 错误表示 */
@@ -267,8 +268,8 @@ public class BcmSavingService {
 						PushSocket.push(status, UUID, "6000","交通银行储蓄卡数据获取成功");
 						flag = 3;
 						logger.warn("-----------交通储蓄卡-----------推送数据----------身份证号："+userCard);
-						params.clear();
 						status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");
+						
 					    if(status!= null && "0000".equals(status.get("errorCode").toString())){
 				           	PushState.state(userCard, "savings", 300);
 				           	PushSocket.push(status, UUID, "8000","认证成功");
@@ -323,21 +324,15 @@ public class BcmSavingService {
 	 * @throws Exception
 	 */
 	public static List<Map<String,Object>>	getInfo(WebDriver driver,List<Map<String,Object>> list,String userCard) throws Exception{
+		String jsession = HttpWatchUtil.getCookie("JSESSIONID");
 		Map<String, Object> params = null;
 		Map<String, String> headers = new HashMap<String, String>(16);
 		params = new HashMap<String, Object>(16);		
 		String frameMain = driver.findElement(By.id("frameMain")).getAttribute("src");
 		String pSessionId = frameMain.substring(frameMain.indexOf("=")+1, frameMain.indexOf("&"));
-		// 请求1  账单第二步  获取safeValue
+		logger.warn("--------------pSessionId-----------------"+pSessionId);
 		logger.warn("--------------账单第二步  获取safeValue-----------------");
-		
-		Set<Cookie> ingoCookie = driver.manage().getCookies();
-		StringBuffer cookies=new StringBuffer();
-		for (Cookie co:ingoCookie) {
-			cookies.append(co.getName()+"="+co.getValue()+";");
-			System.out.println(co.getName()+"="+co.getValue()+";");
-		}		
-		String cookie = cookies.toString();
+
 		headers.put("x-requested-with", "XMLHttpRequest");		
 		headers.put("Accept-Language", "zh-CN");
 		headers.put("Accept", "text/javascript;charset=utf-8");	
@@ -348,36 +343,55 @@ public class BcmSavingService {
 		headers.put("Host", "pbank.95559.com.cn");	
 		headers.put("DNT", "1");	
 		headers.put("Connection", "keep-alive");		
-		headers.put("Cookie", cookie);		
-		
-			
+		headers.put("Cookie", jsession);		
 		double random = Math.random();
 		long time = new Date().getTime();
 		headers.put("Referer", "https://pbank.95559.com.cn/personbank/app/pebs.do?PSessionId="+pSessionId+"&x-channel=0&menuCode=&appId=&startMenu=&ibpsProtocolReq=&pebsUrl=&args=");
+		
 		String response = SimpleHttpClient.get("https://pbank.95559.com.cn/personbank/system/syCardList.ajax?"
 				+ "PSessionId="+pSessionId+"&x-channel=0&tab=0&menuCode=P001001&random="+random+"&_="+time, headers);
-		Thread.sleep(2000);
 		Map<String, Object> pageHeader = (Map<String, Object>) JsonUtil.getJsonValue1(response, "RSP_BODY");		
 		String safeValue = (String) pageHeader.get("safeValue");
 		safeValue.replaceAll("%2", "&252");
 		safeValue.replaceAll("%3", "&253");
-		
-		logger.warn("--------------账单-----------------");
+		logger.warn("--------------safeValue-----------------"+safeValue);		
+		logger.warn("--------------账单-----------------");		
+		headers.clear();
+		jsession = HttpWatchUtil.getCookie("JSESSIONID");
+		headers.put("Accept-Language", "zh-CN");//
+		headers.put("Accept", "text/html, application/xhtml+xml, */*");	//
+		headers.put("Accept-Encoding", "gzip, deflate");//
+		headers.put("User-Agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)");	//
+		headers.put("Host", "pbank.95559.com.cn");	//
+		headers.put("DNT", "1");	//
+		headers.put("Connection", "keep-alive");	//	
+		headers.put("Cookie", jsession);	//
+		headers.put("Referer", "https://pbank.95559.com.cn/personbank/app/pebs.do?PSessionId="+pSessionId+"&x-channel=0&menuCode=&appId=&startMenu=&ibpsProtocolReq=&pebsUrl=&args=");
 		response = SimpleHttpClient.get("https://pbank.95559.com.cn/personbank/account/acQuery.do?"
 				+ "PSessionId="+pSessionId+"&x-channel=0&tab=0&menuCode=P001001&random="+random+"&ReqSafeFields"+safeValue, headers);
 		
 		Document doc = Jsoup.parse(response);
         Element options = doc.getElementsByTag("td").get(16);
-        Element a = options.getElementsByTag("a").get(0);
-        
+        Element a = options.getElementsByTag("a").get(0);        
 		String str = a.attr("onclick");
 		logger.warn("--------------str-----------------"+str);
 		String cardNo = str.substring(str.indexOf("('")+2, str.indexOf("','"));
 		
 		logger.warn("--------------明细-----------------");
-		response = SimpleHttpClient.get("https://pbank.95559.com.cn/personbank/system/syCardList.ajax?"
-				+ "PSessionId="+pSessionId+"&x-channel=0&cardNo="+cardNo+"&selectCardNo="+userCard+"&menuCode=P002000&random="+random+"&_="+time, headers);
-		Thread.sleep(2000);
+
+		headers.clear();
+		jsession = HttpWatchUtil.getCookie("JSESSIONID");
+		headers.put("Accept-Language", "zh-CN");
+		headers.put("Accept", "text/html, application/xhtml+xml, */*");	
+		headers.put("Accept-Encoding", "gzip, deflate");
+		headers.put("User-Agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)");	
+		headers.put("Host", "pbank.95559.com.cn");	
+		headers.put("DNT", "1");	
+		headers.put("Connection", "keep-alive");	
+		headers.put("Cookie", jsession);	
+		headers.put("Referer", "https://pbank.95559.com.cn/personbank/app/pebs.do?PSessionId="+pSessionId+"&x-channel=0&menuCode=&appId=&startMenu=&ibpsProtocolReq=&pebsUrl=&args=");		
+		response = SimpleHttpClient.get("https://pbank.95559.com.cn/personbank/account/acTranRecordQuery.do?"
+				+ "PSessionId="+pSessionId+"&x-channel=0&cardNo="+cardNo+"&selectCardNo="+userCard+"&menuCode=P002000&random="+random+"&ReqSafeFields"+safeValue, headers);
 		Document info = Jsoup.parse(response);
         Element tbody = info.getElementById("recordtbody");
         Elements tr = tbody.getElementsByTag("tr");

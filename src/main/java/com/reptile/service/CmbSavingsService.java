@@ -75,11 +75,9 @@ public class CmbSavingsService {
 		    WebElement element=	driver.findElement(By.id("writeUserId"));
 		    element.sendKeys(userCard);//输入账号
 		    Thread.sleep(1000);
-		    
-			
-	
-		    SendKeys.sendStr(1180, 380+15, passWord);
-//		    SendKeys.sendStr(1180, 380+60, passWord);//本地
+
+//		    SendKeys.sendStr(1180, 380+15, passWord);
+		    SendKeys.sendStr(1180, 380+60, passWord);//本地
 		    
 		
 			Thread.sleep(1000);
@@ -101,18 +99,18 @@ public class CmbSavingsService {
                 Thread.sleep(2000);
 				WebElement element5=element2.findElement(By.id("_vTokenName"));//验证码输入框
 				Thread.sleep(2000);
-				element5.sendKeys(imageCode);
-				
-				Thread.sleep(1000);
+				element5.sendKeys(imageCode);	
+				//调出httpwatch
+				HttpWatchUtil.openHttpWatch();
 				loginButton.click();//点击登陆
-			}
+			}			
 			try {
 				HttpWatchUtil.startHttpWatch(50,575);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-			Thread.sleep(2000);
+			
 		    
 
 			
@@ -153,7 +151,6 @@ public class CmbSavingsService {
 						// TODO Auto-generated catch block
 						e1.printStackTrace();
 					}
-//    				System.out.println(HttpWatchUtil.getJsessionStr("JSESSIONID"));
     				String userName="";
     				try {
     				WebDriverWait wait = new WebDriverWait(driver, 20);
@@ -181,7 +178,6 @@ public class CmbSavingsService {
     				baseMes.put("openBranch", "");	//开户网点
     			    baseMes.put("openTime", "");	//	 开户日期
     			    baseMes.put("accountType", "");	//账号状态
-//    				System.out.println(HttpWatchUtil.getJsessionStr("JSESSIONID"));
     			    List<Map<String, Object>>    billMes=new ArrayList<Map<String,Object>>();  //存放交易明细
     			    //交易明细解析
     			    try {

@@ -64,16 +64,7 @@ public class AbcSavingService {
 				try{
 				 //打开此网页 
 				driver = DriverUtil.getDriverInstance("ie");				
-				driver.manage().window().maximize();
-				//老方法
-//				HttpWatchUtil.httpWatchStart();
-				//新方法
-				try {
-					HttpWatchUtil.startHttpWatch(50,575);
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
+				driver.manage().window().maximize();				
 				Thread.sleep(1000);
 				driver.get("https://perbank.abchina.com/EbankSite/startup.do");
 				 //判断是否加载页面 
@@ -81,12 +72,10 @@ public class AbcSavingService {
 				// 键入账号 
 				WebElement element = driver.findElement(By.id("username"));
 				element.sendKeys(username);
-//				Thread.sleep(2000);
-//				SendKeys.sendTab();
 				Thread.sleep(1500);
 				// 特殊字符处理,输入密码  
-				SendKeys.sendStr(1143+80, 378-20, userpwd);
-//				SendKeys.sendStr(1143+80, 378+35, userpwd);//本地
+//				SendKeys.sendStr(1143+80, 378-20, userpwd);
+				SendKeys.sendStr(1143+80, 378+35, userpwd);//本地
 				 //输入验证码 
 				Thread.sleep(1000);
 				WebElement elements = driver.findElement(By.id("vCode"));
@@ -95,8 +84,7 @@ public class AbcSavingService {
 				code.sendKeys(imgtext);
 				
 				 //登陆 
-				WebElement logo = driver.findElement(By.id("logo"));
-				
+				WebElement logo = driver.findElement(By.id("logo"));				
 				logo.click(); 
 				Thread.sleep(2000);
 				
@@ -212,7 +200,8 @@ public class AbcSavingService {
 					String cusname = "";						
 					logger.warn("-----------农业储蓄卡-----------登陆成功----------身份证号："+idCard);
 						// 登陆成功 
-						
+					//调出httpwatch
+					HttpWatchUtil.openHttpWatch();
 					PushSocket.push(status, UUID, "2000","农业储蓄卡登陆成功");// 开始执行推送登陆成功
 					Thread.sleep(2000);
 					driver.switchTo().frame("contentFrame");
@@ -278,7 +267,8 @@ public class AbcSavingService {
 			}else {
 				try {
 					
-				
+				//调出httpwatch
+				HttpWatchUtil.openHttpWatch();
 				String cusname = "";						
 				logger.warn("-----------农业储蓄卡-----------登陆成功----------身份证号："+idCard);
 					// 登陆成功 
