@@ -82,7 +82,7 @@ public class BcmSavingService {
 			driver.get("https://pbank.95559.com.cn/personbank/logon.jsp#");
 			
 			/* 获得账号输入框 */
-			WebElement username = driver.findElement(By.id("alias"));///TODO 	driver.findElement(By.id("alias")).isDisplayed();
+			WebElement username = driver.findElement(By.id("alias"));
 		
 			WebElement login = driver.findElement(By.id("login"));
 
@@ -90,8 +90,8 @@ public class BcmSavingService {
 			username.sendKeys(UserName);
 			Thread.sleep(2000);
 			
-//			SendKeys.sendStr(1139+80, 338-35, UserPwd);
-			SendKeys.sendStr(1139+80, 338+35, UserPwd);///TODO 	找图
+			SendKeys.sendStr(1139+80, 338-15, UserPwd);
+//			SendKeys.sendStr(1139+80, 338+35, UserPwd);
 			Thread.sleep(1000);
 			WebElement element = driver.findElement(By
 					.className("captchas-img-bg"));
@@ -102,12 +102,12 @@ public class BcmSavingService {
 				String imgtext = downloadImgs(driver, element);
 				logger.warn("-----------打码结果------------"+imgtext);
 				input_captcha.sendKeys(imgtext);
-
 			}
+			
+			login.click();			
+			Thread.sleep(1000);
 			//调出httpwatch
 			HttpWatchUtil.openHttpWatch();
-			login.click();
-			Thread.sleep(3000);
 			/* //此处判断是否登陆成功 */
 			boolean flgs = ElementExist(driver, By.className("lanse-12-b")); /* 错误表示 */
 			boolean flgb = ElementExist(driver, By.id("captchaErrMsg")); /* JS错误提示 */
@@ -308,8 +308,9 @@ public class BcmSavingService {
 			
 			status.put("errorCode", "0001");
 			status.put("errorInfo", "网络错误");
+			DriverUtil.close(driver);
 		}
-		DriverUtil.close(driver);
+		
 		 
 		logger.warn("-----------交通储蓄卡-----------查询结果----------返回结果："+status.toString());
 		return status;
@@ -381,6 +382,7 @@ public class BcmSavingService {
 
 		headers.clear();
 		jsession = HttpWatchUtil.getCookie("JSESSIONID");
+		driver.quit();
 		headers.put("Accept-Language", "zh-CN");
 		headers.put("Accept", "text/html, application/xhtml+xml, */*");	
 		headers.put("Accept-Encoding", "gzip, deflate");

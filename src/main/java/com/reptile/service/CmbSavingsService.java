@@ -76,8 +76,8 @@ public class CmbSavingsService {
 		    element.sendKeys(userCard);//输入账号
 		    Thread.sleep(1000);
 
-//		    SendKeys.sendStr(1180, 380+15, passWord);
-		    SendKeys.sendStr(1180, 380+60, passWord);//本地
+		    SendKeys.sendStr(1180, 380+15, passWord);
+//		    SendKeys.sendStr(1180, 380+60, passWord);//本地
 		    
 		
 			Thread.sleep(1000);
@@ -100,20 +100,18 @@ public class CmbSavingsService {
 				WebElement element5=element2.findElement(By.id("_vTokenName"));//验证码输入框
 				Thread.sleep(2000);
 				element5.sendKeys(imageCode);	
-				//调出httpwatch
-				HttpWatchUtil.openHttpWatch();
+				
 				loginButton.click();//点击登陆
-			}			
-			try {
-				HttpWatchUtil.startHttpWatch(50,575);
-			} catch (Exception e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			
-		    
+			}		
+			//调出httpwatch
+			HttpWatchUtil.openHttpWatch();
+//			try {
+//				HttpWatchUtil.startHttpWatch(50,575);
+//			} catch (Exception e) {
+//				// TODO Auto-generated catch block
+//				e.printStackTrace();
+//			}
 
-			
     	} catch (Exception e) {
 			logger.warn("民生银行",e);
 			// driver.quit();
@@ -142,6 +140,7 @@ public class CmbSavingsService {
     	            driver.quit();
     	            return map;
     			}else{//登陆成功
+//_exceptionMessageCode
     				logger.warn("--------------民生储蓄卡------------登陆成功------------身份证号："+idCard);
     				PushSocket.push(map, UUID, "2000","民生储蓄卡登陆成功");
     				

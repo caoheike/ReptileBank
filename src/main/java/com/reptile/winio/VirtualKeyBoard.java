@@ -98,7 +98,7 @@ public class VirtualKeyBoard {
 //				SendKeys.sendTab();
 //				Thread.sleep(1000);
 //				SendKeys.sendStr(pwd);
-				SendKeys.sendStr(1180, 380-5, pwd);
+				SendKeys.sendStr(1180, 380+15, pwd);
 //				SendKeys.sendStr(1180, 380+40, pwd);//本地
 				Thread.sleep(1000);
 				
@@ -516,7 +516,7 @@ public class VirtualKeyBoard {
 //			Thread.sleep(1000);
 //			/* 输入密码 */
 //			SendKeys.sendStr(pwd);
-			SendKeys.sendStr(1193+80, 358-35, pwd);
+			SendKeys.sendStr(1193+80, 358-15, pwd);
 //			SendKeys.sendStr(1193+80, 358+15, pwd);//本地
 			Thread.sleep(1000);
 			//KeysPress.sendPassWord(pwd);wy
