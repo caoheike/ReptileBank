@@ -167,9 +167,17 @@ public class BcmSavingService {
 						Thread.sleep(2000);
 						
 						logger.warn("-----------交通储蓄卡-----------获取数据明细----------身份证号："+userCard);
-						List<Map<String,Object>> list1 = new ArrayList<Map<String,Object>>(); 
-						list1 = getInfo(driver,list1,UserName);
-						
+						List<Map<String,Object>> list1 = new ArrayList<Map<String,Object>>();
+						list1 = getInfo(driver,list1,UserName, request);
+						if(list1.toString().contains("数据为空")) {							
+							logger.warn("---------------无明细信息 已推送app状态");
+							PushSocket.push(status, UUID, "7000","此卡无银行流水信息");
+							PushState.state(userCard, "savings", 200,"此卡无银行流水信息");				
+							status.put("errorCode", "0001");
+							status.put("errorInfo", "此卡无银行流水信息");
+							DriverUtil.close(driver);
+							return status;
+						}
 
 						
 						
@@ -293,6 +301,7 @@ public class BcmSavingService {
 				
 			}
 		}catch(Exception e) {
+			
 			if(flag == 1) {
 				logger.warn("--------------flag="+flag+"----------网络异常，登录失败");
 				PushSocket.push(status, UUID, "3000","网络异常，登录失败");								
@@ -324,7 +333,7 @@ public class BcmSavingService {
 	 * @return
 	 * @throws Exception
 	 */
-	public static List<Map<String,Object>>	getInfo(WebDriver driver,List<Map<String,Object>> list,String userCard) throws Exception{
+	public static List<Map<String,Object>>	getInfo(WebDriver driver,List<Map<String,Object>> list,String userCard,HttpServletRequest request) throws Exception{
 		String jsession = HttpWatchUtil.getCookie("JSESSIONID");
 		Map<String, Object> params = null;
 		Map<String, String> headers = new HashMap<String, String>(16);
@@ -340,7 +349,7 @@ public class BcmSavingService {
 		headers.put("If-Modified-Since", "0");
 		headers.put("Cache-Control", "no-cache,must-revalidate");		
 		headers.put("Accept-Encoding", "gzip, deflate");
-		headers.put("User-Agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)");	
+//		headers.put("User-Agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)");	
 		headers.put("Host", "pbank.95559.com.cn");	
 		headers.put("DNT", "1");	
 		headers.put("Connection", "keep-alive");		
@@ -358,11 +367,10 @@ public class BcmSavingService {
 		logger.warn("--------------safeValue-----------------"+safeValue);		
 		logger.warn("--------------账单-----------------");		
 		headers.clear();
-		jsession = HttpWatchUtil.getCookie("JSESSIONID");
 		headers.put("Accept-Language", "zh-CN");//
 		headers.put("Accept", "text/html, application/xhtml+xml, */*");	//
 		headers.put("Accept-Encoding", "gzip, deflate");//
-		headers.put("User-Agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)");	//
+//		headers.put("User-Agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)");	//
 		headers.put("Host", "pbank.95559.com.cn");	//
 		headers.put("DNT", "1");	//
 		headers.put("Connection", "keep-alive");	//	
@@ -370,7 +378,7 @@ public class BcmSavingService {
 		headers.put("Referer", "https://pbank.95559.com.cn/personbank/app/pebs.do?PSessionId="+pSessionId+"&x-channel=0&menuCode=&appId=&startMenu=&ibpsProtocolReq=&pebsUrl=&args=");
 		response = SimpleHttpClient.get("https://pbank.95559.com.cn/personbank/account/acQuery.do?"
 				+ "PSessionId="+pSessionId+"&x-channel=0&tab=0&menuCode=P001001&random="+random+"&ReqSafeFields"+safeValue, headers);
-		
+		logger.warn("--------------账单-----------------response："+response);
 		Document doc = Jsoup.parse(response);
         Element options = doc.getElementsByTag("td").get(16);
         Element a = options.getElementsByTag("a").get(0);        
@@ -381,12 +389,11 @@ public class BcmSavingService {
 		logger.warn("--------------明细-----------------");
 
 		headers.clear();
-		jsession = HttpWatchUtil.getCookie("JSESSIONID");
 		driver.quit();
 		headers.put("Accept-Language", "zh-CN");
 		headers.put("Accept", "text/html, application/xhtml+xml, */*");	
 		headers.put("Accept-Encoding", "gzip, deflate");
-		headers.put("User-Agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)");	
+//		headers.put("User-Agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)");	
 		headers.put("Host", "pbank.95559.com.cn");	
 		headers.put("DNT", "1");	
 		headers.put("Connection", "keep-alive");	
@@ -394,8 +401,18 @@ public class BcmSavingService {
 		headers.put("Referer", "https://pbank.95559.com.cn/personbank/app/pebs.do?PSessionId="+pSessionId+"&x-channel=0&menuCode=&appId=&startMenu=&ibpsProtocolReq=&pebsUrl=&args=");		
 		response = SimpleHttpClient.get("https://pbank.95559.com.cn/personbank/account/acTranRecordQuery.do?"
 				+ "PSessionId="+pSessionId+"&x-channel=0&cardNo="+cardNo+"&selectCardNo="+userCard+"&menuCode=P002000&random="+random+"&ReqSafeFields"+safeValue, headers);
+		
+		logger.warn("--------------明细-----------------response："+response);
+		if(!response.contains("recordtbody")) {
+	          Map<String,Object> map=new HashMap<String,Object>();
+	          map.put("null", "数据为空");
+	        	list.add(map);
+	        	return list;
+	        }
+		
 		Document info = Jsoup.parse(response);
         Element tbody = info.getElementById("recordtbody");
+        
         Elements tr = tbody.getElementsByTag("tr");
         List<Map<String, Object>> list1 = new ArrayList<Map<String, Object>>();
         list = getInfo(tr,list1); 		

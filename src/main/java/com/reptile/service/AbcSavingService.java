@@ -74,8 +74,8 @@ public class AbcSavingService {
 				element.sendKeys(username);
 				Thread.sleep(1500);
 				// 特殊字符处理,输入密码  
-//				SendKeys.sendStr(1143+80, 378, userpwd);
-				SendKeys.sendStr(1143+80, 378+35, userpwd);//本地
+				SendKeys.sendStr(1143+80, 378, userpwd);
+//				SendKeys.sendStr(1143+80, 378+35, userpwd);//本地
 				 //输入验证码 
 				Thread.sleep(1000);
 				WebElement elements = driver.findElement(By.id("vCode"));
@@ -114,12 +114,23 @@ public class AbcSavingService {
 					params.put("Verify", "no");
 					status.put("errorCode", "0000");
 					status.put("errorInfo", "成功");
-					status.put("data", params);
+					status.put("data", params);                    
+					String jsession = HttpWatchUtil.getCookie("ASP.NET_SessionId");
+					StringBuffer getCookie = GetCookie(driver);	
+					
+					String cookie = getCookie.toString().replaceAll("path=/;", "")+jsession;
+					
+					logger.warn("-------------农业银行储蓄卡----------cookie："+cookie);
+					String jiaotongUuid = String.valueOf(Math.random());
+					logger.warn("-------------农业银行储蓄卡----------jiaotongUuid："+jiaotongUuid);
+					session.setAttribute("jiaotong-uuid",jiaotongUuid);
+					session.setAttribute(jiaotongUuid,cookie);
+					
 				}else if(DriverUtil.waitByTitle("个人网上银行-用户名登录-短信校验", driver, 1)) {
 					WebElement sendSms = driver.findElement(By.id("dynamicPswText_sendSms"));					
 					sendSms.click();
 					try {
-						Thread.sleep(2000);
+						Thread.sleep(1000);
 					} catch (InterruptedException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
@@ -131,13 +142,24 @@ public class AbcSavingService {
 					} catch (Exception e) {
 						// TODO: handle exception
 					}
-//					driver.switchTo().window(currentHandler);
+					
 					session.setAttribute("ABCdriver", driver);
 					System.out.println("需要短信验证*************");
 					params.put("Verify", "yes");
 					status.put("errorCode", "0000");
 					status.put("errorInfo", "成功");
 					status.put("data", params);
+					
+					String jsession = HttpWatchUtil.getCookie("ASP.NET_SessionId");
+					StringBuffer getCookie = GetCookie(driver);	
+					
+					String cookie = getCookie.toString().replaceAll("path=/;", "")+jsession;
+					
+					logger.warn("-------------农业银行储蓄卡----------cookie："+cookie);
+					String jiaotongUuid = String.valueOf(Math.random());
+					logger.warn("-------------农业银行储蓄卡----------jiaotongUuid："+jiaotongUuid);
+					session.setAttribute("jiaotong-uuid",jiaotongUuid);
+					session.setAttribute(jiaotongUuid,cookie);
 				}else{
 					if(DriverUtil.waitByTitle("中国农业银行个人网银登录入口", driver, 1)) {
 						numCount=numCount+1;
@@ -159,7 +181,7 @@ public class AbcSavingService {
 					logger.warn("-------------农业银行储蓄卡------------登录失败-------------", e);
 					status.put("errorCode", "0002");// 异常处理
 					status.put("errorInfo", "网络异常，请重试！");
-					driver.quit();
+					driver.quit();C:
 					return status;
 				}
 				
@@ -213,9 +235,9 @@ public class AbcSavingService {
 					WebElement custName = driver
 							.findElement(By.id("show-custName"));
 					cusname = custName.getText();
-		
+					
 					List<Map<String, Object>> list1 = new ArrayList<Map<String, Object>>();
-					list1 = getInfo(driver,list1,numbe,cusname);
+					list1 = getInfo(driver,list1,numbe,cusname,session);
 							
 						params.clear();
 						headers.clear();
@@ -263,7 +285,7 @@ public class AbcSavingService {
 					
 					status.put("errorCode", "0001");
 					status.put("errorInfo", "网络错误");
-					
+					driver.quit();	
 					
 				}			
 			}else {
@@ -285,7 +307,7 @@ public class AbcSavingService {
 				cusname = custName.getText();
 	
 				List<Map<String, Object>> list1 = new ArrayList<Map<String, Object>>();
-				list1 = getInfo(driver,list1,numbe,cusname);
+				list1 = getInfo(driver,list1,numbe,cusname,session);
 						
 					params.clear();
 					headers.clear();
@@ -335,78 +357,106 @@ public class AbcSavingService {
 				
 				status.put("errorCode", "0001");
 				status.put("errorInfo", "网络错误");
-				
+				driver.quit();	
 				
 			}	
 			}
 			
-			driver.quit();	
+			
 			return status;	
 		}
 
 
-		public static List<Map<String, Object>>	getInfo(WebDriver driver,List<Map<String, Object>> list,String userCard,String cusname) throws Exception{	
-			String jsession = HttpWatchUtil.getCookie("WT_FPC");			
-			System.out.println("-----------------jsession=:"+jsession);
-			Map<String, Object> params = null;
-			Map<String, String> headers = new HashMap<String, String>(16);
-			params = new HashMap<String, Object>(16);			
-			// 请求1  账单
-			logger.warn("--------------账单请求-----------------");
-			headers.put("Host", "perbank.abchina.com");					
-			headers.put("Cookie", jsession);
+		public static List<Map<String, Object>>	getInfo(WebDriver driver,List<Map<String, Object>> list,String userCard,String cusname,HttpSession session) throws Exception{	
+//			String jsession = HttpWatchUtil.getCookie("ASP.NET_SessionId");		//WT_FPC	本地Key值		
+//			System.out.println("-----------------jsession=:"+jsession);
+//			Map<String, Object> params = null;
+//			Map<String, String> headers = new HashMap<String, String>(16);
+//			params = new HashMap<String, Object>(16);			
+//			// 请求1  账单
+//			logger.warn("--------------账单请求-----------------");
+//			headers.put("Host", "perbank.abchina.com");					
+//			headers.put("Cookie", jsession);
+//			
+//			headers.put("Referer", "https://perbank.abchina.com/EbankSite/index.do");
+//			String response = SimpleHttpClient.get("https://perbank.abchina.com/EbankSite/MyAccountInitAct.do", headers);
+//			logger.warn("--------------账单请求结果-----------------"+response);
+//			
+//			//String response = SimpleHttpClient.post("https://perbank.abchina.com/EbankSite/MyAccountInitAct.do", params,headers);
+////			driver.get("https://perbank.abchina.com/EbankSite/MyAccountInitAct.do");
+//			
+//			System.out.println(driver.getPageSource());
+//			
+//			// 请求2   明细
+//			logger.warn("--------------明细请求-----------------");
+//			jsession = HttpWatchUtil.getCookie("ASP.NET_SessionId");	//WT_FPC	本地Key值	
+//			System.out.println("-----------------jsession=:"+jsession);
+//			headers.put("Cookie", jsession);
+//			params.put("acctId", userCard);	
+//			params.put("acctCurCode", 156);
+//			params.put("oofeFlg", 0);
+//			headers.put("Content-Type", "application/x-www-form-urlencoded");			
+//			headers.put("Referer", "https://perbank.abchina.com/EbankSite/MyAccountInitAct.do");
+//			
+//			headers.put("Accept", "text/html, application/xhtml+xml, */*");		
+//			headers.put("Accept-Language", "zh-CN");
+//			headers.put("User-Agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)");
+//			headers.put("Accept-Encoding", "gzip, deflate");	
+//			headers.put("Connection", "Keep-Alive");	
+//			headers.put("Content-Type", "application/x-www-form-urlencoded");
+//			response = SimpleHttpClient.post("https://perbank.abchina.com/EbankSite/AccountTradeDetailQueryInitAct.do",params, headers);			
+//			logger.warn("--------------明细请求结果-----------------"+response);
+//
+//			
+//			
+//			//六个月
+//			Map<String, String> headers1 = new HashMap<String, String>(16);
+//			logger.warn("--------------六个月明细请求-----------------");
+//			headers1.put("Accept", "application/json, text/javascript, */*; q=0.01");
+//			headers1.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
+//			headers1.put("Referer", "https://perbank.abchina.com/EbankSite/AccountTradeDetailQueryInitAct.do");	
+////			headers1.put("User-Agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)");	
+//			headers1.put("X-Requested-With", "XMLHttpRequest");	
+//			headers1.put("Accept-Language", "zh-CN");
+//			headers1.put("Accept-Encoding", "gzip, deflate");
+//			headers1.put("Cookie", jsession);
+//			headers1.put("Connection", "Keep-Alive");
+////			headers1.put("DNT", "1");  //测试服没有这个
+//			headers1.put("Cache-Control", "no-cache");
+//			headers1.put("Host", "perbank.abchina.com");	
+//			
+//					
+//		
+//			params.clear();
+//			//trnStartDt=20170801&trnEndDt=20180117&acctId=6228450216003329461&acctType=401&acctName=张焕斌&acctOpenBankId=33017&provCode=26&busCode=200002&oofeFlg=0&acctCurCode=156&nextPageKey=
+//			String startTime = Dates.beforMonth(6);
+//			String endTime = Dates.currentTime();
+//			logger.warn("---------------------startTime:"+startTime+"------------------------endTime:"+endTime);
+//			params.put("trnStartDt", startTime);	
+//			params.put("trnEndDt", endTime);
+//			params.put("acctId", userCard);
+//			
+//			params.put("acctType", 401);	
+//			params.put("acctName", cusname);
+//			params.put("acctOpenBankId", 33017);
+//			
+//			params.put("provCode", 26);	
+//			params.put("busCode", 200002);
+//			params.put("oofeFlg", 0);
+//			params.put("acctCurCode", 156);
+//			params.put("nextPageKey", "");
+//			response = SimpleHttpClient.post("https://perbank.abchina.com/EbankSite/AccountTradeDetailQueryAct.do",params, headers1);
 			
-			headers.put("Referer", "https://perbank.abchina.com/EbankSite/index.do");
-			String response = SimpleHttpClient.get("https://perbank.abchina.com/EbankSite/MyAccountInitAct.do", headers);
-			logger.warn("--------------账单请求结果-----------------"+response);
+			String jiaotongUuid = (String) session.getAttribute("jiaotong-uuid");
+			logger.warn("---------------------数据获取中jiaotongUuid:"+jiaotongUuid);
+			String jsession = (String) session.getAttribute(jiaotongUuid);
+			logger.warn("---------------------数据获取中jsession:"+jsession);
+//			StringBuffer getCookie = GetCookie(driver);		
+//			driver.quit();
+			System.out.println("---------jsession---------"+jsession );
 			
-			//String response = SimpleHttpClient.post("https://perbank.abchina.com/EbankSite/MyAccountInitAct.do", params,headers);
-//			driver.get("https://perbank.abchina.com/EbankSite/MyAccountInitAct.do");
-			
-			System.out.println(driver.getPageSource());
-			
-			// 请求2   明细
-			logger.warn("--------------明细请求-----------------");
-			jsession = HttpWatchUtil.getCookie("WT_FPC");			
-			System.out.println("-----------------jsession=:"+jsession);
-			headers.put("Cookie", jsession);
-			params.put("acctId", userCard);	
-			params.put("acctCurCode", 156);
-			params.put("oofeFlg", 0);
-			headers.put("Content-Type", "application/x-www-form-urlencoded");			
-			headers.put("Referer", "https://perbank.abchina.com/EbankSite/MyAccountInitAct.do");
-			
-			headers.put("Accept", "text/html, application/xhtml+xml, */*");		
-			headers.put("Accept-Language", "zh-CN");
-			headers.put("User-Agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)");
-			headers.put("Accept-Encoding", "gzip, deflate");	
-			headers.put("Connection", "Keep-Alive");	
-			headers.put("Content-Type", "application/x-www-form-urlencoded");
-			response = SimpleHttpClient.post("https://perbank.abchina.com/EbankSite/AccountTradeDetailQueryInitAct.do",params, headers);			
-			logger.warn("--------------明细请求结果-----------------"+response);
-
-			
-			
-			//六个月
-			Map<String, String> headers1 = new HashMap<String, String>(16);
-			logger.warn("--------------六个月明细请求-----------------");
-			headers1.put("Accept", "application/json, text/javascript, */*; q=0.01");
-			headers1.put("Content-Type", "application/x-www-form-urlencoded;charset=utf-8");
-			headers1.put("Referer", "https://perbank.abchina.com/EbankSite/AccountTradeDetailQueryInitAct.do");	
-			headers1.put("User-Agent", "Mozilla/5.0 (compatible; MSIE 10.0; Windows NT 6.1; WOW64; Trident/6.0)");	
-			headers1.put("X-Requested-With", "XMLHttpRequest");	
-			headers1.put("Accept-Language", "zh-CN");
-			headers1.put("Accept-Encoding", "gzip, deflate");
-			headers1.put("Cookie", jsession);
-			headers1.put("Connection", "Keep-Alive");
-			headers1.put("DNT", "1");
-			headers1.put("Cache-Control", "no-cache");
-			headers1.put("Host", "perbank.abchina.com");	
-			
-					
-		
-			params.clear();
-			//trnStartDt=20170801&trnEndDt=20180117&acctId=6228450216003329461&acctType=401&acctName=张焕斌&acctOpenBankId=33017&provCode=26&busCode=200002&oofeFlg=0&acctCurCode=156&nextPageKey=
+			//农业参数
+			Map<String,Object> params=new HashMap<String,Object>();
 			String startTime = Dates.beforMonth(6);
 			String endTime = Dates.currentTime();
 			logger.warn("---------------------startTime:"+startTime+"------------------------endTime:"+endTime);
@@ -415,15 +465,33 @@ public class AbcSavingService {
 			params.put("acctId", userCard);
 			
 			params.put("acctType", 401);	
-			params.put("acctName", cusname);
+			params.put("acctName", "fghdfgh");
 			params.put("acctOpenBankId", 33017);
 			
 			params.put("provCode", 26);	
 			params.put("busCode", 200002);
 			params.put("oofeFlg", 0);
 			params.put("acctCurCode", 156);
-			params.put("nextPageKey", "");
-			response = SimpleHttpClient.post("https://perbank.abchina.com/EbankSite/AccountTradeDetailQueryAct.do",params, headers1);
+					
+			
+			
+//			params.put("acctId",userCard);
+//			params.put("acctCurCode","156");
+//			params.put("acctType","401");
+//			params.put("busCode","200002");
+//			params.put("nextPageKey","");
+//			params.put("oofeFlg","0");
+//			params.put("provCode","26");
+//			params.put("trnEndDt","20180118");
+//			params.put("trnStartDt","20180117");
+//			params.put("acctName","寮犵剷鏂?acctOpenBankId=33017");
+			Map<String,String> headers1=new HashMap<String,String>();
+//	
+			headers1.put("Cookie",jsession);
+			String response = SimpleHttpClient.post("https://perbank.abchina.com/EbankSite/AccountTradeDetailQueryAct.do", params, headers1);
+
+			
+			
 			logger.warn("--------------六个月明细请求结果-----------------"+response);
 			List<List<String>> pageHeader = new ArrayList<List<String>>();
 			
@@ -447,6 +515,7 @@ public class AbcSavingService {
 				nextPageKey = (String) JsonUtil.getJsonValue1(response, "nextPageKey");
 				
 			}
+			driver.quit();
 			return infos;
 			
 			
@@ -470,6 +539,17 @@ public class AbcSavingService {
 			return infos;
 			
 		}
-			
+		public static StringBuffer GetCookie(WebDriver driver) {
+			// 获得cookie用于发包
+			Set<Cookie> cookies = driver.manage().getCookies();
+			StringBuffer tmpcookies = new StringBuffer();
+
+			for (Cookie cookie : cookies) {
+				tmpcookies.append(cookie.toString() + ";");
+
+			}
+			return tmpcookies;
+
+		}	
 		
 }

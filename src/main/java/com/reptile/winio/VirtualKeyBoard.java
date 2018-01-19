@@ -778,11 +778,9 @@ public class VirtualKeyBoard {
 				} else {
 					map.put("errorCode", "0001");
 					map.put("errorInfo", "验证码发送失败");
-					PushSocket.push(map, UUID, "3000","验证码发送失败,登陆失败");
 				}
 			} else {
 				System.out.println("****************不需要短信验证码*************");
-				PushSocket.push(map, UUID, "2000","招商银行信用卡登陆成功");
 				data.put("Verify", "no");
 				map.put("errorCode", "0000");
 				/* map.put("errorinfo", "操作成功"); //原始数据 */
@@ -810,15 +808,12 @@ public class VirtualKeyBoard {
 				map.put("errorCode", "0005");
 			} else {
 				if (elements1.getText().contains("开户地")) {
-					map.put("errorInfo", "请重试");
+					map.put("errorInfo", elements1.getText());
 					map.put("errorCode", "0001");
-					PushSocket.push(map, UUID, "3000",elements1.getText());
 				} else if (elements1.getText().contains("请输入一网通、一卡通、信用卡、存折账号")) {
-					PushSocket.push(map, UUID, "3000",elements1.getText());
 					map.put("errorInfo", elements1.getText());
 					map.put("errorCode", "0001");
 				} else {
-					PushSocket.push(map, UUID, "3000",elements1.getText());
 					map.put("errorInfo", elements1.getText());
 					map.put("errorCode", "0001");
 				}

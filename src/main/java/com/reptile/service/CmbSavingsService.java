@@ -139,8 +139,8 @@ public class CmbSavingsService {
     	            PushSocket.push(map, UUID, "3000","您为第一次登陆网上银行，请先登陆官网设置您的登陆名和登陆密码");
     	            driver.quit();
     	            return map;
-    			}else{//登陆成功
-//_exceptionMessageCode
+    			}else{
+    				//登陆成功
     				logger.warn("--------------民生储蓄卡------------登陆成功------------身份证号："+idCard);
     				PushSocket.push(map, UUID, "2000","民生储蓄卡登陆成功");
     				

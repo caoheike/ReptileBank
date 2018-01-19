@@ -139,6 +139,17 @@ public class MobileService {
 					    	}
 					   
 						}
+			        	if(list.size()<=0){
+				    		PushSocket.push(map, UUID, "7000","暂无账单");
+				    		if(isok==true){
+								PushState.state(idCard,"bankBillFlow", 200,"暂无账单");
+							}else {
+								PushState.stateX(idCard,"bankBillFlow", 200,"暂无账单");
+							}
+				    		map.put("errorCode","0001");
+			    			map.put("errorInfo","暂无账单");
+				    		return map;
+				    	}
 					} catch (Exception e) {
 					 	for (int i = 0; i < list.size(); i++) {
 				         	paramend.put("ClientNo",rest2.substring(rest2.indexOf("<ClientNo>"), rest2.indexOf("</ClientNo>")).replace("<ClientNo>", ""));
@@ -283,19 +294,20 @@ public class MobileService {
 					    	}else{
 					    		lists.add(endinfo);
 					    	}
-					    	if(list.size()<=0){
-					    		PushSocket.push(map, UUID, "7000","暂无账单");
-					    		if(isok==true){
-									PushState.state(idCard,"bankBillFlow", 200,"暂无账单");
-								}else {
-									PushState.stateX(idCard,"bankBillFlow", 200,"暂无账单");
-								}
-					    		map.put("errorCode","0001");
-				    			map.put("errorInfo","暂无账单");
-					    		return map;
-					    	}
+					    	
 				        }
 					      
+				        if(list.size()<=0){
+				    		PushSocket.push(map, UUID, "7000","暂无账单");
+				    		if(isok==true){
+								PushState.state(idCard,"bankBillFlow", 200,"暂无账单");
+							}else {
+								PushState.stateX(idCard,"bankBillFlow", 200,"暂无账单");
+							}
+				    		map.put("errorCode","0001");
+			    			map.put("errorInfo","暂无账单");
+				    		return map;
+				    	}
 						} catch (Exception e) {
 						    for (int i = 0; i < list.size(); i++) {
 					          	//获取账单详情
@@ -695,6 +707,7 @@ public class MobileService {
 		    		   PushSocket.push(params, UUID, "7000","您的账号暂无账单");
 		    		   PushState.state(idcard, "savings", 200,"您的账号暂无账单");
 		    		   System.out.println("*********************************************您的账号暂无账单");
+		    		   return status;
 				   }
 				   params.clear();
 				   headers.clear();
