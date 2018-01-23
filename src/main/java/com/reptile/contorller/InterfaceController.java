@@ -23,8 +23,12 @@ import com.reptile.Bank.CMBService;
 import com.reptile.service.AbcSavingService;
 import com.reptile.service.BcmSavingService;
 import com.reptile.service.CmbSavingsService;
+import com.reptile.service.CmbcCreditService;
 import com.reptile.service.MobileService;
 import com.reptile.service.SPDBService;
+import com.reptile.util.ConstantInterface;
+import com.reptile.util.MessageConstamts;
+import com.reptile.util.RedisSourceUtil;
 import com.reptile.winio.CmbBank;
 import com.reptile.winio.VirtualKeyBoard;
 
@@ -40,13 +44,17 @@ public class InterfaceController {
 
 	@Resource
 	private MobileService mobileService;
-	
+	@Resource 
+	private RedisSourceUtil redisSourceUtil;
+	@Resource 
+	private CmbcCreditService msBank;
 	
 	
 
 	@ResponseBody
 	@RequestMapping(value = "BankLogin", method = RequestMethod.POST)
 	@ApiOperation(value = "银行登陆", notes = "银行登陆")
+	
 	// 设置标题描述
 	public Map<String, Object> Login(HttpServletRequest request,
 			HttpServletResponse response, @RequestParam("number") String numbe,
@@ -61,9 +69,12 @@ public class InterfaceController {
 		CMBService CMB=new CMBService();
 		Map<String, Object> map = new HashMap<String, Object>();
 		HttpSession session = request.getSession();
-		String UUID = request.getParameter("UUID");
-		String userCard = request.getParameter("userCard");
-		String timeCnt = request.getParameter("timeCnt");
+//		String UUID = request.getParameter("UUID");
+		String UUID = "54557451454248+jhfjdkshfdsj";
+//		String userCard = request.getParameter("userCard");
+		String userCard = "610111199203252021";
+//		String timeCnt = request.getParameter("timeCnt");
+		String timeCnt = "2017-12-12";
 		System.out.println("---*****************-----*****************-------userCard:"+userCard);
 		synchronized (this) {			
 			if (BankType.equals("CMB")) {// 招商银行
@@ -75,7 +86,7 @@ public class InterfaceController {
 			} else if (BankType.equals("BOC")) {
 
 			} else if (BankType.equals("CMBC")) {// 民生信用卡
-				map = bank.CMBCLogin(numbe, pwd, BankType, userCard, UUID,timeCnt);
+				map = msBank.doLogin(request,numbe, pwd, BankType, userCard, UUID,timeCnt);
 			} else if (BankType.equals("CMBC2")) {// 民生储蓄卡
 				map = cmbs.login(request, response, numbe, pwd,
 						userCard, UUID);
@@ -219,7 +230,26 @@ public class InterfaceController {
 
 	}
 */
-	
+	 @ApiOperation(value = "人法网开关", notes = "")
+	    @ResponseBody
+	    @RequestMapping(value = "RenFaSwitch", method = RequestMethod.POST)
+	    public Map<String,Object> renFaSwitch(HttpServletRequest request, HttpServletResponse response) {
+	      Map<String,Object> map=new HashMap<String,Object>(8);
+	      String rest=redisSourceUtil.getValue(ConstantInterface.lawStatus);
+	       if(rest.contains(MessageConstamts.OPEN_YES)){
+	         map.put("errorCode",MessageConstamts.STRING_0000);
+	         map.put("errorInfo", MessageConstamts.STRING_RENFA);
+	       }else{
+	         map.put("errorCode",MessageConstamts.STRING_0001);
+	         map.put("errorInfo",MessageConstamts.STRING_RENFA_CLOSE);
+	       }
+	       
+	          
+	      return map;
+
+	      
+	      
+	    }
 	
 	
 }
