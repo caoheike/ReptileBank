@@ -93,7 +93,7 @@ public class InterfaceController {
 			} else if (BankType.equals("GDB")) {// 广发银行信用卡
 				map = bank.GDBLogin(numbe, pwd, userCard, UUID,timeCnt);
 			} else if (BankType.equals("ABC")) {// 农业银行储蓄卡
-				map = AbcSavingService.doGetDetail(numbe, pwd, UUID, userCard,session);
+				map = AbcSavingService.doGetDetail(numbe, pwd, UUID, userCard,session,request);
 			} else if (BankType.equals("BCM")) {// 交通银行
 				map = BcmSavingService.BcmLogins(request,numbe, pwd, UUID,userCard);
 			} else if (BankType.equals("X-BCM")) {// 交通银行 信用卡
@@ -159,7 +159,7 @@ public class InterfaceController {
 		HttpSession session = request.getSession();
 
 		return AbcSavingService.abcQueryInfo(code, idCard,
-				session, UUID,numbe);
+				session, UUID,numbe, request);
 
 	}
 	/**

@@ -76,8 +76,8 @@ public class CmbSavingsService {
 		    element.sendKeys(userCard);//输入账号
 		    Thread.sleep(1000);
 
-		    SendKeys.sendStr(1180, 380+15, passWord);
-//		    SendKeys.sendStr(1180, 380+60, passWord);//本地
+//		    SendKeys.sendStr(1180, 380+15, passWord);
+		    SendKeys.sendStr(1180, 380+60, passWord);//本地
 		    
 		
 			Thread.sleep(1000);

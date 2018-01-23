@@ -78,15 +78,16 @@ public class BcmLogins {
 		}
 		flag = 1;
 		System.setProperty("webdriver.chrome.driver", "C:/ie/chromedriver.exe");
-		ChromeOptions options = new ChromeOptions();
-		// 设置浏览器大小避免截图错乱
-		options.addArguments("start-maximized");
-		ChromeDriver driver = new ChromeDriver(options);
+//	    ChromeOptions options = new ChromeOptions();
+//
+//	    options.addArguments("start-maximized");
+	    ChromeDriver driver = new ChromeDriver();
+	
 		try {
 			logger.warn("--------------交通银行信用卡---------------登陆开始----------------身份证号："+UserCard);
 			// 开始执行任务
 			driver.get("https://creditcardapp.bankcomm.com/idm/sso/login.html?service=https://creditcardapp.bankcomm.com/member/shiro-cas");
-				driver.findElement(By.className("close_overlay")).click();
+			driver.findElement(By.className("close_overlay")).click();
 			
 
 			driver.findElementById("cardNo").sendKeys(UserNumber);
@@ -314,10 +315,15 @@ public class BcmLogins {
 				DriverUtil.close(driver);
 			}
 		}catch (Exception e) {
+			e.printStackTrace();
+			logger.warn(e + "网络异常");
 			if(flag == 1) {
-				logger.warn("--------------flag="+flag+"----------网络异常，数据获取异常");
-				PushSocket.push(map, UUID, "7000","网络异常");					
+				logger.warn("--------------flag="+flag+"----------网络异常，登陆失败");
+				PushSocket.push(map, UUID, "3000","网络异常");					
 			}else if(flag == 2) {
+				logger.warn("--------------flag="+flag+"----------网络异常，数据获取失败");
+				PushSocket.push(map, UUID, "7000","网络异常");						
+			}else if(flag == 3) {
 				logger.warn("--------------flag="+flag+"----------网络异常，认证失败");
 				PushSocket.push(map, UUID, "9000","网络异常");						
 			}
