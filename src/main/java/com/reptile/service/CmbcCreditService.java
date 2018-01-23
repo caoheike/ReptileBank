@@ -228,23 +228,24 @@ public class CmbcCreditService {
 		}
 		
 
-		params.clear();
-		params.put("CreditAcType", "0010");
-		params.put("CurrencyFlag", "L");
-		params.put("BillDate", recentDate);
-		params.put("BillDay", billDay);
-		// 请求3
-		response = SimpleHttpClient.post(
-				"https://nper.cmbc.com.cn/pweb/CreditBillTitleQry.do", params,
-				headers);
-		logger.warn("------请求3------response：" + response);
-		String acNo = (String) JsonUtil.getJsonValue1(response, "AcNo");
+		
 
 		int total = 6;
 		for (int j = 0; j < total; j++) {
-
+			params.clear();
+			params.put("CreditAcType", "0010");
+			params.put("CurrencyFlag", "L");
+			params.put("BillDate", recentDate);
+			params.put("BillDay", billDay);
+			// 请求3
+			response = SimpleHttpClient.post(
+					"https://nper.cmbc.com.cn/pweb/CreditBillTitleQry.do", params,
+					headers);
+			logger.warn("------请求3------response：" + response);
+			String acNo = (String) JsonUtil.getJsonValue1(response, "AcNo");
+			
+			
 			List<String> item = new ArrayList<String>(16);
-
 			params.clear();
 			params.put("CreditAcType", "0010");
 			params.put("CurrencyFlag", "L");
@@ -296,7 +297,7 @@ public class CmbcCreditService {
 		return list;
 	}
 	public List<Map<String, Object>> getInfos(List<Map<String, Object>> list,List<Map<String, Object>> getLists){
-		Map<String, Object> info = new HashMap<String, Object>();
+		Map<String, Object> payRecord = new HashMap<String, Object>();
 		/*
 		 * "MonthSeq":"333",
             "JnlNo":"258151",
