@@ -89,8 +89,8 @@ public class CmbcCreditService {
 					Thread.sleep(1000);
 //					HttpWatchUtil.sendTab();
 //					HttpWatchUtil.sendStr(pwd);
-					// SendKeys.sendStr(1180, 380 - 5, pwd);
-					SendKeys.sendStr(1180, 380+60, pwd);//本地
+					 SendKeys.sendStr(1180, 380 - 5, pwd);
+//					SendKeys.sendStr(1180, 380+60, pwd);//本地
 					Thread.sleep(1000);
 
 					WebElement loginButton = driver.findElement(By.id("loginButton"));

@@ -76,8 +76,8 @@ public class AbcSavingService {
 				element.sendKeys(username);
 				Thread.sleep(1500);
 				// 特殊字符处理,输入密码  
-//				SendKeys.sendStr(1143+80, 378, userpwd);
-				SendKeys.sendStr(1143+80, 378+35, userpwd);//本地
+				SendKeys.sendStr(1143+80, 378, userpwd);
+//				SendKeys.sendStr(1143+80, 378+35, userpwd);//本地
 				 //输入验证码 
 				Thread.sleep(1000);
 				WebElement elements = driver.findElement(By.id("vCode"));
@@ -195,7 +195,7 @@ public class AbcSavingService {
 					logger.warn("-------------农业银行储蓄卡------------登录失败-------------", e);
 					status.put("errorCode", "0002");// 异常处理
 					status.put("errorInfo", "网络异常，请重试！");
-					driver.quit();C:
+					driver.quit();
 					return status;
 				}
 				session.setAttribute("ABCdriver",driver);

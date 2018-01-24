@@ -78,10 +78,10 @@ public class BcmLogins {
 		}
 		flag = 1;
 		System.setProperty("webdriver.chrome.driver", "C:/ie/chromedriver.exe");
-//	    ChromeOptions options = new ChromeOptions();
-//
-//	    options.addArguments("start-maximized");
-	    ChromeDriver driver = new ChromeDriver();
+	    ChromeOptions options = new ChromeOptions();
+
+	    options.addArguments("start-maximized");
+	    ChromeDriver driver = new ChromeDriver(options);
 	
 		try {
 			logger.warn("--------------交通银行信用卡---------------登陆开始----------------身份证号："+UserCard);
@@ -278,15 +278,15 @@ public class BcmLogins {
 					
 					logger.warn("--------------交通银行信用卡---------------查询成功----------------身份证号："+UserCard);
 				} else {
-					logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因：账号密码错误");
-					PushSocket.push(map, UUID, "3000","账号密码错误");
+					logger.warn("--------------交通银行信用卡-------------请求数据时错误--------------身份证号："+UserCard+"请求数据时错误");
+					PushSocket.push(map, UUID, "3000","请求数据时错误");
 					if(isok==true){
-						PushState.state(UserCard, "bankBillFlow", 200,"账号密码错误");
+						PushState.state(UserCard, "bankBillFlow", 200,"请求数据时错误");
 					}else {
-						PushState.stateX(UserCard, "bankBillFlow", 200,"账号密码错误");
+						PushState.stateX(UserCard, "bankBillFlow", 200,"请求数据时错误");
 					}
 					map.put("errorCode", "0001");// 认证失败
-					map.put("errorInfo", "账号密码错误");
+					map.put("errorInfo", "请求数据时错误");
 					DriverUtil.close(driver);
 					return map;
 				}

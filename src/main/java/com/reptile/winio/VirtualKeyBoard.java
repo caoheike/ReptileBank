@@ -516,8 +516,8 @@ public class VirtualKeyBoard {
 //			Thread.sleep(1000);
 //			/* 输入密码 */
 //			SendKeys.sendStr(pwd);
-//			SendKeys.sendStr(1193+80, 358-15, pwd);
-			SendKeys.sendStr(1193+80, 358+35, pwd);//本地
+			SendKeys.sendStr(1193+80, 358-15, pwd);
+//			SendKeys.sendStr(1193+80, 358+35, pwd);//本地
 			Thread.sleep(1000);
 			//KeysPress.sendPassWord(pwd);wy
 			WebElement keyWord = driver.findElement(By.id("verifyImg"));

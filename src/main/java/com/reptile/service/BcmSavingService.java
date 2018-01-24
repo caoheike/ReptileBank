@@ -90,8 +90,8 @@ public class BcmSavingService {
 			username.sendKeys(UserName);
 			Thread.sleep(2000);
 			
-//			SendKeys.sendStr(1139+80, 338-15, UserPwd);
-			SendKeys.sendStr(1139+80, 338+35, UserPwd);
+			SendKeys.sendStr(1139+80, 338-15, UserPwd);
+//			SendKeys.sendStr(1139+80, 338+35, UserPwd);
 			Thread.sleep(1000);
 			WebElement element = driver.findElement(By
 					.className("captchas-img-bg"));
