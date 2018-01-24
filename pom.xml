@@ -346,16 +346,17 @@
 			<version>0.0.2</version>
 		</dependency>
 		<!-- httpwatch 拦截cookie -->
-		<dependency>
-			<groupId>com.hoomsun.httpwatch</groupId>
-			<artifactId>httpwatch</artifactId>
-			<version>0.0.2</version>
-		</dependency>
-		<!-- 配置redis -->
-		<dependency>
-		    <groupId>org.springframework.boot</groupId>
-		    <artifactId>spring-boot-starter-data-redis</artifactId>
-		</dependency>
+<!-- 		<dependency> -->
+<!-- 			<groupId>com.hoomsun.httpwatch</groupId> -->
+<!-- 			<artifactId>httpwatch</artifactId> -->
+<!-- 			<version>0.0.2</version> -->
+<!-- 		</dependency> -->
+
+<!-- 配置redis -->
+    <dependency>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-data-redis</artifactId>
+    </dependency>
 	</dependencies>
 
 
