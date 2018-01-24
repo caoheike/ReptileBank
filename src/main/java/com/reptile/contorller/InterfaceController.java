@@ -20,6 +20,7 @@ import com.reptile.Bank.AbcBank;
 import com.reptile.Bank.BcmLogin;
 import com.reptile.Bank.BcmLogins;
 import com.reptile.Bank.CMBService;
+import com.reptile.analysis.BcmCreditAnalysis;
 import com.reptile.service.AbcSavingService;
 import com.reptile.service.BcmSavingService;
 import com.reptile.service.CmbSavingsService;
@@ -48,7 +49,8 @@ public class InterfaceController {
 	private RedisSourceUtil redisSourceUtil;
 	@Resource 
 	private CmbcCreditService msBank;
-	
+	@Resource 
+	private BcmCreditAnalysis bcmCreditAnalysis;
 	
 
 	@ResponseBody
@@ -69,12 +71,12 @@ public class InterfaceController {
 		CMBService CMB=new CMBService();
 		Map<String, Object> map = new HashMap<String, Object>();
 		HttpSession session = request.getSession();
-		String UUID = request.getParameter("UUID");
-//		String UUID = "54557451454248+jhfjdkshfdsj";
-		String userCard = request.getParameter("userCard");
-//		String userCard = "610111199203252021";
-		String timeCnt = request.getParameter("timeCnt");
-//		String timeCnt = "2017-12-12";
+//		String UUID = request.getParameter("UUID");
+		String UUID = "54557451454248+jhfjdkshfdsj";
+//		String userCard = request.getParameter("userCard");
+		String userCard = "610111199203252021";
+//		String timeCnt = request.getParameter("timeCnt");
+		String timeCnt = "2017-12-12";
 		System.out.println("---*****************-----*****************-------userCard:"+userCard);
 		synchronized (this) {			
 			if (BankType.equals("CMB")) {// 招商银行
@@ -97,7 +99,7 @@ public class InterfaceController {
 			} else if (BankType.equals("BCM")) {// 交通银行
 				map = BcmSavingService.BcmLogins(request,numbe, pwd, UUID,userCard);
 			} else if (BankType.equals("X-BCM")) {// 交通银行 信用卡
-				map = JiaoTong.BankLogin(numbe, pwd, userCard, request, UUID,timeCnt);
+				map = bcmCreditAnalysis.BankLogin(numbe, pwd, userCard, request, UUID,timeCnt);//jiaotong 
 			}
 			
 			return map;
