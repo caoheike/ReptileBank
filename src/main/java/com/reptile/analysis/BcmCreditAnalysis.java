@@ -4,7 +4,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -14,7 +13,6 @@ import java.util.regex.Pattern;
 
 import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
 
 import org.apache.http.client.ClientProtocolException;
 import org.apache.log4j.Logger;
@@ -26,7 +24,6 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.Dimension;
 import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.Point;
 import org.openqa.selenium.TakesScreenshot;
@@ -39,6 +36,7 @@ import org.openqa.selenium.remote.Augmenter;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.springframework.stereotype.Service;
 
 import com.reptile.util.CountTime;
 import com.reptile.util.DriverUtil;
@@ -51,8 +49,6 @@ import com.reptile.util.Resttemplate;
 import com.reptile.util.SimpleHttpClient;
 import com.reptile.util.application;
 
-import net.sf.json.JSONArray;
-
 /**
  * 
  * @author Bigyoung
@@ -60,32 +56,32 @@ import net.sf.json.JSONArray;
  * @deprecated 交通信用卡
  * @date 2017年11月16日10:51:14
  */
+@Service
 public class BcmCreditAnalysis {
 
-	private Logger logger = Logger.getLogger(BcmCreditAnalysis.class);
+	private static Logger logger = Logger.getLogger(BcmCreditAnalysis.class);
 
 	Resttemplate resttemplate = new Resttemplate();
 
 	public Map<String, Object> BankLogin(String UserNumber, String UserPwd,
-			String UserCard, HttpServletRequest request, String UUID,String timeCnt)
-			throws InterruptedException, ParseException {
+			String UserCard, HttpServletRequest request, String UUID,String timeCnt) {
 		int flag = 0;
-		boolean isok =CountTime.getCountTime(timeCnt); 
-		JavascriptExecutor jss = null;
-		Map<String, Object> map = new HashMap<String, Object>();
-		Map<String, Object> data = new HashMap<String, Object>();
-		PushSocket.push(map, UUID, "1000","交通银行信用卡登录中");
-		if(isok==true){
-			PushState.state(UserCard, "bankBillFlow", 100);
-		}
-		flag = 1;
-		System.setProperty("webdriver.chrome.driver", "C:/ie/chromedriver.exe");
-	    ChromeOptions options = new ChromeOptions();
-
-	    options.addArguments("start-maximized");
-	    ChromeDriver driver = new ChromeDriver(options);
 	
+		Map<String, Object> map = new HashMap<String, Object>();
+		System.setProperty("webdriver.chrome.driver", "C:/ie/chromedriver.exe");
+		ChromeOptions options = new ChromeOptions();
+		ChromeDriver driver = new ChromeDriver(options);
+		options.addArguments("start-maximized");
+		boolean isok = true; 
 		try {
+			isok =CountTime.getCountTime(timeCnt);
+			JavascriptExecutor jss = null;
+			PushSocket.push(map, UUID, "1000","交通银行信用卡登录中");
+			if(isok==true){
+				PushState.state(UserCard, "bankBillFlow", 100);
+			}
+			flag = 1;
+			
 			logger.warn("--------------交通银行信用卡---------------登陆开始----------------身份证号："+UserCard);
 			// 开始执行任务
 			driver.get("https://creditcardapp.bankcomm.com/idm/sso/login.html?service=https://creditcardapp.bankcomm.com/member/shiro-cas");
@@ -263,13 +259,17 @@ public class BcmCreditAnalysis {
 						List<Map<String, Object>> infoData = new ArrayList<Map<String, Object>>();
 						PushSocket.push(map, UUID, "6000","交通银行信用卡数据获取成功");
 						flag = 3;
-						map.put("data", JSONArray.fromObject(getInfos(list,infoData)));
+			            infoData = getInfos(list,infoData);
+			            Map<String, Object> bankList = new HashMap<String, Object>();
+			            bankList.put("bankList", infoData);
+			            map.put("data", bankList);
 						map.put("backtype", "BCM");
 						map.put("idcard", UserCard);
 						map.put("bankname", "交通");
 						map.put("isok", isok);
 						// map= resttemplate.SendMessage(map,
 						// "http://192.168.3.16:8089/HSDC/BillFlow/BillFlowByreditCard",UserCard);
+						logger.warn("map :"+map.toString());
 						map = resttemplate.SendMessageX(map, application.sendip
 								+ "/HSDC/BillFlow/BillFlowByreditCard", UserCard,UUID);
 
@@ -351,34 +351,36 @@ public class BcmCreditAnalysis {
 	 */
 	
 	public static List<Map<String, Object>> getInfos(List<String> list,List<Map<String, Object>> infoData){
-		Map<String, Object> bankList = new HashMap<String, Object>();
 		for (String info : list) {						
-			Map<String, Object> AccountSummary = new HashMap<String, Object>();
+			Map<String, Object> bankList = new HashMap<String, Object>();
+			logger.warn("info*****************"+info);
+			Map<String, Object> accountSummary = new HashMap<String, Object>();
 			Document doc = Jsoup.parse(info);
 			String zhangdanri = doc.getElementsByClass("bill-date").get(0).text();
 			String StatementDate = zhangdanri.substring(18);
-			AccountSummary.put("StatementDate", StatementDate);//账单日		
+			accountSummary.put("StatementDate", StatementDate);//账单日		
 			Element bill = doc.getElementsByClass("bill-list").get(0);
-			AccountSummary.put("PaymentDueDate", bill.getElementsByTag("tr").get(0).getElementsByTag("td").get(0).text());
-			AccountSummary.put("RMBCurrentAmountDue", bill.getElementsByTag("tr").get(1).getElementsByTag("td").get(0).text().trim().replace("¥", ""));
-			AccountSummary.put("RMBMinimumAmountDue", bill.getElementsByTag("tr").get(2).getElementsByTag("td").get(0).text().trim().replace("¥", ""));
-			AccountSummary.put("CreditLimit", bill.getElementsByTag("tr").get(3).getElementsByTag("td").get(0).text().trim().replace("¥", ""));
-			AccountSummary.put("AccountSummary", AccountSummary);//每月基本信息
+			accountSummary.put("PaymentDueDate", bill.getElementsByTag("tr").get(0).getElementsByTag("td").get(0).text());
+			accountSummary.put("RMBCurrentAmountDue", bill.getElementsByTag("tr").get(1).getElementsByTag("td").get(0).text().trim().replace("¥", ""));
+			accountSummary.put("RMBMinimumAmountDue", bill.getElementsByTag("tr").get(2).getElementsByTag("td").get(0).text().trim().replace("¥", ""));
+			accountSummary.put("CreditLimit", bill.getElementsByTag("tr").get(3).getElementsByTag("td").get(0).text().trim().replace("¥", ""));
 			Element billInfo = doc.getElementById("bill-1");
 			Elements ddList = billInfo.getElementsByTag("dd");
 			List<Object> payRecordList = new ArrayList<Object>();
-			for (Element element : ddList) {
-				Map<String, Object> payRecord = new HashMap<String, Object>();
-				payRecord.put("tran_date", element.getElementsByTag("span").get(0).text().replace("/", ""));
-				payRecord.put("tran_desc", element.getElementsByTag("span").get(2).text().replace("/", ""));
-				payRecord.put("post_amt", element.getElementsByTag("span").get(3).text().replace("/", ""));
-				payRecordList.add(payRecord);//每月账单明细
+			if(ddList != null) {
+				for (Element element : ddList) {
+					Map<String, Object> payRecord = new HashMap<String, Object>();
+					payRecord.put("tran_date", element.getElementsByTag("span").get(0).text().replace("/", ""));
+					payRecord.put("tran_desc", element.getElementsByTag("span").get(2).text().replace("/", ""));
+					payRecord.put("post_amt", element.getElementsByTag("span").get(3).text().replace("/", ""));
+					payRecordList.add(payRecord);//每月账单明细
+				}
 			}
-			bankList.put("payRecord", payRecordList);
 			
-			bankList.put("AccountSummary", AccountSummary);
+			bankList.put("payRecord", payRecordList);
+			bankList.put("AccountSummary", accountSummary);
+			infoData.add(bankList);
 		}
-		infoData.add(bankList);
 		
 		return infoData;
 	}
@@ -451,62 +453,6 @@ public class BcmCreditAnalysis {
     }
 	
 
-	public Map<String, Object> CodeLogin(HttpServletRequest request,
-			String sessid, String dirverid, String code, String card)
-			throws InterruptedException {
-		List<String> list = new ArrayList<String>();
-		Map<String, Object> map = new HashMap<String, Object>();
-		Map<String, Object> data = new HashMap<String, Object>();
-		HttpSession session = request.getSession();
-		String sessids = session.getAttribute(sessid).toString();
-		ChromeDriver driver = (ChromeDriver) session.getAttribute(dirverid);
-		driver.switchTo().window(sessids);
-		WebElement sub = driver.findElement(By.id("submit"));
-		sub.click();
-		Thread.sleep(4000);
-		List<WebElement> msg = driver.findElements(By.className("errormsg"));
-		if (msg.size() == 0) {
-
-			driver.executeScript(
-					"javascript:gotToLink('/member/member/service/billing/detail.html');",
-					0);
-			WebDriverWait wait = new WebDriverWait(driver, 20);
-			wait.until(ExpectedConditions.presenceOfElementLocated(By
-					.id("bill_date")));
-
-			for (int i = 0; i < 5; i++) {
-				Select sel = new Select(driver.findElement(By.id("bill_date")));
-				sel.selectByIndex(i);
-				WebElement elements = driver.findElement(By
-						.xpath("//*[@id='bill_content']/p/a"));
-				elements.click();
-				System.out.println(driver.getPageSource());
-				Thread.sleep(3000);
-				list.add((driver.getPageSource()));
-				WebElement goback = driver.findElement(By.className("goback"));
-				goback.click();
-				wait.until(ExpectedConditions.presenceOfElementLocated(By
-						.id("bill_date")));
-				data.put("html", list);
-
-				data.put("backtype", "BCM");
-				data.put("idcard", card);
-				map.put("data", data);
-				map = resttemplate
-						.SendMessage(map,
-								"http://192.168.3.16:8089/HSDC/BillFlow/BillFlowByreditCard");
-				System.out.println(map.toString());
-
-			}
-
-		} else {
-			System.out.println(msg.get(1).getText());
-			driver.quit();
-		}
-		return null;
-
-	}
-	
     public  String getCookie(WebDriver driver)		{
 		  //获得cookie用于发包
 		Set<org.openqa.selenium.Cookie> cookies = driver.manage().getCookies();  
