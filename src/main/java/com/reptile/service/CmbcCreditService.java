@@ -59,7 +59,7 @@ public class CmbcCreditService {
 			String banktype, String idcard, String uuid, String timeCnt)
 			throws Exception {
 		
-		boolean isok = CountTime.getCountTime("2018-01-02");
+		boolean isok = CountTime.getCountTime(timeCnt);
 		if (isok == true) {
 			PushState.state(idcard, "bankBillFlow", 100);
 		}
@@ -70,8 +70,9 @@ public class CmbcCreditService {
 		try {
 			WebElement errorinfo = null;
 			try {
-				logger.warn("----------------民生信用卡-------------登陆开始-----------------用户名："
+				logger.warn("-----------民生信用卡-----------登陆开始-----------用户名："
 						+ number + "密码：" + pwd);
+				logger.warn("----------登陆开始---------身份证号："+idcard);
 				driver = DriverUtil.getDriverInstance("ie");
 				Thread.sleep(1000);
 				
@@ -89,7 +90,7 @@ public class CmbcCreditService {
 					Thread.sleep(1000);
 //					HttpWatchUtil.sendTab();
 //					HttpWatchUtil.sendStr(pwd);
-					 SendKeys.sendStr(1180, 380 - 5, pwd);
+					 SendKeys.sendStr(1180, 380+15, pwd);
 //					SendKeys.sendStr(1180, 380+60, pwd);//本地
 					Thread.sleep(1000);
 
@@ -123,21 +124,27 @@ public class CmbcCreditService {
 				logger.warn(e + "网络异常，登录失败");
 				PushSocket.push(map, uuid, "3000", "网络异常，登录失败");
 				if (isok == true) {
-					PushState.state(idcard, "bankBillFlow", 200);
+					PushState.state(idcard, "bankBillFlow", 200,"网络异常，登录失败");
+				}else {
+					PushState.stateX(idcard, "bankBillFlow", 200,"网络异常，登录失败");
 				}
 				map.put("errorCode", "0001");
-				map.put("errorInfo", "网络错误");
+				map.put("errorInfo", "网络异常，登录失败");
 				DriverUtil.close(driver);
+				logger.warn("----民生信用卡------errorCode："+map.get("errorCode")+"-----errorInfo："+map.get("errorInfo"));
 				return map;
 			}
 			if (!"".equals(errorinfo.getText())) {
 				PushSocket.push(map, uuid, "3000", errorinfo.getText());
 				if (isok == true) {
-					PushState.state(idcard, "bankBillFlow", 200);
+					PushState.state(idcard, "bankBillFlow", 200,errorinfo.getText());
+				}else {
+					PushState.stateX(idcard, "bankBillFlow", 200,errorinfo.getText());
 				}
 				map.put("errorCode", "0001");
 				map.put("errorInfo", errorinfo.getText());
 				driver.quit();
+				logger.warn("----民生信用卡------errorCode："+map.get("errorCode")+"-----errorInfo："+map.get("errorInfo"));
 				return map;
 			} else {
 				Boolean flag = DriverUtil.waitByTitle("中国民生银行个人网银", driver, 15);
@@ -164,10 +171,12 @@ public class CmbcCreditService {
 					} else {
 						PushSocket.push(map, uuid, "3000", "网络异常，登陆失败");
 						if (isok == true) {
-							PushState.state(idcard, "bankBillFlow", 200);
+							PushState.state(idcard, "bankBillFlow", 200,"网络异常，登陆失败");
+						}else {
+							PushState.stateX(idcard, "bankBillFlow", 200,"网络异常，登陆失败");
 						}
 						map.put("errorCode", "0001");
-						map.put("errorInfo", "失败");
+						map.put("errorInfo", "网络异常，登陆失败");
 					}
 				}else{
 					throw new Exception();
@@ -177,14 +186,16 @@ public class CmbcCreditService {
 			logger.error("民生信用卡查询失败", e);
 			PushSocket.push(map, uuid, "7000", "网页数据没有找到");
 			if (isok == true) {
-				PushState.state(idcard, "bankBillFlow", 200);
+				PushState.state(idcard, "bankBillFlow", 200,"网页数据没有找到");
+			}else {
+				PushState.stateX(idcard, "bankBillFlow", 200,"网页数据没有找到");
 			}
-			map.put("errorCode", "0001");
-			map.put("errorInfo", "网络错误");
+			map.put("errorCode", "0002");
+			map.put("errorInfo", "网页数据没有找到");
 		} finally {
 			DriverUtil.close(driver);
 		}
-		logger.warn("------------民生信用卡-----------查询结束----------------返回信息为：" + map.toString() + "-------------");
+		logger.warn("----民生信用卡------errorCode："+map.get("errorCode")+"-----errorInfo："+map.get("errorInfo"));
 		return map;
 	}
 

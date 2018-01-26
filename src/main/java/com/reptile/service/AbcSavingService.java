@@ -56,7 +56,8 @@ public class AbcSavingService {
 		public static Map<String, Object> doGetDetail(String username,
 				String userpwd, String UUID, String card,HttpSession session,HttpServletRequest request) throws InterruptedException{
 			int numCount=0;//打码次数
-			logger.warn("-----------农业储蓄卡-----------登陆开始----------身份证号："+card);
+			logger.warn("---------民生储蓄卡--------登陆开始---------证号："+username+"--------密码："+userpwd);
+			logger.warn("---------登陆开始----------身份证号："+card);
 			Map<String, Object> status = new HashMap<String, Object>();
 			
 			WebDriver driver = null;
@@ -76,8 +77,8 @@ public class AbcSavingService {
 				element.sendKeys(username);
 				Thread.sleep(1500);
 				// 特殊字符处理,输入密码  
-				SendKeys.sendStr(1143+80, 378, userpwd);
-//				SendKeys.sendStr(1143+80, 378+35, userpwd);//本地
+//				SendKeys.sendStr(1143+80, 378, userpwd);
+				SendKeys.sendStr(1143+80, 378+35, userpwd);//本地
 				 //输入验证码 
 				Thread.sleep(1000);
 				WebElement elements = driver.findElement(By.id("vCode"));
@@ -85,7 +86,7 @@ public class AbcSavingService {
 				String imgtext = BcmLogin.downloadImgs(driver, elements, 10, 10);
 				code.sendKeys(imgtext);
 				//调出httpwatch
-				HttpWatchUtil.openHttpWatch();
+//				HttpWatchUtil.openHttpWatch();
 				 //登陆 
 				WebElement logo = driver.findElement(By.id("logo"));				
 				logo.click(); 
@@ -111,6 +112,7 @@ public class AbcSavingService {
 					driver.quit();
 				}else if(DriverUtil.waitByTitle("中国农业银行个人网银首页", driver, 10)){
 					System.out.println("不需要短信验证*************");
+					logger.warn("-------------不需要短信验证----------");
 					params.put("Verify", "no");
 					status.put("errorCode", "0000");
 					status.put("errorInfo", "成功");
@@ -200,6 +202,7 @@ public class AbcSavingService {
 				}
 				session.setAttribute("ABCdriver",driver);
 				setDriver(request,driver);
+				logger.warn("----农业储蓄卡------errorCode："+status.get("errorCode")+"-----errorInfo："+status.get("errorInfo"));
 				return status;					
 			}
 	
@@ -295,20 +298,24 @@ public class AbcSavingService {
 
 				 
 				}catch(Exception e) {
+					logger.warn("-------------农业银行储蓄卡------------", e);
 					if(flag == 1) {
+						status.put("errorCode", "0001");
 						logger.warn("--------------flag="+flag+"----------网络异常，登录失败");
 						PushSocket.push(status, UUID, "3000","网络异常，登录失败");								
 					}else if(flag == 2) {
+						status.put("errorCode", "0002");
 						logger.warn("--------------flag="+flag+"----------网络异常，数据获取异常");
 						PushSocket.push(status, UUID, "7000","网络异常");					
 					}else if(flag == 3) {
+						status.put("errorCode", "0003");
 						logger.warn("--------------flag="+flag+"----------网络异常，认证失败");
 						PushSocket.push(status, UUID, "9000","网络异常");						
 					}
 					
 					PushState.state(idCard, "savings", 200,"网络异常");
 					
-					status.put("errorCode", "0001");
+					
 					status.put("errorInfo", "网络错误");
 					driver.quit();	
 					
@@ -363,24 +370,29 @@ public class AbcSavingService {
     		           	status.put("errorInfo",status.get("errorInfo"));
     			    }
 			}catch(Exception e) {
+				logger.warn("-------------农业银行储蓄卡------------", e);
 				if(flag == 1) {
+					status.put("errorCode", "0001");
 					logger.warn("--------------flag="+flag+"----------网络异常，登录失败");
 					PushSocket.push(status, UUID, "3000","网络异常，登录失败");								
 				}else if(flag == 2) {
+					status.put("errorCode", "0002");
 					logger.warn("--------------flag="+flag+"----------网络异常，数据获取异常");
 					PushSocket.push(status, UUID, "7000","网络异常");					
 				}else if(flag == 3) {
+					status.put("errorCode", "0003");
 					logger.warn("--------------flag="+flag+"----------网络异常，认证失败");
 					PushSocket.push(status, UUID, "9000","网络异常");						
 				}
 				
 				PushState.state(idCard, "savings", 200,"网络异常");
 				
-				status.put("errorCode", "0001");
+				
 				status.put("errorInfo", "网络错误");
 				driver.quit();					
 			}	
 			}
+			logger.warn("----农业储蓄卡------errorCode："+status.get("errorCode")+"-----errorInfo："+status.get("errorInfo"));
 			driver.quit();	
 			closeDriver(request);
 			return status;	

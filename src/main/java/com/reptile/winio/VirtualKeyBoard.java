@@ -376,7 +376,8 @@ public class VirtualKeyBoard {
 		SimpleHttpClient httclien = new SimpleHttpClient();
 		Map<String, Object> map = new HashMap<String, Object>(); /* 请求头 */
 		try {
-			logger.warn("----------------招商信用卡-------------登陆开始-----------------用户名："+arg1);
+			logger.warn("-----------招商银行信用卡-----------登陆开始-----------用户名："
+					+ arg1 + "密码：" + arg2);
 			String sessid = new CrawlerUtil().getUUID(); /* 生成UUid 用于区分浏览器 */
 			HttpSession sessions = session;
 
@@ -485,7 +486,8 @@ public class VirtualKeyBoard {
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> data = new HashMap<String, Object>();
 		PushSocket.push(map, UUID, "1000","广发银行信用卡登录中");
-		
+		logger.warn("--------广发储蓄卡--------登陆开始---------证号："+number+"--------密码："+pwd);
+		logger.warn("-----------登陆开始------------身份证号："+usercard);
 		boolean isok = CountTime.getCountTime(timeCnt);
 		if(isok==true){
 			PushState.state(usercard, "bankBillFlow", 100);
@@ -496,13 +498,10 @@ public class VirtualKeyBoard {
 		try {
 			driver = DriverUtil.getDriverInstance("ie");
 			WebDriverWait wait = new WebDriverWait(driver, 20);
-			logger.warn("--------广发银行信用卡------------登陆开始-----------身份证号："+ usercard);
 			driver.manage().window().maximize();
-			
 			driver.get("https://ebanks.cgbchina.com.cn/perbank/");
 			Thread.sleep(1000);
 
-			
 			wait.until(ExpectedConditions.presenceOfElementLocated(By
 					.linkText("广发银行官方网站")));
 			WebElement elements = driver.findElement(By.id("loginId"));
@@ -516,8 +515,8 @@ public class VirtualKeyBoard {
 //			Thread.sleep(1000);
 //			/* 输入密码 */
 //			SendKeys.sendStr(pwd);
-			SendKeys.sendStr(1193+80, 358-15, pwd);
-//			SendKeys.sendStr(1193+80, 358+35, pwd);//本地
+//			SendKeys.sendStr(1193+80, 358-15, pwd);
+			SendKeys.sendStr(1193+80, 358+35, pwd);//本地
 			Thread.sleep(1000);
 			//KeysPress.sendPassWord(pwd);wy
 			WebElement keyWord = driver.findElement(By.id("verifyImg"));
@@ -526,7 +525,7 @@ public class VirtualKeyBoard {
 			logger.warn("--------广发银行信用卡--------登陆-----------验证码打码为："+imgtext+"-------------");
 			if (imgtext.contains("超时") || imgtext.equals("")) {
 				map.put("errorInfo", "连接超时");
-				map.put("errorCode", "0002");
+				map.put("errorCode", "0001");
 				PushSocket.push(map, UUID, "3000","连接超时");
 				if(isok==true){
 					PushState.state(usercard, "bankBillFlow", 200,"连接超时");
@@ -554,6 +553,7 @@ public class VirtualKeyBoard {
 				PushState.stateX(usercard, "bankBillFlow", 200,"网络异常");
 			}
 			driver.quit();
+			logger.warn("--------广发银行信用卡--------------登陆失败---------身份证号："+ usercard+"--------返回信息为："+map);
 			return map;
 		}
 		if(imgtext.length()<4) {
@@ -579,7 +579,7 @@ public class VirtualKeyBoard {
 					}else {
 						PushState.stateX(usercard, "bankBillFlow", 200,str);
 					}
-					logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+str);
+					logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+map);
 					DriverUtil.close(driver);
 				}
 				return map;								
@@ -593,7 +593,7 @@ public class VirtualKeyBoard {
 				}else {
 					PushState.stateX(usercard, "bankBillFlow", 200,errorMessage);
 				}
-				logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+errorMessage);
+				logger.warn("--------广发银行登陆------------失败-----------用户名："+ number+"--------原因为："+map);
 				DriverUtil.close(driver);
 				return map;									
 		}else if(DriverUtil.waitByTitle("广发银行个人网上银行", driver, 15)&&driver.getPageSource().contains("您好，欢迎您登录广发银行个人网银")){
@@ -662,8 +662,8 @@ public class VirtualKeyBoard {
 						driver.switchTo().window(item);
 						if(DriverUtil.waitByTitle("账单", driver, 8)){
 							logger.warn("-----------账单信息：-------------"+driver.getPageSource());
-							if (!driver.getPageSource().contains("var billErrMsg = '该月份账单尚未生成，请于账单日后再查询';")) {
-								logger.warn("--------广发银行登陆------------账单查询：具体内容："+driver.getPageSource());
+							if (!driver.getPageSource().contains("账单尚未生成或不存在，请于账单日后再查询")) {
+								logger.warn("--------广发银行登陆------------账单查询：具体内容："+driver.getPageSource());								
 								listinfo.add(driver.getPageSource());
 							}
 						}
@@ -696,10 +696,9 @@ public class VirtualKeyBoard {
 					}else {
 						PushState.stateX(usercard, "bankBillFlow", 200,"网络异常");
 					}
-					map.put("errorCode", "0001");
+					map.put("errorCode", "0002");
 					map.put("errorInfo", "网络错误");
-					
-					
+					logger.warn("----广发信用卡------errorCode："+map.get("errorCode")+"-----errorInfo："+map.get("errorInfo"));
 				}finally{
 					DriverUtil.close(driver);
 				}			
@@ -714,6 +713,7 @@ public class VirtualKeyBoard {
 					PushState.stateX(usercard, "bankBillFlow", 200,"系统繁忙，请重试");
 				}
 				DriverUtil.close(driver);
+				logger.warn("----广发信用卡------errorCode："+map.get("errorCode")+"-----errorInfo："+map.get("errorInfo"));
 			}
 		logger.warn("--------------广发银行信用卡------------查询结束-----------返回信息为："+map+"---------------");
 		return (map);
@@ -819,7 +819,7 @@ public class VirtualKeyBoard {
 				}
 			}
 		}
-
+		logger.warn("------招商信用卡-------errorCode："+map.get("errorCode")+"-----errorInfo："+map.get("errorInfo"));
 		map.put("data", data);
 		return map;
 	}

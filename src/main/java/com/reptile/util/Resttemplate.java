@@ -153,6 +153,7 @@ public class Resttemplate {
 			PushSocket.push(map, UUID, "9000","网络异常，认证失败");
 			message.put("errorCode","0003");//异常处理
 			message.put("errorInfo","推送失败");
+			logger.warn("----交通信用卡------errorCode："+message.get("errorCode")+"-----errorInfo："+message.get("errorInfo"));
 		}
 	  	return message;
 	  

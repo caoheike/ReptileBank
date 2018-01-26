@@ -73,7 +73,8 @@ public class BcmSavingService {
 		JavascriptExecutor js = null;
 		System.out.println(js);//System.out.println(js)
 		try {
-			logger.warn("-----------交通储蓄卡-----------登陆开始----------身份证号："+userCard+"------------密码："+UserPwd);
+			logger.warn("---------交通储蓄卡--------登陆开始---------证号："+UserName+"--------密码："+UserPwd);
+			logger.warn("---------登陆开始----------身份证号："+userCard);
 			
 			/* 打开此网页 */
 			driver = DriverUtil.getDriverInstance("ie");
@@ -119,6 +120,7 @@ public class BcmSavingService {
 				PushSocket.push(status, UUID, "3000","账号密码错误，登录失败");
 				PushState.state(userCard, "savings", 200,"账号密码错误，登录失败");
 				DriverUtil.close(driver);
+				logger.warn("----交通储蓄卡------errorCode："+status.get("errorCode")+"-----errorInfo："+status.get("errorInfo"));
 				return status;
 			}
 			if (flgb == true
@@ -134,6 +136,7 @@ public class BcmSavingService {
 				PushSocket.push(status, UUID, "3000","账号密码错误，登录失败");
 				PushState.state(userCard, "savings", 200,"账号密码错误，登录失败");
 				DriverUtil.close(driver);
+				logger.warn("----交通储蓄卡------errorCode："+status.get("errorCode")+"-----errorInfo："+status.get("errorInfo"));
 				return status;
 			} else {
 				logger.warn("-----------交通储蓄卡-----------登陆失败----------帐号认证异常------------身份证号："+userCard);
@@ -173,9 +176,10 @@ public class BcmSavingService {
 							logger.warn("---------------无明细信息 已推送app状态");
 							PushSocket.push(status, UUID, "7000","此卡无银行流水信息");
 							PushState.state(userCard, "savings", 200,"此卡无银行流水信息");				
-							status.put("errorCode", "0001");
+							status.put("errorCode", "0002");
 							status.put("errorInfo", "此卡无银行流水信息");
 							DriverUtil.close(driver);
+							logger.warn("----交通储蓄卡------errorCode："+status.get("errorCode")+"-----errorInfo："+status.get("errorInfo"));
 							return status;
 						}
 
@@ -291,11 +295,12 @@ public class BcmSavingService {
 			           }
 				}else {
 					logger.warn("-----------交通银行登陆失败-------------");
-					status.put("errorCode", "0002");// 异常处理
+					status.put("errorCode", "0001");// 异常处理
 					status.put("errorInfo", "账号密码错误，登录失败");
 					PushSocket.push(status, UUID, "3000","账号密码错误，登录失败");
 					PushState.state(userCard, "savings", 200,"账号密码错误，登录失败");
 					DriverUtil.close(driver);
+					logger.warn("----交通储蓄卡------errorCode："+status.get("errorCode")+"-----errorInfo："+status.get("errorInfo"));
 					return status;
 				}
 				
@@ -303,19 +308,22 @@ public class BcmSavingService {
 		}catch(Exception e) {
 			
 			if(flag == 1) {
+				status.put("errorCode", "0001");
 				logger.warn("--------------flag="+flag+"----------网络异常，登录失败");
 				PushSocket.push(status, UUID, "3000","网络异常，登录失败");								
 			}else if(flag == 2) {
+				status.put("errorCode", "0002");
 				logger.warn("--------------flag="+flag+"----------网络异常，数据获取异常");
 				PushSocket.push(status, UUID, "7000","网络异常");					
 			}else if(flag == 3) {
+				status.put("errorCode", "0003");
 				logger.warn("--------------flag="+flag+"----------网络异常，认证失败");
 				PushSocket.push(status, UUID, "9000","网络异常");						
 			}
 			
 			PushState.state(userCard, "savings", 200,"网络异常");
 			
-			status.put("errorCode", "0001");
+			logger.warn("----交通储蓄卡------errorCode："+status.get("errorCode")+"-----errorInfo："+status.get("errorInfo"));
 			status.put("errorInfo", "网络错误");
 			DriverUtil.close(driver);
 		}

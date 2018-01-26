@@ -161,7 +161,6 @@ public class BcmCreditAnalysis {
 			// driver.findElement(By.id("loginBtn")).click();
 			Thread.sleep(4000);
 			
-		
 			
 			
 			String currentWindow = driver.getWindowHandle();

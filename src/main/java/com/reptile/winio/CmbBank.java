@@ -45,6 +45,8 @@ public class CmbBank {
 
 	public Map<String, Object> CMBLogin(String userName, String userPwd,
 			HttpServletRequest request, String UserCard, String UUID){
+		logger.warn("-----------招商银行储蓄卡-----------登陆开始-----------用户名："
+				+ userName + "密码：" + userPwd);
 		logger.warn("-----------招商银行储蓄卡-----------登陆开始----------身份证号："+ UserCard);
 		SimpleHttpClient httclien = new SimpleHttpClient();
 		Map<String, Object> params = new HashMap<String, Object>();
@@ -196,7 +198,7 @@ public class CmbBank {
 		}finally{
 			DriverUtil.close(driver);
 		}
-		logger.warn("-----------招商银行储蓄卡----------查询结束-------------返回结果："+map.toString()+"------------");
+		logger.warn("----招商储蓄第一个接口------errorCode："+map.get("errorCode")+"-----errorInfo："+map.get("errorInfo"));
 		return map;
 
 	}

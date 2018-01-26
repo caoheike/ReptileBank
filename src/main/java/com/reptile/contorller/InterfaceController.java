@@ -99,7 +99,7 @@ public class InterfaceController {
 			} else if (BankType.equals("BCM")) {// 交通银行
 				map = BcmSavingService.BcmLogins(request,numbe, pwd, UUID,userCard);
 			} else if (BankType.equals("X-BCM")) {// 交通银行 信用卡
-				map = bcmCreditAnalysis.BankLogin(numbe, pwd, userCard, request, UUID,timeCnt);//jiaotong 
+				map = JiaoTong.BankLogin(numbe, pwd, userCard, request, UUID,timeCnt);//jiaotong 
 			}
 			
 			return map;

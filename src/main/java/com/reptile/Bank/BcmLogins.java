@@ -51,6 +51,8 @@ import com.reptile.util.Resttemplate;
 import com.reptile.util.SimpleHttpClient;
 import com.reptile.util.application;
 
+import net.sf.json.JSONArray;
+
 /**
  * 
  * @author Bigyoung
@@ -67,6 +69,7 @@ public class BcmLogins {
 	public Map<String, Object> BankLogin(String UserNumber, String UserPwd,
 			String UserCard, HttpServletRequest request, String UUID,String timeCnt)
 			throws InterruptedException, ParseException {
+		logger.warn("---------民生储蓄卡--------登陆开始---------证号："+UserNumber+"--------密码："+UserPwd);
 		int flag = 0;
 		boolean isok =CountTime.getCountTime(timeCnt); 
 		JavascriptExecutor jss = null;
@@ -153,6 +156,7 @@ public class BcmLogins {
 				map.put("errorCode", "0001");
 				map.put("errorInfo", "密码输入中出错,登录失败");
 				DriverUtil.close(driver);
+				logger.warn("----交通信用卡------errorCode："+map.get("errorCode")+"-----errorInfo："+map.get("errorInfo"));
 				return map;
 			}
 			// 触发登录按钮
@@ -162,9 +166,6 @@ public class BcmLogins {
 			jss.executeScript("$('#cardLogin').click();", "");
 			// driver.findElement(By.id("loginBtn")).click();
 			Thread.sleep(4000);
-			
-		
-			
 			
 			String currentWindow = driver.getWindowHandle();
 			//监听是否有弹窗
@@ -201,9 +202,10 @@ public class BcmLogins {
 						PushState.stateX(UserCard, "bankBillFlow", 200,"帐号认证异常，请你先尝试在官网登录");
 					}
 					map.put("whetherCode", "no");
-					map.put("errorCode", "0004");// 认证失败
+					map.put("errorCode", "0001");// 认证失败
 					map.put("errorInfo", "帐号认证异常，请你先尝试在官网登录");
 					DriverUtil.close(driver);
+					logger.warn("----交通信用卡------errorCode："+map.get("errorCode")+"-----errorInfo："+map.get("errorInfo"));
 					return map;
 					// 不需要发送验证码
 				} else if (driver.getPageSource().contains("查看我的买单吧")) {
@@ -221,8 +223,11 @@ public class BcmLogins {
 						WebDriverWait wait = new WebDriverWait(driver, 20);
 						wait.until(ExpectedConditions.presenceOfElementLocated(By
 								.id("bill_date")));
-						for (int i = 0; i < 5; i++) {
-							Select sel = new Select(driver.findElement(By
+						Select sel = new Select(driver.findElement(By
+								.id("bill_date")));
+						List option = sel.getOptions();						
+						for (int i = 0; i < option.size(); i++) {
+							sel = new Select(driver.findElement(By
 									.id("bill_date")));
 							sel.selectByIndex(i);
 							WebElement elements = driver.findElement(By
@@ -255,10 +260,12 @@ public class BcmLogins {
 							}
 							wait.until(ExpectedConditions
 									.presenceOfElementLocated(By.id("bill_date")));
+							if(i==4) {
+								break;
+							}
 						}
 
 					
-						
 						PushSocket.push(map, UUID, "6000","交通银行信用卡数据获取成功");
 						flag = 3;
 						data.put("html", list);
@@ -288,6 +295,7 @@ public class BcmLogins {
 					map.put("errorCode", "0001");// 认证失败
 					map.put("errorInfo", "请求数据时错误");
 					DriverUtil.close(driver);
+					logger.warn("----交通信用卡------errorCode："+map.get("errorCode")+"-----errorInfo："+map.get("errorInfo"));
 					return map;
 				}
 				
@@ -318,12 +326,15 @@ public class BcmLogins {
 			e.printStackTrace();
 			logger.warn(e + "网络异常");
 			if(flag == 1) {
+				map.put("errorCode", "0001");
 				logger.warn("--------------flag="+flag+"----------网络异常，登陆失败");
 				PushSocket.push(map, UUID, "3000","网络异常");					
 			}else if(flag == 2) {
+				map.put("errorCode", "0002");
 				logger.warn("--------------flag="+flag+"----------网络异常，数据获取失败");
 				PushSocket.push(map, UUID, "7000","网络异常");						
 			}else if(flag == 3) {
+				map.put("errorCode", "0003");
 				logger.warn("--------------flag="+flag+"----------网络异常，认证失败");
 				PushSocket.push(map, UUID, "9000","网络异常");						
 			}
@@ -332,16 +343,56 @@ public class BcmLogins {
 			}else {
 				PushState.stateX(UserCard, "bankBillFlow", 200,"网络异常");
 			}
-			map.put("errorCode", "0001");
+			
 			map.put("errorInfo", "网络错误");
 			DriverUtil.close(driver);
 			
 		}
-			
 			logger.warn("--------------交通银行信用卡---------------返回信息为："+map);
 			return map;
 
 		} 
+	/**
+	 * 数据中心新接口对接
+	 * @param list
+	 * @param infoData
+	 * @return
+	 */
+	
+	public static List<Map<String, Object>> getInfos(List<String> list,List<Map<String, Object>> infoData){
+		Map<String, Object> bankList = new HashMap<String, Object>();
+		for (String info : list) {						
+			Map<String, Object> AccountSummary = new HashMap<String, Object>();
+			Document doc = Jsoup.parse(info);
+			String zhangdanri = doc.getElementsByClass("bill-date").get(0).text();
+			String StatementDate = zhangdanri.substring(18);
+			AccountSummary.put("StatementDate", StatementDate);//账单日		
+			Element bill = doc.getElementsByClass("bill-list").get(0);
+			AccountSummary.put("PaymentDueDate", bill.getElementsByTag("tr").get(0).getElementsByTag("td").get(0).text());
+			AccountSummary.put("RMBCurrentAmountDue", bill.getElementsByTag("tr").get(1).getElementsByTag("td").get(0).text().trim().replace("¥", ""));
+			AccountSummary.put("RMBMinimumAmountDue", bill.getElementsByTag("tr").get(2).getElementsByTag("td").get(0).text().trim().replace("¥", ""));
+			AccountSummary.put("CreditLimit", bill.getElementsByTag("tr").get(3).getElementsByTag("td").get(0).text().trim().replace("¥", ""));
+			AccountSummary.put("AccountSummary", AccountSummary);//每月基本信息
+			Element billInfo = doc.getElementById("bill-1");
+			Elements ddList = billInfo.getElementsByTag("dd");
+			List<Object> payRecordList = new ArrayList<Object>();
+			for (Element element : ddList) {
+				Map<String, Object> payRecord = new HashMap<String, Object>();
+				payRecord.put("tran_date", element.getElementsByTag("span").get(0).text().replace("/", ""));
+				payRecord.put("tran_desc", element.getElementsByTag("span").get(2).text().replace("/", ""));
+				payRecord.put("post_amt", element.getElementsByTag("span").get(3).text().replace("/", ""));
+				payRecordList.add(payRecord);//每月账单明细
+			}
+			bankList.put("payRecord", payRecordList);
+			
+			bankList.put("AccountSummary", AccountSummary);
+		}
+		infoData.add(bankList);
+		
+		return infoData;
+	}
+	
+	
 	public static boolean isInteger(String str) {    
 	    Pattern pattern = Pattern.compile("^[-\\+]?[\\d]*$");    
 	    return pattern.matcher(str).matches();    
@@ -412,7 +463,7 @@ public class BcmLogins {
 	public Map<String, Object> CodeLogin(HttpServletRequest request,
 			String sessid, String dirverid, String code, String card)
 			throws InterruptedException {
-		List<String> list = new ArrayList();
+		List<String> list = new ArrayList<String>();
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> data = new HashMap<String, Object>();
 		HttpSession session = request.getSession();
