@@ -73,9 +73,9 @@ public class BcmSavingService {
 		JavascriptExecutor js = null;
 		System.out.println(js);//System.out.println(js)
 		try {
-			logger.warn("---------交通储蓄卡--------登陆开始---------证号："+UserName+"--------密码："+UserPwd);
-			logger.warn("---------登陆开始----------身份证号："+userCard);
 			
+			logger.warn("########【农业储蓄卡########登陆开始】########【用户名：】"
+					+ UserName + "【密码：】" + UserPwd+"【身份证号：】"+userCard);	
 			/* 打开此网页 */
 			driver = DriverUtil.getDriverInstance("ie");
 			driver.manage().window().maximize();
@@ -100,8 +100,9 @@ public class BcmSavingService {
 			if (element.getAttribute("src") != null) {
 				WebElement input_captcha = driver.findElement(By
 						.id("input_captcha"));
+				logger.warn("########【交通储蓄卡开始打码】########【身份证号：】"+userCard);
 				String imgtext = downloadImgs(driver, element);
-				logger.warn("-----------打码结果------------"+imgtext);
+				logger.warn("########【交通储蓄卡开始打码  imgtext=】"+imgtext+"】########【身份证号：】"+userCard);
 				input_captcha.sendKeys(imgtext);
 			}
 			
@@ -114,11 +115,12 @@ public class BcmSavingService {
 			boolean flgb = ElementExist(driver, By.id("captchaErrMsg")); /* JS错误提示 */
 			boolean template = ElementExist(driver, By.className("template")); 
 			if(driver.getPageSource().contains("您未注册或登录密码输入错误")) {
+				logger.warn("########【交通储蓄卡登陆失败 原因=】您未注册或登录密码输入错误  #####【身份证号：】"+userCard);
 				logger.warn("-----------交通储蓄卡-----------登陆失败--------------账号密码错误----------身份证号："+userCard);
-				status.put( "errorInfo", "账号密码错误" );
+				status.put( "errorInfo", "您未注册或登录密码输入错误" );
 				status.put( "errorCode", "0001" );
-				PushSocket.push(status, UUID, "3000","账号密码错误，登录失败");
-				PushState.state(userCard, "savings", 200,"账号密码错误，登录失败");
+				PushSocket.push(status, UUID, "3000","您未注册或登录密码输入错误");
+				PushState.state(userCard, "savings", 200,"您未注册或登录密码输入错误");
 				DriverUtil.close(driver);
 				logger.warn("----交通储蓄卡------errorCode："+status.get("errorCode")+"-----errorInfo："+status.get("errorInfo"));
 				return status;
@@ -130,7 +132,7 @@ public class BcmSavingService {
 				driver.quit();
 				status = BcmSavingService.BcmLogins(request,UserName, UserPwd, UUID,userCard);
 			} else if (flgs == true) {
-				logger.warn("-----------交通储蓄卡-----------登陆失败----------账号密码错误------------身份证号："+userCard);
+				logger.warn("########【交通储蓄卡登陆失败 原因=】账号密码错误，登录失败  #####【身份证号：】"+userCard);
 				status.put( "errorInfo", "账号密码错误" );
 				status.put( "errorCode", "0001" );
 				PushSocket.push(status, UUID, "3000","账号密码错误，登录失败");
@@ -142,6 +144,7 @@ public class BcmSavingService {
 				logger.warn("-----------交通储蓄卡-----------登陆失败----------帐号认证异常------------身份证号："+userCard);
 				if(driver.getPageSource().contains("为了进一步保障您使用我行个人网银的安全性")) {
 					//发送短信验证码
+					logger.warn("########【交通储蓄卡登陆失败 原因=】为了进一步保障您使用我行个人网银的安全性，请你先尝试在官网登录！【身份证号：】"+userCard);
 					PushSocket.push(status, UUID, "3000","帐号认证异常，请你先尝试在官网登录！");
 					
 					request.getSession().setAttribute("BcmCodePage", driver);
@@ -156,9 +159,11 @@ public class BcmSavingService {
 					
 					Map<String, String> headers = new HashMap<String, String>();
 					PushSocket.push(status, UUID, "2000","交通储蓄卡登陆成功");
+					logger.warn("########【交通储蓄卡登陆成功】##########【身份证号：】"+userCard);
 					Thread.sleep(1000);
 					logger.warn("-----------交通储蓄卡-----------登陆成功----------身份证号："+userCard);
 					PushSocket.push(status, UUID, "5000","交通储蓄卡数据获取中");
+					logger.warn("########【交通储蓄卡数据获取中】##########【身份证号：】"+userCard);
 					flag = 2;
 						boolean flg = ElementExist(driver, By.id("btnConf1"));
 						/* 判断是否有登陆确认信息 */
@@ -172,6 +177,7 @@ public class BcmSavingService {
 						logger.warn("-----------交通储蓄卡-----------获取数据明细----------身份证号："+userCard);
 						List<Map<String,Object>> list1 = new ArrayList<Map<String,Object>>();
 						list1 = getInfo(driver,list1,UserName, request);
+						logger.warn("########【交通储蓄卡数据获取完成】#######【身份证号：】"+userCard+"########【list1：】"+list1);
 						if(list1.toString().contains("数据为空")) {							
 							logger.warn("---------------无明细信息 已推送app状态");
 							PushSocket.push(status, UUID, "7000","此卡无银行流水信息");
@@ -278,9 +284,11 @@ public class BcmSavingService {
 						params.put("cardNumber", UserName);
 						params.put("userName", "");
 						PushSocket.push(status, UUID, "6000","交通银行储蓄卡数据获取成功");
+						logger.warn("########【交通储蓄卡数据获取成功】##########【身份证号：】"+userCard);
 						flag = 3;
-						logger.warn("-----------交通储蓄卡-----------推送数据----------身份证号："+userCard);
+						logger.warn("########【交通储蓄卡数据开始推送】##########【身份证号：】"+userCard);
 						status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");
+						logger.warn("########【交通储蓄卡推送完成    身份证号：】"+userCard+"数据中心返回结果："+status.toString());
 						
 					    if(status!= null && "0000".equals(status.get("errorCode").toString())){
 				           	PushState.state(userCard, "savings", 300);
@@ -294,7 +302,7 @@ public class BcmSavingService {
 				           	status.put("errorInfo",status.get("errorInfo"));
 			           }
 				}else {
-					logger.warn("-----------交通银行登陆失败-------------");
+					logger.warn("########【交通储蓄卡登陆失败：账号密码错误】##########【身份证号：】"+userCard);
 					status.put("errorCode", "0001");// 异常处理
 					status.put("errorInfo", "账号密码错误，登录失败");
 					PushSocket.push(status, UUID, "3000","账号密码错误，登录失败");
@@ -322,7 +330,7 @@ public class BcmSavingService {
 			}
 			
 			PushState.state(userCard, "savings", 200,"网络异常");
-			
+			logger.warn("########【交通银行储蓄卡进入try-catch】【身份证号：】"+userCard);
 			logger.warn("----交通储蓄卡------errorCode："+status.get("errorCode")+"-----errorInfo："+status.get("errorInfo"));
 			status.put("errorInfo", "网络错误");
 			DriverUtil.close(driver);
@@ -372,8 +380,8 @@ public class BcmSavingService {
 		String safeValue = (String) pageHeader.get("safeValue");
 		safeValue.replaceAll("%2", "&252");
 		safeValue.replaceAll("%3", "&253");
-		logger.warn("--------------safeValue-----------------"+safeValue);		
-		logger.warn("--------------账单-----------------");		
+		logger.warn("--------账单第二步成功------safeValue-----------------"+safeValue);		
+		logger.warn("--------------账单开始-----------------");		
 		headers.clear();
 		headers.put("Accept-Language", "zh-CN");//
 		headers.put("Accept", "text/html, application/xhtml+xml, */*");	//
@@ -386,7 +394,7 @@ public class BcmSavingService {
 		headers.put("Referer", "https://pbank.95559.com.cn/personbank/app/pebs.do?PSessionId="+pSessionId+"&x-channel=0&menuCode=&appId=&startMenu=&ibpsProtocolReq=&pebsUrl=&args=");
 		response = SimpleHttpClient.get("https://pbank.95559.com.cn/personbank/account/acQuery.do?"
 				+ "PSessionId="+pSessionId+"&x-channel=0&tab=0&menuCode=P001001&random="+random+"&ReqSafeFields"+safeValue, headers);
-		logger.warn("--------------账单-----------------response："+response);
+		logger.warn("--------------账单获取结果-----------------response："+response);
 		Document doc = Jsoup.parse(response);
         Element options = doc.getElementsByTag("td").get(16);
         Element a = options.getElementsByTag("a").get(0);        

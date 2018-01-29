@@ -56,8 +56,8 @@ public class AbcSavingService {
 		public static Map<String, Object> doGetDetail(String username,
 				String userpwd, String UUID, String card,HttpSession session,HttpServletRequest request) throws InterruptedException{
 			int numCount=0;//打码次数
-			logger.warn("---------民生储蓄卡--------登陆开始---------证号："+username+"--------密码："+userpwd);
-			logger.warn("---------登陆开始----------身份证号："+card);
+			logger.warn("########【农业储蓄卡########登陆开始】########【用户名：】"
+					+ username + "【密码：】" + userpwd+"【身份证号：】"+card);	
 			Map<String, Object> status = new HashMap<String, Object>();
 			
 			WebDriver driver = null;
@@ -81,9 +81,12 @@ public class AbcSavingService {
 				SendKeys.sendStr(1143+80, 378+35, userpwd);//本地
 				 //输入验证码 
 				Thread.sleep(1000);
+				logger.warn("########【农业储蓄卡获取验证码图片】########【身份证号：】"+card);
 				WebElement elements = driver.findElement(By.id("vCode"));
 				WebElement code = driver.findElement(By.id("code"));
+				logger.warn("########【农业储蓄卡开始打码】########【身份证号：】"+card);
 				String imgtext = BcmLogin.downloadImgs(driver, elements, 10, 10);
+				logger.warn("########【农业储蓄卡打码结果  imgtext=】"+imgtext+"########【身份证号：】"+card);
 				code.sendKeys(imgtext);
 				//调出httpwatch
 //				HttpWatchUtil.openHttpWatch();
@@ -109,34 +112,35 @@ public class AbcSavingService {
 					}
 					status.put("errorCode", "0001");// 异常处理	
 					status.put("errorInfo", text);
+					logger.warn("########【农业储蓄卡登陆失败 原因："+text+"】########【身份证号：】"+card);
 					driver.quit();
 				}else if(DriverUtil.waitByTitle("中国农业银行个人网银首页", driver, 10)){
-					System.out.println("不需要短信验证*************");
-					logger.warn("-------------不需要短信验证----------");
+					logger.warn("########【农业储蓄卡登陆成功 不需要短信验证】########【身份证号：】"+card);					
 					params.put("Verify", "no");
 					status.put("errorCode", "0000");
 					status.put("errorInfo", "成功");
-					status.put("data", params);                    
+					status.put("data", params);            
+					logger.warn("########【农业储蓄卡获取  ASP.NET_SessionId 开始】########【身份证号：】"+card);			
 					String jsession = HttpWatchUtil.getCookie("ASP.NET_SessionId");
-					StringBuffer getCookie = GetCookie(driver);	
-					
+					logger.warn("########【农业储蓄卡获取  ASP.NET_SessionId 完成】########【身份证号：】"+card);		
+					StringBuffer getCookie = GetCookie(driver);								
 					String cookie = getCookie.toString().replaceAll("path=/;", "")+jsession;
-					
-					logger.warn("-------------农业银行储蓄卡----------cookie："+cookie);
+					logger.warn("########【农业储蓄卡 cookie："+cookie+"】########【身份证号：】"+card);
 					String jiaotongUuid = String.valueOf(Math.random());
 					logger.warn("-------------农业银行储蓄卡----------jiaotongUuid："+jiaotongUuid);
 					session.setAttribute("jiaotong-uuid",jiaotongUuid);
 					session.setAttribute(jiaotongUuid,cookie);
 					
 				}else if(DriverUtil.waitByTitle("个人网上银行-用户名登录-短信校验", driver, 1)) {
-					System.out.println("需要短信验证*************");
-					logger.warn("-------------需要短信验证----------");
+					logger.warn("########【农业储蓄卡登陆成功 需要短信验证】########【身份证号：】"+card);	
 					String securityPhone = driver.findElement(By.id("securityPhone")).getAttribute("value");
 					logger.warn("-------------短信验证码发送至手机号码----------securityPhone："+securityPhone);
+					logger.warn("########【农业储蓄卡获取  ASP.NET_SessionId 开始】########【身份证号：】"+card);
 					String jsession = HttpWatchUtil.getCookie("ASP.NET_SessionId");
+					logger.warn("########【农业储蓄卡获取  ASP.NET_SessionId 完成】########【身份证号：】"+card);
 //					StringBuffer getCookie = GetCookie(driver);						
 //					String cookie = getCookie.toString().replaceAll("path=/;", "")+jsession;
-
+					logger.warn("########【农业储蓄卡 jsession："+jsession+"】########【身份证号：】"+card);
 					headers.put("Referer", "https://perbank.abchina.com/EbankSite/upLogin.do");
 					headers.put("Host", "perbank.abchina.com");
 					headers.put("Cookie", jsession);
@@ -144,7 +148,7 @@ public class AbcSavingService {
 					params.put("mobile",securityPhone);
 					params.put("mobileNoField", "securityPhone");
 					params.put("sendType", 17);
-			    	
+					logger.warn("########【农业储蓄卡发送短信验证开始】########【身份证号：】"+card);	
 					// 发送短信验证码
 					String response = SimpleHttpClient.post("https://perbank.abchina.com/EbankSite/SendSmsVerifyCodeAct.ebf",params, headers);
 
@@ -156,7 +160,6 @@ public class AbcSavingService {
 					}
 					params.clear();
 					headers.clear();
-					logger.warn("-------------农业银行储蓄卡----------cookie："+jsession);
 					String jiaotongUuid = String.valueOf(Math.random());
 					logger.warn("-------------农业银行储蓄卡----------jiaotongUuid："+jiaotongUuid);
 					session.setAttribute("jiaotong-uuid",jiaotongUuid);
@@ -188,12 +191,14 @@ public class AbcSavingService {
 						}
 						status = doGetDetail(username, userpwd, UUID, card,session,request);
 					}else if(DriverUtil.waitByTitle("个人网上银行-重置登录密码", driver, 1)) {
+						logger.warn("########【农业储蓄卡登录失败 原因: 您的密码过于简单，请登录官网重置密码！】########【身份证号：】"+card);	
 						status.put("errorCode","0001");//异常处理
     		           	status.put("errorInfo","您的密码过于简单，请登录官网重置密码！");
 					}
 					driver.quit();
 				}
 				}catch(Exception e){
+					logger.warn("########【农业储蓄卡登录失败 进入try-catch】########【身份证号：】"+card);
 					logger.warn("-------------农业银行储蓄卡------------登录失败-------------", e);
 					status.put("errorCode", "0002");// 异常处理
 					status.put("errorInfo", "网络异常，请重试！");
@@ -208,7 +213,7 @@ public class AbcSavingService {
 	
 		public static Map<String, Object> abcQueryInfo(String code, String idCard,
 				HttpSession session, String UUID,String numbe,HttpServletRequest request) throws InterruptedException{
-			logger.warn("------农业银行储蓄卡----------idCard："+idCard+"----------numbe=:"+numbe+"----------------");
+			logger.warn("########【农业储蓄卡第二接口开始########登陆开始】########【身份证号：】"+idCard);	
 			Map<String, Object> status = new HashMap<String, Object>();
 			Map<String, String> headers = new HashMap<String, String>();
 			int flag = 0;
@@ -220,6 +225,7 @@ public class AbcSavingService {
 			WebDriver driver = (WebDriver) session.getAttribute("ABCdriver");
 			if(!code.equals("0")) {
 				try {
+					logger.warn("########【农业储蓄卡第二接口需要短信验证码########登陆开始】########【身份证号：】"+idCard);	
 					String jiaotongformId = (String) session.getAttribute("jiaotong-formId");
 					logger.warn("---------------------数据获取中jiaotongformId:"+jiaotongformId);
 					String formId = (String) session.getAttribute(jiaotongformId);
@@ -245,9 +251,9 @@ public class AbcSavingService {
 			    	
 					// 登录请求
 					String response = SimpleHttpClient.post("https://perbank.abchina.com/EbankSite/SelfHelpVerifySmsCodeAct.ebf",params, headers);
-
+					logger.warn("########【农业储蓄卡   登陆请求】############【身份证号：】"+idCard+"【response：】"+response);	
 			        if(response.contains("验证码输入有误")) {	
-			        	logger.warn("-------------农业银行储蓄卡------------错误页面-------------");
+			        	logger.warn("########【农业储蓄卡   验证码输入有误】########【身份证号：】"+idCard);	
 						status.put("errorCode", "0002");// 异常处理
 						status.put("errorInfo", "短信验证码输入有误");
 						PushSocket.push(status, UUID, "3000","短信验证码输入有误");
@@ -258,10 +264,11 @@ public class AbcSavingService {
 					String cusname = "";						
 					logger.warn("-----------农业储蓄卡-----------登陆成功----------身份证号："+idCard);
 						// 登陆成功 
-					
+					logger.warn("########【农业储蓄卡   登陆成功】########【身份证号：】"+idCard);	
 					PushSocket.push(status, UUID, "2000","农业储蓄卡登陆成功");// 开始执行推送登陆成功
 					Thread.sleep(2000);
 					PushSocket.push(status, UUID, "5000","农业储蓄卡数据获取中");
+					logger.warn("########【农业储蓄卡   数据获取中】########【身份证号：】"+idCard);	
 					flag = 2;
 					
 					List<Map<String, Object>> list1 = new ArrayList<Map<String, Object>>();
@@ -280,10 +287,13 @@ public class AbcSavingService {
 						params.put("cardNumber", numbe); //用户卡号 
 						params.put("userName", cusname); //用户姓名 
 						PushSocket.push(status, UUID, "6000","农业银行储蓄卡数据获取成功");
+						logger.warn("########【农业储蓄卡   数据获取成功】########【身份证号：】"+idCard);	
 						flag = 3;
 //						Resttemplate resttemplate = new Resttemplate();
 //						status = resttemplate.SendMessage(params, application.sendip+ "/HSDC/savings/authentication", card);
+						logger.warn("########【农业储蓄卡   开始推送】########【身份证号：】"+idCard);	
 						status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");  //推送数据
+						logger.warn("########【农业储蓄卡推送完成    身份证号：】"+idCard+"数据中心返回结果："+status.toString());
 	    			    if(status!= null && "0000".equals(status.get("errorCode").toString())){
 	    		           	 PushState.state(idCard, "savings", 300);
 	    		           	PushSocket.push(status, UUID, "8000","认证成功");
@@ -315,7 +325,7 @@ public class AbcSavingService {
 					
 					PushState.state(idCard, "savings", 200,"网络异常");
 					
-					
+					logger.warn("########【农业银行储蓄卡进入try-catch】【身份证号：】"+idCard);
 					status.put("errorInfo", "网络错误");
 					driver.quit();	
 					
@@ -327,11 +337,12 @@ public class AbcSavingService {
 				String cusname = "";						
 				logger.warn("-----------农业储蓄卡-----------登陆成功----------身份证号："+idCard);
 					// 登陆成功 
-					
+				logger.warn("########【农业储蓄卡   登陆成功】########【身份证号：】"+idCard);
 				PushSocket.push(status, UUID, "2000","农业储蓄卡登陆成功");// 开始执行推送登陆成功
 				Thread.sleep(2000);
 //				driver.switchTo().frame("contentFrame");
 				PushSocket.push(status, UUID, "5000","农业储蓄卡数据获取中");
+				logger.warn("########【农业储蓄卡   数据获取中】########【身份证号：】"+idCard);
 				flag = 2;
 //				// 拿到姓名 
 //				WebElement custName = driver
@@ -354,10 +365,13 @@ public class AbcSavingService {
 					params.put("cardNumber", numbe); //用户卡号 
 					params.put("userName", cusname); //用户姓名 
 					PushSocket.push(status, UUID, "6000","农业银行储蓄卡数据获取成功");
+					logger.warn("########【农业储蓄卡   数据获取成功】########【身份证号：】"+idCard);
 					flag = 3;
 //					Resttemplate resttemplate = new Resttemplate();
 //					status = resttemplate.SendMessage(params, application.sendip+ "/HSDC/savings/authentication", card);
+					logger.warn("########【农业储蓄卡   开始推送】########【身份证号：】"+idCard);
 					status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");  //推送数据
+					logger.warn("########【农业储蓄卡推送完成    身份证号：】"+idCard+"数据中心返回结果："+status.toString());
     			    if(status!= null && "0000".equals(status.get("errorCode").toString())){
     		           	 PushState.state(idCard, "savings", 300);
     		           	PushSocket.push(status, UUID, "8000","认证成功");
@@ -386,7 +400,7 @@ public class AbcSavingService {
 				}
 				
 				PushState.state(idCard, "savings", 200,"网络异常");
-				
+				logger.warn("########【农业银行储蓄卡进入try-catch】【身份证号：】"+idCard);
 				
 				status.put("errorInfo", "网络错误");
 				driver.quit();					

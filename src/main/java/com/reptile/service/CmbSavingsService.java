@@ -64,8 +64,8 @@ public class CmbSavingsService {
         PushState.state(idCard, "savings", 100);
         WebDriver driver =null; 
     	try {
-    		logger.warn("---------民生储蓄卡--------登陆开始---------证号："+userCard+"--------密码："+passWord);
-    		logger.warn("-----------登陆开始------------身份证号："+idCard);
+    		logger.warn("########【民生信用卡########登陆开始】########【用户名：】"
+					+ userCard + "【密码：】" + passWord+"【身份证号：】"+idCard);			
 			driver=DriverUtil.getDriverInstance("ie");	
 			System.setProperty("java.awt.headless", "false");
 			driver.get(CMBlogin);			
@@ -94,6 +94,7 @@ public class CmbSavingsService {
 				Thread.sleep(1000);
 				loginButton.click();//点击登陆
 			}else{
+				logger.warn("########【需要图形验证码】########【身份证号：】"+idCard);
 				//System.out.println("需要图形验证码");
 				WebElement element4=element2.findElement(By.id("_tokenImg"));//图形验证码
                 String imageCode=imageGet(element4, driver,request );
@@ -114,6 +115,7 @@ public class CmbSavingsService {
 //			}
 
     	} catch (Exception e) {
+    		logger.warn("########【民生储蓄未登陆成功，进入try-catch】########【原因：】网络异常，登录失败【身份证号：】"+idCard);
 			logger.warn("民生银行",e);
 			// driver.quit();
 			map.put("errorCode", "0001");
@@ -133,6 +135,7 @@ public class CmbSavingsService {
             try{
             	element6=driver.findElement(By.id("transView"));
             	if(element6!=null&&element6.getText().contains("个人网上银行首次登录")){
+            		logger.warn("########【未登陆成功】########【原因：】您为第一次登陆网上银行，请先登陆官网设置您的登陆名和登陆密码【身份证号：】"+idCard);
             		logger.warn("--------------民生储蓄卡------------首次登陆------------身份证号："+idCard);
     				//首次登陆
     				//System.out.println("您为第一次登陆网上银行，请先登陆官网设置您的登陆名和登陆密码");
@@ -146,7 +149,7 @@ public class CmbSavingsService {
     				//登陆成功
     				logger.warn("--------------民生储蓄卡------------登陆成功------------身份证号："+idCard);
     				PushSocket.push(map, UUID, "2000","民生储蓄卡登陆成功");
-    				
+    				logger.warn("########【登陆成功】########【身份证号：】"+idCard);
     				try {
 						Thread.sleep(2000);
 					} catch (InterruptedException e1) {
@@ -160,6 +163,7 @@ public class CmbSavingsService {
                     wait.until(ExpectedConditions.presenceOfElementLocated(By.className("v-binding")));                  
     				List<WebElement> ss = driver.findElements(By.className("v-binding"));
     				PushSocket.push(map, UUID, "5000","民生储蓄卡数据获取中");
+    				logger.warn("########【开始获取数据】########【身份证号：】"+idCard);
     				//wait.until(ExpectedConditions.elementToBeClickable(ss.get(0)));
     				userName=	ss.get(0).getText().split("好，")[1];//用户名
     				
@@ -189,6 +193,7 @@ public class CmbSavingsService {
 					} catch (Exception e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+						logger.warn("########【交易明细解析方法执行中：进入try-catch  原因：网络连接异常，数据获取失败】########【身份证号：】"+idCard);
 						PushSocket.push(map, UUID, "7000","网络连接异常，数据获取失败");
     			    	PushState.state(idCard, "savings", 200,"网络连接异常，数据获取失败");
     			    	map.put("errorCode", "0002");
@@ -196,16 +201,7 @@ public class CmbSavingsService {
     			    	driver.quit();
     			    	logger.warn("----民生储蓄卡------errorCode："+map.get("errorCode")+"-----errorInfo："+map.get("errorInfo"));
         	            return map;
-					}
-    			    if(billMes.contains("errorCode")){
-    			    	PushSocket.push(map, UUID, "7000","网络连接异常，数据获取失败");
-    			    	PushState.state(idCard, "savings", 200,"网络连接异常，数据获取失败");
-    			    	map.put("errorCode", "0002");
-    			    	map.put("errorInfo", "网络连接异常!");
-    			    	driver.quit();
-    			    	logger.warn("----民生储蓄卡------errorCode："+map.get("errorCode")+"-----errorInfo："+map.get("errorInfo"));
-        	            return map;
-    			    }
+					}    			   
     			    map.put("bankName","中国民生银行");
     			    map.put("userName", userName.trim());//用户名
     			    map.put("cardNumber", userCard);//卡号
@@ -213,8 +209,11 @@ public class CmbSavingsService {
     			    map.put("baseMes", baseMes);//基本信息
     			    map.put("billMes",billMes);//流水
     			    PushSocket.push(map, UUID, "6000","民生储蓄卡数据获取成功");
+    			    logger.warn("########【获取数据成功】########【身份证号：】"+idCard);
 //    			    map = new Resttemplate().SendMessage(map, ConstantInterface.port+"/HSDC/savings/authentication");  //推送数据
+    			    logger.warn("########【开始推送】########【身份证号：】"+idCard);
     			    map = new Resttemplate().SendMessage(map, application.sendip+"/HSDC/savings/authentication");  //推送数据
+    			    logger.warn("########【推送完成】########【身份证号：】"+idCard+"数据中心返回结果："+map.toString());
     			    if(map!=null&&"0000".equals(map.get("errorCode").toString())){
     		           	 PushState.state(idCard, "savings", 300);
     		           	PushSocket.push(map, UUID, "8000","认证成功");
@@ -237,12 +236,12 @@ public class CmbSavingsService {
 				WebElement element1= driver.findElement(By.id("jsonError"));//错误提示信息（如果验证码错误：附加码）
 				
 				if(element1.getText().contains("附加码")){
-					
+					logger.warn("########【登陆失败 原因：附加码问题：展示给客户为：网络异常，请刷新重试!】########【身份证号：】"+idCard);
 					//System.out.println("网络异常，请刷新重试");
 					 map.put("errorInfo", "网络异常，请刷新重试!");
 					 
 				}else{
-					
+					logger.warn("########【登陆失败 原因："+element1.getText()+"########【身份证号：】"+idCard);
 					map.put("errorInfo", element1.getText());
 					//System.out.println(element1.getText());
 				} 
@@ -326,7 +325,7 @@ public class CmbSavingsService {
 	    baseMes.put("accountType", baseInfo[baseInfo.length-1]);	//账号状态
   	   } catch (Exception e) {
   		
-  		 baseMes.put("errorCode", "0001");
+  		 baseMes.put("errorCode", "0002");
   		 baseMes.put("errorInfo", "网络连接异常!");
   		
  	   }

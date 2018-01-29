@@ -15,7 +15,6 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpSession;
 
 import org.apache.http.ParseException;
-import org.apache.log4j.Logger;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
@@ -37,10 +36,13 @@ import org.openqa.selenium.remote.SessionNotFoundException;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import com.hoomsun.keyBoard.SendKeys;
+import com.reptile.service.AbcSavingService;
 import com.reptile.util.CYDMDemo;
 import com.reptile.util.CountTime;
 import com.reptile.util.CrawlerUtil;
@@ -58,7 +60,7 @@ import com.sun.jna.NativeLibrary;
 public class VirtualKeyBoard {
 	private static CYDMDemo cydmDemo = new CYDMDemo();
 	Resttemplate resttemplate = new Resttemplate();
-	Logger logger = Logger.getLogger(VirtualKeyBoard.class);
+	private static Logger logger= LoggerFactory.getLogger(VirtualKeyBoard.class);
 	/* 名声银行 */
 
 	public synchronized Map<String, Object> CMBCLogin(String number,
@@ -376,8 +378,9 @@ public class VirtualKeyBoard {
 		SimpleHttpClient httclien = new SimpleHttpClient();
 		Map<String, Object> map = new HashMap<String, Object>(); /* 请求头 */
 		try {
-			logger.warn("-----------招商银行信用卡-----------登陆开始-----------用户名："
-					+ arg1 + "密码：" + arg2);
+			logger.warn("########【招商信用卡########登陆开始】########【用户名：】"
+					+ arg1 + "【密码：】" + arg2);	
+			
 			String sessid = new CrawlerUtil().getUUID(); /* 生成UUid 用于区分浏览器 */
 			HttpSession sessions = session;
 
@@ -419,41 +422,44 @@ public class VirtualKeyBoard {
 				WebElement elements1 = driver.findElement(By
 						.className("page-form-item"));
 				if(elements1.getText().contains("请输入附加码")) {
-					logger.warn("----------------招商信用卡-------------需要打码");
+					logger.warn("########【招商信用卡   需要打码】########");
 					WebElement keyWord = driver.findElement(By.id("ImgExtraPwd"));
 					String src = keyWord.getAttribute("src");
 					String filename = new CrawlerUtil().getUUID();
 					BufferedImage inputbig = createElementImage(driver, keyWord);
 					ImageIO.write(inputbig, "png", new File("C://" + filename
 							+ ".png"));
+					
 					String codenice = cydmDemo.getcode(filename); /* 识别yanzhengma */
+					logger.warn("########【招商信用卡   打码结果   codenice：】"+codenice);
 					if (!codenice.equals("") && codenice != null) {
 						WebElement keyWords = driver.findElement(By.id("ExtraPwd"));
 						keyWords.sendKeys(codenice);
 						elements.click();
 						Thread.sleep(5000); 
 						isHave = DriverUtil.waitByClassName("page-form-item", driver, 1);
-						logger.warn("----------------招商信用卡-------------判断附加码是否正确");
+						logger.warn("########【招商信用卡   判断附加码是否正确】########");
 						if(isHave) {
 							elements1 = driver.findElement(By.className("page-form-item"));
+							logger.warn("########【招商信用卡   无效附加码】########");
 							if (elements1.getText().contains("无效附加码")) {
 								logger.warn("----------------招商信用卡-------------无效的附加码");
 								DriverUtil.close(driver);
 								Login(arg1, arg2,session, UUID);
 							}							
 						}	
-						logger.warn("----------------招商信用卡-------------附加码正确");
+						logger.warn("########【招商信用卡   附加码正确】########");
 						map = statbank(driver, tmpcookies, sessid, sessions,
 								elements, httclien, UUID);
 					}
 				}else {
-					logger.warn("----------------招商信用卡------------账号密码出现问题");
+					logger.warn("########【招商信用卡 账号密码出现问题】########");
 					map = statbank(driver, tmpcookies, sessid, sessions, elements,
 							httclien, UUID);
 				}
 				
 			}else {
-				logger.warn("----------------招商信用卡-------------不需要打码");
+				logger.warn("########【招商信用卡 不需要打码】########");
 				map = statbank(driver, tmpcookies, sessid, sessions, elements,
 						httclien, UUID);
 			}
@@ -486,8 +492,9 @@ public class VirtualKeyBoard {
 		Map<String, Object> map = new HashMap<String, Object>();
 		Map<String, Object> data = new HashMap<String, Object>();
 		PushSocket.push(map, UUID, "1000","广发银行信用卡登录中");
-		logger.warn("--------广发储蓄卡--------登陆开始---------证号："+number+"--------密码："+pwd);
-		logger.warn("-----------登陆开始------------身份证号："+usercard);
+		logger.warn("########【广发信用卡########登陆开始】########【用户名：】"
+				+ number + "【密码：】" + pwd+"【身份证号：】"+usercard);	
+		
 		boolean isok = CountTime.getCountTime(timeCnt);
 		if(isok==true){
 			PushState.state(usercard, "bankBillFlow", 100);
@@ -509,14 +516,15 @@ public class VirtualKeyBoard {
 			elements.sendKeys(number);
 			Thread.sleep(1000);
 
-//			SendKeys.sendStr(1193+80, 358-15, pwd);
-			SendKeys.sendStr(1193+80, 358+35, pwd);//本地
+			SendKeys.sendStr(1193+80, 358, pwd);
+//			SendKeys.sendStr(1193+80, 358+35, pwd);//本地
 			Thread.sleep(1000);
+			logger.warn("########【广发信用卡获取图形验证码图片】########【身份证号：】"+usercard);
 			WebElement keyWord = driver.findElement(By.id("verifyImg"));
 			imgtext = downloadGFImgss(driver, keyWord);
-			System.out.println(imgtext+"************打码*********");
-			logger.warn("--------广发银行信用卡--------登陆-----------验证码打码为："+imgtext+"-------------");
+			logger.warn("########【广发信用卡图形验证码打码结果 imgtext:】"+imgtext+"########【身份证号：】"+usercard);
 			if (imgtext.contains("超时") || imgtext.equals("")) {
+				logger.warn("########【广发信用卡获取图形验证码时超时】########【身份证号：】"+usercard);
 				map.put("errorInfo", "连接超时");
 				map.put("errorCode", "0001");
 				PushSocket.push(map, UUID, "3000","连接超时");
@@ -536,6 +544,7 @@ public class VirtualKeyBoard {
 			//弹窗的内容
 			//System.out.println(driver.getPageSource());
 		} catch (Exception e) {
+			logger.warn("########【广发银行信用卡登陆失败，进入try-catch】########【原因：】网络异常，登录失败【身份证号：】"+usercard);
 			logger.warn("-----------广发银行登录失败----------",e);
 			map.put("errorInfo", "网络异常,请重试！！");
 			map.put("errorCode", "0001");
@@ -550,6 +559,7 @@ public class VirtualKeyBoard {
 			return map;
 		}
 		if(imgtext.length()<4) {
+			logger.warn("########【广发银行信用卡打码结果位数不够】【身份证号：】"+usercard);
 			DriverUtil.close(driver);
 			map = GDBLogin(number, pwd, usercard, UUID,timeCnt);
 		}
@@ -557,13 +567,16 @@ public class VirtualKeyBoard {
 	
 		if(!str.isEmpty()){
 				if(str.contains("验证码")){
+					logger.warn("########【广发银行信用卡打码结果不正确】【身份证号：】"+usercard);
 					DriverUtil.close(driver);
 					map = GDBLogin(number, pwd, usercard, UUID,timeCnt);
 					//密码不为空并且报密码为空错误试递归
 				}else if(str.contains("请输入密码")&&!"".equals(pwd)){
+					logger.warn("########【广发银行信用卡密码未正确输入】【身份证号：】"+usercard);
 					DriverUtil.close(driver);
 					map = GDBLogin(number, pwd, usercard, UUID,timeCnt);
 				}else{
+					logger.warn("########【广发银行信用卡登陆失败  原因："+str+"】【身份证号：】"+usercard);
 					map.put("errorInfo", str);
 					map.put("errorCode", "0001");
 					PushSocket.push(map, UUID, "3000",str);
@@ -577,10 +590,12 @@ public class VirtualKeyBoard {
 				}
 				return map;								
 		}else if(DriverUtil.waitById("errorMessage", driver, 3)){
+			
 				String errorMessage = driver.findElement(By.id("errorMessage")).getText();
 				map.put("errorInfo", errorMessage);
 				map.put("errorCode", "0001");
 				PushSocket.push(map, UUID, "3000",errorMessage);
+				logger.warn("########【广发银行信用卡登陆失败  原因："+errorMessage+"】【身份证号：】"+usercard);
 				if(isok==true){
 					PushState.state(usercard, "bankBillFlow", 200,errorMessage);
 				}else {
@@ -592,11 +607,13 @@ public class VirtualKeyBoard {
 		}else if(DriverUtil.waitByTitle("广发银行个人网上银行", driver, 15)&&driver.getPageSource().contains("您好，欢迎您登录广发银行个人网银")){
 			int flag = 0;
 			try {
+				
 				logger.warn("--------广发银行登陆------------成功-----------用户名："+ number+"-----------");
 				PushSocket.push(map, UUID, "2000","广发银行信用卡登陆成功");
-				
+				logger.warn("########【广发银行信用卡登陆成功】【身份证号：】"+usercard);
 				Thread.sleep(8000);
 				PushSocket.push(map, UUID, "5000","广发银行信用卡数据获取中");
+				logger.warn("########【广发银行信用卡开始获取数据】【身份证号：】"+usercard);
 				flag = 1;
 				String jsv = "var aaa=document.getElementsByClassName('node');aaa[15].click();";
 				jss = (JavascriptExecutor) driver;
@@ -609,7 +626,7 @@ public class VirtualKeyBoard {
 				String sid = driver.getPageSource()
 						.substring(driver.getPageSource().indexOf("_emp_sid = '"),driver.getPageSource().indexOf("';"))
 						.replaceAll("_emp_sid = '", "");
-				logger.warn("--------广发银行登陆------------sid为："+sid);
+				logger.warn("--------广发银行------------sid为："+sid);
 				/*选中第一个*/
 				for (int i = 0; i < 11; i++) {
 					/* 为了避免查询不到账单 做此次处理*/
@@ -633,7 +650,7 @@ public class VirtualKeyBoard {
 					driver.switchTo().window(head);
 				}
 				
-				logger.warn("--------广发银行登陆------------OPEN：开始");
+				logger.warn("--------广发银行------------OPEN：开始");
 				for (int i = 0; i < application.Getdate().size(); i++) {
 					Thread.sleep(1000);
 					jss = (JavascriptExecutor) driver;
@@ -643,7 +660,7 @@ public class VirtualKeyBoard {
 							+ application.Getdate().get(i)
 							+ "&billType=1&abundantFlag=0&terseFlag=0&showWarFlag=0&EMP_SID="
 							+ sid + " ');";
-					logger.warn("--------广发银行登陆------------OPEN："+i+"    url:"+win);
+					logger.warn("--------广发银行------------OPEN：------i="+i+"---------url:"+win);
 					jss.executeScript(win, "");
 				}
 				logger.warn("--------广发银行登陆------------OPEN：结束");
@@ -664,8 +681,8 @@ public class VirtualKeyBoard {
 					}
 				}
 				PushSocket.push(map, UUID, "6000","广发银行信用卡数据获取成功");
-				flag = 2;
-				logger.warn("--------广发银行登陆------------账单查询：结束");
+				logger.warn("########【广发银行信用卡数据获取成功】【身份证号：】"+usercard);
+				
 				data.put("html", listinfo);
 				data.put("backtype", "GDB");
 				data.put("idcard", usercard);
@@ -673,8 +690,11 @@ public class VirtualKeyBoard {
 				map.put("data", data);
 				map.put("isok", isok);
 				Resttemplate ct = new Resttemplate();
+				logger.warn("########【广发银行信用卡开始推送数据】【身份证号：】"+usercard);
+				flag = 2;
 				map = ct.SendMessageX(map, application.sendip
 						+ "/HSDC/BillFlow/BillFlowByreditCard", usercard,UUID);
+				logger.warn("########【广发银行信用卡推送完成    身份证号：】"+usercard+"数据中心返回结果："+map.toString());
 				driver.switchTo().window(head);
 				}catch (Exception e) {
 					if(flag == 1) {
@@ -684,6 +704,7 @@ public class VirtualKeyBoard {
 						logger.warn("--------------flag="+flag+"----------网络异常，认证失败");
 						PushSocket.push(map, UUID, "9000","网络异常");						
 					}
+					logger.warn("########【广发银行信用卡登陆成功后进入try-catch】【身份证号：】"+usercard);
 					if(isok==true){
 						PushState.state(usercard, "bankBillFlow", 200,"网络异常");
 					}else {
@@ -696,6 +717,7 @@ public class VirtualKeyBoard {
 					DriverUtil.close(driver);
 				}			
 			}else {
+				logger.warn("########【广发银行信用卡登陆中页面未跳转，进入else】【身份证号：】"+usercard);
 				logger.warn("-----------广发银行登陆失败----------");
 				map.put("errorInfo", "网络异常,请重试！！");
 				map.put("errorCode", "0001");
@@ -722,7 +744,6 @@ public class VirtualKeyBoard {
 		Map<String, Object> map = new HashMap<String, Object>(); /* 请求头 */
 		Map<String, Object> data = new HashMap<String, Object>(); /* 请求头 */
 		if (!driver.getPageSource().contains("使用旧版本登入")) {
-			System.out.println("***************页面已跳转**********************");
 			/* 证明登陆成功 */
 			WebElement ClientNo = driver.findElement(By.id("ClientNo")); /*
 																		 * 银行卡号，
@@ -733,7 +754,7 @@ public class VirtualKeyBoard {
 			System.out.println("是否需要短信验证判断前*************"+"num" + num);
 			
 			if (driver.getTitle().equals("身份验证")) {
-				System.out.println("需要短信验证*************");
+				logger.warn("########【招商信用卡   需要短信验证】");
 				data.put("Verify", "yes");
 				params.put("ClientNo", num);
 				params.put("PRID", "SendMSGCode");
@@ -759,11 +780,12 @@ public class VirtualKeyBoard {
 						"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; .NET4.0C; .NET4.0E)");
 				headers.put("x-requested-with", "XMLHttpRequest");
 				driver.quit();
-				logger.warn("----------------招商信用卡-------------短信验证码发包开始-----------------");
+				
+				logger.warn("########【招商信用卡   短信验证码发包开始】");
 				String rest = httclien
 						.post("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/GenLoginVerifyM2.aspx",
 								params, headers); /* 开始发包 */
-				logger.warn("----------------招商信用卡-------------短信验证码发包完成-----------------");
+				logger.warn("########【招商信用卡   短信验证码发包完成】");
 				if (rest.contains("<code>00</code>")) {
 					map.put("errorCode", "0000");
 					map.put("errorInfo", "成功");
@@ -773,7 +795,7 @@ public class VirtualKeyBoard {
 					map.put("errorInfo", "验证码发送失败");
 				}
 			} else {
-				System.out.println("****************不需要短信验证码*************");
+				logger.warn("########【招商信用卡  不需要短信验证码】");
 				data.put("Verify", "no");
 				map.put("errorCode", "0000");
 				/* map.put("errorinfo", "操作成功"); //原始数据 */
@@ -811,6 +833,7 @@ public class VirtualKeyBoard {
 					map.put("errorCode", "0001");
 				}
 			}
+			logger.warn("########【招商信用卡登陆失败   原因："+elements1.getText());
 		}
 		logger.warn("------招商信用卡-------errorCode："+map.get("errorCode")+"-----errorInfo："+map.get("errorInfo"));
 		map.put("data", data);

@@ -14,7 +14,6 @@ import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
-import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Cookie;
 import org.openqa.selenium.Dimension;
@@ -24,6 +23,8 @@ import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.remote.Augmenter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.hoomsun.keyBoard.SendKeys;
 import com.reptile.util.CYDMDemo;
@@ -33,7 +34,7 @@ import com.reptile.util.PushState;
 import com.reptile.util.SimpleHttpClient;
 
 public class CmbBank {
-	private Logger logger = Logger.getLogger(CmbBank.class);
+	private static Logger logger= LoggerFactory.getLogger(CmbBank.class);
 
 	private static CYDMDemo cydmDemo = new CYDMDemo();
 
@@ -45,9 +46,11 @@ public class CmbBank {
 
 	public Map<String, Object> CMBLogin(String userName, String userPwd,
 			HttpServletRequest request, String UserCard, String UUID){
-		logger.warn("-----------招商银行储蓄卡-----------登陆开始-----------用户名："
-				+ userName + "密码：" + userPwd);
-		logger.warn("-----------招商银行储蓄卡-----------登陆开始----------身份证号："+ UserCard);
+	
+		
+		logger.warn("########【招商储蓄卡########登陆开始】########【用户名：】"
+				+ userName + "【密码：】" + userPwd+"【身份证号：】"+UserCard);	
+		
 		SimpleHttpClient httclien = new SimpleHttpClient();
 		Map<String, Object> params = new HashMap<String, Object>();
 		Map<String, String> headers = new HashMap<String, String>();
@@ -72,19 +75,18 @@ public class CmbBank {
 			WebElement LoginBut = driver.findElement(By.id("LoginBtn"));
 			LoginBut.click();
 			Thread.sleep(5000);// 延迟三秒
-			logger.warn("判断附加码之前********** ");
-			System.out.println("判断附加码之前**********" );
+			logger.warn("########【招商储蓄卡   判断是否需要验证码】########【身份证号：】"+UserCard);
 			/* 判断是否需要验证码 */
 			boolean isHave = DriverUtil.waitByClassName("page-form-item", driver, 1);
 			
 			WebElement elements1=null;
 			if(isHave) {
+				
 				elements1 = driver.findElement(By
 						.className("page-form-item"));
 				logger.warn("**********"+elements1);
 				if (elements1.getText().contains("附加码")) {
-					logger.warn("-----------招商银行储蓄卡-----------登陆需要验证码----------");
-					System.out.println("招商银行储蓄卡-----------登陆需要验证码---------" );
+					logger.warn("########【招商储蓄卡   需要验证码】########【身份证号：】"+UserCard);
 					/*
 					 * 输入验证码处理
 					 */
@@ -93,7 +95,9 @@ public class CmbBank {
 							.id("ImgExtraPwd"));
 					WebElement input_captcha = driver
 							.findElement(By.id("ExtraPwd"));
+					logger.warn("########【招商储蓄卡  开始打码】########【身份证号：】"+UserCard);
 					String imgtext = downloadImgs(driver, ImgExtraPwd);
+					logger.warn("########【招商储蓄卡 打码结果  imgtext】="+imgtext+"】########【身份证号：】"+UserCard);
 					input_captcha.sendKeys(imgtext);
 					LoginBut.click();
 					Thread.sleep(5000);// 延迟三秒
@@ -101,21 +105,18 @@ public class CmbBank {
 			}
 			
 			logger.warn("获取cookie之前********** ");
-			System.out.println("获取cookie之前**********" );
 			// 获得cookie
 			StringBuffer buffer = GetCookie(driver);
 			logger.warn("获取cookie之后********** ");
-			System.out.println("获取cookie之后***********" );
 			// 判断是否需要验证码
 			// 需要这个加密的银行卡尽心发包
 			if (!driver.getPageSource().contains("使用旧版本登入")) {
 				logger.warn("*********进入登录页面**************");
-				System.out.println("*********进入登录页面************************" );
 				WebElement ClientNo = driver.findElement(By.id("ClientNo"));// 银行卡号，需要在页面拿到然后发包
 				
 				String num = ClientNo.getAttribute("value");
 				if (driver.getTitle().equals("身份验证")) {
-					System.out.println("************需要身份验证*************");
+					logger.warn("########【招商储蓄卡  *需要身份验证*】########【身份证号：】"+UserCard);
 					// 短信发包开始-------------------
 					params.put("ClientNo", num);
 					params.put("PRID", "SendMSGCode");
@@ -144,9 +145,11 @@ public class CmbBank {
 							"User-Agent",
 							"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1; Trident/4.0; SLCC2; .NET CLR 2.0.50727; .NET CLR 3.5.30729; .NET CLR 3.0.30729; .NET4.0C; .NET4.0E)");
 					headers.put("x-requested-with", "XMLHttpRequest");
+					logger.warn("########【招商储蓄卡  短信验证发包开始】########【身份证号：】"+UserCard);
 					String rest = httclien
 							.post("https://pbsz.ebank.cmbchina.com/CmbBank_GenShell/UI/GenShellPC/Login/GenLoginVerifyM2.aspx",
 									params, headers);// 开始发包
+					logger.warn("########【招商储蓄卡  短信验证发包结果rest：】"+rest+"########【身份证号：】"+UserCard);
 					if (rest.contains("<code>00</code>")) {
 						session.setAttribute(
 								sessid,
@@ -166,14 +169,13 @@ public class CmbBank {
 						PushState.state(UserCard, "savings", 200,"登录失败");
 					}
 				} else {
-					System.out.println("************不需要身份验证*************");
 					// 不需要验证码
+					logger.warn("########【招商储蓄卡  不需要身份验证】########【身份证号：】"+UserCard);
 					session.setAttribute(
 							sessid,
 							buffer.toString().replaceAll("path=/,", "")
 									.replaceAll("path=/", "")
 									.replace("; ;", ";"));
-					System.out.println("************不需要身份验证*************");
 					params.put("ClientNo", num);
 					params.put("sessid", sessid);
 					params.put("Sendcode", "no");
@@ -191,6 +193,7 @@ public class CmbBank {
 				}
 				map.put("errorInfo", elements1.getText());
 				map.put("errorCode", "0001");
+				logger.warn("########【招商储蓄卡  登录失败  原因：】"+elements1.getText()+"########【身份证号：】"+UserCard);
 				PushState.state(UserCard, "savings", 200, elements1.getText());
 			}
 		} catch (Exception e) {

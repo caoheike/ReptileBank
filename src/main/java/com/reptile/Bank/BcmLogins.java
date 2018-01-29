@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
 import org.apache.http.client.ClientProtocolException;
-import org.apache.log4j.Logger;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -39,7 +38,10 @@ import org.openqa.selenium.remote.Augmenter;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.reptile.service.BcmSavingService;
 import com.reptile.util.CountTime;
 import com.reptile.util.DriverUtil;
 import com.reptile.util.JiaoTongKeyMap;
@@ -62,14 +64,16 @@ import net.sf.json.JSONArray;
  */
 public class BcmLogins {
 
-	private Logger logger = Logger.getLogger(BcmLogins.class);
+	private static Logger logger = LoggerFactory.getLogger(BcmSavingService.class);
 
 	Resttemplate resttemplate = new Resttemplate();
 
 	public Map<String, Object> BankLogin(String UserNumber, String UserPwd,
 			String UserCard, HttpServletRequest request, String UUID,String timeCnt)
 			throws InterruptedException, ParseException {
-		logger.warn("---------民生储蓄卡--------登陆开始---------证号："+UserNumber+"--------密码："+UserPwd);
+		
+		logger.warn("########【农业信用卡########登陆开始】########【用户名：】"
+				+ UserNumber + "【密码：】" + UserPwd+"【身份证号：】"+UserCard);	
 		int flag = 0;
 		boolean isok =CountTime.getCountTime(timeCnt); 
 		JavascriptExecutor jss = null;
@@ -100,6 +104,7 @@ public class BcmLogins {
 			
 			Thread.sleep(500);
 //			Map<String, Object> imagev = new HashMap<String, Object>();
+			logger.warn("########【交通银行信用卡开始返回键盘中数字】########【身份证号：】"+UserCard);
 			String icbcImg1 = saveImgJ(element, driver);// 返回键盘中数字
 //			String icbcImg1 = imagev.get("strResult").toString();// 读取图片验证码
 			
@@ -109,7 +114,6 @@ public class BcmLogins {
 			List<WebElement> li = element.findElements(By.tagName("li"));
 			// 返回识别的字符串
 			String pwd = UserPwd;
-			System.out.println("**************"+UserPwd+"*****************");
 			String[] pwdArry = pwd.split("");
 			logger.warn("-------------输入密码分割的字符串----------------pwdArry:"+pwdArry.toString());
 			boolean isNum = true;
@@ -146,7 +150,7 @@ public class BcmLogins {
 			}
 			logger.warn("-------------------密码框中输入字符个数count:"+count);
 			if(count!=UserPwd.length()) {
-				logger.warn("-----------交通信用卡-----------登录失败-----------");
+				logger.warn("########【交通银行信用卡登录失败 原因：密码输入中出错】########【身份证号：】"+UserCard);
 				PushSocket.push(map, UUID, "3000","密码输入中出错,登录失败");
 				if(isok==true){
 					PushState.state(UserCard, "bankBillFlow", 200,"密码输入中出错,登录失败");
@@ -209,11 +213,12 @@ public class BcmLogins {
 					return map;
 					// 不需要发送验证码
 				} else if (driver.getPageSource().contains("查看我的买单吧")) {
-					logger.warn("--------------交通银行信用卡---------------登陆成功----------------身份证号："+UserCard);
+					logger.warn("########【交通银行信用卡:不需要发送验证码】########【身份证号：】"+UserCard);
 					PushSocket.push(map, UUID, "2000","交通银行信用卡登陆成功");
-					
+					logger.warn("########【交通银行信用卡登录成功】########【身份证号：】"+UserCard);
 					Thread.sleep(2000);
 					PushSocket.push(map, UUID, "5000","交通银行信用卡数据获取中");
+					logger.warn("########【交通银行信用卡数据获取中】########【身份证号：】"+UserCard);
 					flag = 2;
 					List<String> list=new ArrayList<String>();
 //						list = this.getDetail(driver, UserNumber);
@@ -267,6 +272,7 @@ public class BcmLogins {
 
 					
 						PushSocket.push(map, UUID, "6000","交通银行信用卡数据获取成功");
+						logger.warn("########【交通银行信用卡数据获取成功】########【身份证号：】"+UserCard);
 						flag = 3;
 						data.put("html", list);
 						data.put("backtype", "BCM");
@@ -276,16 +282,17 @@ public class BcmLogins {
 						map.put("isok", isok);
 						// map= resttemplate.SendMessage(map,
 						// "http://192.168.3.16:8089/HSDC/BillFlow/BillFlowByreditCard",UserCard);
+						logger.warn("########【交通银行信用卡开始推送】########【身份证号：】"+UserCard);
 						map = resttemplate.SendMessageX(map, application.sendip
 								+ "/HSDC/BillFlow/BillFlowByreditCard", UserCard,UUID);
+						logger.warn("########【交通信用卡推送完成    身份证号：】"+UserCard+"数据中心返回结果："+map.toString());
 
 						map.put("whetherCode", "no");
 						DriverUtil.close(driver);
 					
 					
-					logger.warn("--------------交通银行信用卡---------------查询成功----------------身份证号："+UserCard);
 				} else {
-					logger.warn("--------------交通银行信用卡-------------请求数据时错误--------------身份证号："+UserCard+"请求数据时错误");
+					logger.warn("########【交通银行信用卡登陆失败  失败原因：请求数据时错误】【身份证号：】"+UserCard);
 					PushSocket.push(map, UUID, "3000","请求数据时错误");
 					if(isok==true){
 						PushState.state(UserCard, "bankBillFlow", 200,"请求数据时错误");
@@ -300,7 +307,7 @@ public class BcmLogins {
 				}
 				
 			} else if(!alertText.isEmpty()){
-				logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因："+alertText);
+				logger.warn("########【交通银行信用卡登陆失败  失败原因：】"+alertText+"【身份证号：】"+UserCard);
 				PushSocket.push(map, UUID, "3000",alertText);
 				if(isok==true){
 					PushState.state(UserCard, "bankBillFlow", 200,alertText);
@@ -311,7 +318,7 @@ public class BcmLogins {
 				map.put("errorInfo", alertText);
 				DriverUtil.close(driver);
 			} else if(msg.size() != 0){
-				logger.warn("--------------交通银行信用卡---------------登陆失败----------------身份证号："+UserCard+"失败原因："+msg.get(1).getText());
+				logger.warn("########【交通银行信用卡登陆失败  失败原因：】"+msg.get(1).getText()+"【身份证号：】"+UserCard);
 				PushSocket.push(map, UUID, "3000",msg.get(1).getText());
 				if(isok==true){
 					PushState.state(UserCard, "bankBillFlow", 200,msg.get(1).getText());
@@ -343,7 +350,7 @@ public class BcmLogins {
 			}else {
 				PushState.stateX(UserCard, "bankBillFlow", 200,"网络异常");
 			}
-			
+			logger.warn("########【交通银行信用卡进入try-catch】【身份证号：】"+UserCard);
 			map.put("errorInfo", "网络错误");
 			DriverUtil.close(driver);
 			
