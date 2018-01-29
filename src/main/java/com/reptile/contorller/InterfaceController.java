@@ -71,12 +71,12 @@ public class InterfaceController {
 		CMBService CMB=new CMBService();
 		Map<String, Object> map = new HashMap<String, Object>();
 		HttpSession session = request.getSession();
-//		String UUID = request.getParameter("UUID");
-		String UUID = "54557451454248+jhfjdkshfdsj";
-//		String userCard = request.getParameter("userCard");
-		String userCard = "610111199203252021";
-//		String timeCnt = request.getParameter("timeCnt");
-		String timeCnt = "2017-12-12";
+		String UUID = request.getParameter("UUID");
+//		String UUID = "54557451454248+jhfjdkshfdsj";
+		String userCard = request.getParameter("userCard");
+//		String userCard = "610111199203252021";
+		String timeCnt = request.getParameter("timeCnt");
+//		String timeCnt = "2017-12-12";
 		System.out.println("---*****************-----*****************-------userCard:"+userCard);
 		synchronized (this) {			
 			if (BankType.equals("CMB")) {// 招商银行

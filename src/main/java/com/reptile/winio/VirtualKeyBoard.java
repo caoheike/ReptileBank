@@ -508,17 +508,10 @@ public class VirtualKeyBoard {
 			elements.click();
 			elements.sendKeys(number);
 			Thread.sleep(1000);
-			/* 按下Tab */
-			/*KeysPress.SendTab("Tab");
-			Thread.sleep(1000);*/
-//			SendKeys.sendTab();
-//			Thread.sleep(1000);
-//			/* 输入密码 */
-//			SendKeys.sendStr(pwd);
+
 //			SendKeys.sendStr(1193+80, 358-15, pwd);
 			SendKeys.sendStr(1193+80, 358+35, pwd);//本地
 			Thread.sleep(1000);
-			//KeysPress.sendPassWord(pwd);wy
 			WebElement keyWord = driver.findElement(By.id("verifyImg"));
 			imgtext = downloadGFImgss(driver, keyWord);
 			System.out.println(imgtext+"************打码*********");

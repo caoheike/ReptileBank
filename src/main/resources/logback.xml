@@ -12,7 +12,7 @@
 <!--   <logger name="org.apache.tomcat.jdbc.pool" level="DEBUG"/> -->
 <!--   <logger name="com.reptile.contorller.InterfaceController" level="ERROR"/> -->
 <!--   <logger name="com.reptile.contorller.InterfaceController" level="WARN"/> -->
-<property name="LOG_FILE" value="c:/spring.log"/>  
+<property name="LOG_FILE" value="c:/springlog/spring.log"/>  
     <include resource="org/springframework/boot/logging/logback/file-appender.xml" />  
 <root level="warn">
 	<appender-ref ref="FILE"/>
