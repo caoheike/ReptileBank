@@ -188,12 +188,13 @@ public class InterfaceController {
 			@RequestParam("ClientNo") String ClientNo,
 			@RequestParam("idCard") String idCard,
 			@RequestParam("UUID") String UUID,
-			@RequestParam("Sendcode") String Sendcode, @RequestParam("number") String numbe) throws Exception {
+			@RequestParam("Sendcode") String Sendcode, @RequestParam("number") String numbe,
+			@RequestParam("flag") boolean flag) throws Exception {
 		System.out.println("heeli man");
 		HttpSession session = request.getSession();
 
 		return mobileService.CmbQueryInfo(code, sessid, ClientNo, idCard,
-				request, UUID, Sendcode,numbe);
+				request, UUID, Sendcode,numbe,flag);
 
 	}
 	

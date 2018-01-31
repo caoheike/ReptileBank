@@ -397,7 +397,7 @@ public class MobileService {
 		 * @throws InterruptedException 
 		  */
 		 
-		 public Map<String,Object> CmbQueryInfo(String code,String sessid,String num,String idcard,HttpServletRequest re,String UUID,String Sendcode,String numbe) throws ParseException, IOException, InterruptedException{
+		 public Map<String,Object> CmbQueryInfo(String code,String sessid,String num,String idcard,HttpServletRequest re,String UUID,String Sendcode,String numbe,boolean flag) throws ParseException, IOException, InterruptedException{
 				SimpleHttpClient httclien=new SimpleHttpClient();
 				logger.warn("########【招商储蓄卡第二接口     登陆开始】########【短信验证码：】"
 						+ code + "【账号：】" + numbe+"【身份证号：】"+idcard);	
@@ -407,6 +407,7 @@ public class MobileService {
 				Map<String,Object> data1=new HashMap<String, Object>();
 				Map<String,String> head1=new HashMap<String, String>();
 				PushState.state(idcard, "savings", 100);
+//				PushState.stateByFlag(idcard, "savings", 100,flag);
 				PushSocket.push(params, UUID, "1000","招商储蓄卡登陆中");
 				Map status=new HashMap();
 				HttpSession session=re.getSession();
@@ -497,7 +498,7 @@ public class MobileService {
 			            	params.put("errorInfo", "请确认您的银行卡是否为储蓄卡");
 				    		params.put("errorCode", "0002");
 				    		PushSocket.push(params, UUID, "7000","请确认您的银行卡是否为储蓄卡");
-				    		PushState.state(idcard, "savings", 200,"请确认您的银行卡是否为储蓄卡");
+				    		PushState.stateByFlag(idcard, "savings", 200,"请确认您的银行卡是否为储蓄卡",flag);
 				    		System.out.println("*********************************************请确认您的银行卡是否为储蓄卡");
 				    		logger.warn("----招商储蓄卡第二个接口------errorCode："+params.get("errorCode")+"-----errorInfo："+params.get("errorInfo"));
 				    		return params;
@@ -542,7 +543,7 @@ public class MobileService {
 						   params.put("errorInfo", "您的账号暂无账单");
 			    		   params.put("errorCode", "0002");
 			    		   PushSocket.push(params, UUID, "7000","您的账号暂无账单");
-			    		   PushState.state(idcard, "savings", 200,"您的账号暂无账单");
+			    		   PushState.stateByFlag(idcard, "savings", 200,"您的账号暂无账单",flag);
 			    		   logger.warn("----招商储蓄卡第二个接口------errorCode："+params.get("errorCode")+"-----errorInfo："+params.get("errorInfo"));
 			    		   System.out.println("*********************************************您的账号暂无账单");
 					   }
@@ -571,7 +572,7 @@ public class MobileService {
 		    			params.put("errorInfo", "网络异常,请重试！！");
 		    			params.put("errorCode", "0003");
 		    			PushSocket.push(params, UUID, "9000","网络异常，认证失败");
-		    			PushState.state(idcard, "savings", 200,"网络异常，认证失败");
+		    			PushState.stateByFlag(idcard, "savings", 200,"网络异常，认证失败",flag);
 		    			logger.warn("----招商储蓄卡第二个接口------errorCode："+params.get("errorCode")+"-----errorInfo："+params.get("errorInfo"));
 		    		}
 				 }else {
@@ -579,7 +580,7 @@ public class MobileService {
 					 params.put("errorInfo", "查询失败");
 					 params.put("errorCode", "0001");
 					 PushSocket.push(params, UUID, "3000","查询失败");
-					 PushState.state(idcard, "savings", 200,"查询失败");
+					 PushState.stateByFlag(idcard, "savings", 200,"查询失败",flag);
 					 logger.warn("----招商储蓄卡第二个接口------errorCode："+params.get("errorCode")+"-----errorInfo："+params.get("errorInfo"));
 				 }
 	    	}else{
@@ -654,7 +655,7 @@ public class MobileService {
 		            	params.put("errorInfo", "请确认您的银行卡是否为储蓄卡");
 			    		params.put("errorCode", "0002");
 			    		PushSocket.push(params, UUID, "7000","请确认您的银行卡是否为储蓄卡");
-			    		PushState.state(idcard, "savings", 200,"请确认您的银行卡是否为储蓄卡");
+			    		PushState.stateByFlag(idcard, "savings", 200,"请确认您的银行卡是否为储蓄卡",flag);
 			    		System.out.println("*********************************************请确认您的银行卡是否为储蓄卡");
 			    		return params;
 		            }
@@ -700,7 +701,7 @@ public class MobileService {
 					   params.put("errorInfo", "您的账号暂无账单");
 		    		   params.put("errorCode", "0002");
 		    		   PushSocket.push(params, UUID, "7000","您的账号暂无账单");
-		    		   PushState.state(idcard, "savings", 200,"您的账号暂无账单");
+		    		   PushState.stateByFlag(idcard, "savings", 200,"您的账号暂无账单",flag);
 		    		   logger.warn("----招商储蓄卡第二个接口------errorCode："+params.get("errorCode")+"-----errorInfo："+params.get("errorInfo"));
 		    		   System.out.println("*********************************************您的账号暂无账单");
 		    		   return status;
@@ -732,7 +733,7 @@ public class MobileService {
 	    			params.put("errorInfo", "网络异常,请重试！！");
 	    			params.put("errorCode", "0003");
 	    			PushSocket.push(params, UUID, "9000","网络异常，认证失败");
-	    			PushState.state(idcard, "savings", 200,"网络异常，认证失败");
+	    			PushState.stateByFlag(idcard, "savings", 200,"网络异常，认证失败",flag);
 	    			logger.warn("----招商储蓄卡第二个接口------errorCode："+params.get("errorCode")+"-----errorInfo："+params.get("errorInfo"));
 	    		}	    		
 	    	}	    	
