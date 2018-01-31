@@ -45,7 +45,7 @@ public class CmbBank {
 	 */
 
 	public Map<String, Object> CMBLogin(String userName, String userPwd,
-			HttpServletRequest request, String UserCard, String UUID){
+			HttpServletRequest request, String UserCard, String UUID,boolean flag){
 	
 		
 		logger.warn("########【招商储蓄卡########登陆开始】########【用户名：】"
@@ -166,7 +166,7 @@ public class CmbBank {
 					} else {
 						map.put("errorInfo", "登录失败");
 						map.put("errorCode", "0001");
-						PushState.state(UserCard, "savings", 200,"登录失败");
+						PushState.stateByFlag(UserCard, "savings", 200,"登录失败",flag);
 					}
 				} else {
 					// 不需要验证码
@@ -188,13 +188,13 @@ public class CmbBank {
 
 			} else {
 				if (elements1.getText().contains("附加码")) {
-					CMBLogin(userName, userPwd, request, UserCard, UUID);
+					CMBLogin(userName, userPwd, request, UserCard, UUID,flag);
 
 				}
 				map.put("errorInfo", elements1.getText());
 				map.put("errorCode", "0001");
 				logger.warn("########【招商储蓄卡  登录失败  原因：】"+elements1.getText()+"########【身份证号：】"+UserCard);
-				PushState.state(UserCard, "savings", 200, elements1.getText());
+				PushState.stateByFlag(UserCard, "savings", 200, elements1.getText(),flag);
 			}
 		} catch (Exception e) {
 			logger.warn("-----------招商银行储蓄卡-----------登陆失败----------身份证号："+UserCard,e);

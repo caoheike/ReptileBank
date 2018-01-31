@@ -54,14 +54,14 @@ public class CmbSavingsService {
  * @param response
  * @param userCard
  * @param passWord
- * @return
+ * @return@RequestParam("flag") boolean flag
  * @throws InterruptedException 
  */
-    public    Map<String,Object> login(HttpServletRequest request,HttpServletResponse response,String userCard,String passWord,String idCard,String UUID) {
+    public    Map<String,Object> login(HttpServletRequest request,HttpServletResponse response,String userCard,String passWord,String idCard,String UUID,boolean flag) {
         Map<String,Object> map=new HashMap<String,Object>();
         Map<String,Object> data=new HashMap<String,Object>();
         PushSocket.push(map, UUID, "1000","民生储蓄卡登录中");
-        PushState.state(idCard, "savings", 100);
+        PushState.stateByFlag(idCard, "savings", 100,flag);
         WebDriver driver =null; 
     	try {
     		logger.warn("########【民生信用卡########登陆开始】########【用户名：】"
@@ -121,7 +121,7 @@ public class CmbSavingsService {
 			map.put("errorCode", "0001");
             map.put("errorInfo", "网络连接异常!");
             PushSocket.push(map, UUID, "3000","网络连接异常,登录失败");
-			PushState.state(idCard, "savings", 200,"网络连接异常,登录失败");
+			PushState.stateByFlag(idCard, "savings", 200,"网络连接异常,登录失败",flag);
 			driver.quit();
 			logger.warn("----民生储蓄卡------errorCode："+map.get("errorCode")+"-----errorInfo："+map.get("errorInfo"));
             return map;
@@ -171,7 +171,7 @@ public class CmbSavingsService {
  
 					} catch (Exception e) {
 						logger.warn("民生银行",e);
-						PushState.state(idCard, "savings", 200,"系统繁忙，数据获取失败");
+						PushState.stateByFlag(idCard, "savings", 200,"系统繁忙，数据获取失败",flag);
 						PushSocket.push(map, UUID, "7000","系统繁忙，数据获取失败");
 						
 						map.put("errorCode", "0002");
@@ -195,7 +195,7 @@ public class CmbSavingsService {
 						e.printStackTrace();
 						logger.warn("########【交易明细解析方法执行中：进入try-catch  原因：网络连接异常，数据获取失败】########【身份证号：】"+idCard);
 						PushSocket.push(map, UUID, "7000","网络连接异常，数据获取失败");
-    			    	PushState.state(idCard, "savings", 200,"网络连接异常，数据获取失败");
+    			    	PushState.stateByFlag(idCard, "savings", 200,"网络连接异常，数据获取失败",flag);
     			    	map.put("errorCode", "0002");
     			    	map.put("errorInfo", "网络连接异常!");
     			    	driver.quit();
@@ -215,12 +215,12 @@ public class CmbSavingsService {
     			    map = new Resttemplate().SendMessage(map, application.sendip+"/HSDC/savings/authentication");  //推送数据
     			    logger.warn("########【推送完成】########【身份证号：】"+idCard+"数据中心返回结果："+map.toString());
     			    if(map!=null&&"0000".equals(map.get("errorCode").toString())){
-    		           	 PushState.state(idCard, "savings", 300);
+    		           	 PushState.stateByFlag(idCard, "savings", 300,flag);
     		           	PushSocket.push(map, UUID, "8000","认证成功");
     		           	data.put("errorInfo","推送成功");
     		           	data.put("errorCode","0000");
     		           }else{
-    		           	 PushState.state(idCard, "savings", 200,map.get("errorInfo").toString());
+    		           	 PushState.stateByFlag(idCard, "savings", 200,map.get("errorInfo").toString(),flag);
     		           	PushSocket.push(map, UUID, "9000",map.get("errorInfo").toString());
     		           	data.put("errorInfo","推送失败");
     		           	data.put("errorCode","0001");
@@ -246,7 +246,7 @@ public class CmbSavingsService {
 					//System.out.println(element1.getText());
 				} 
 				PushSocket.push(map, UUID, "3000",element1.getText());
-				PushState.state(idCard, "savings", 200,element1.getText());
+				PushState.stateByFlag(idCard, "savings", 200,element1.getText(),flag);
 				logger.warn("民生银行",element1.getText());
 				driver.quit();
 				logger.warn("----民生储蓄卡------errorCode："+map.get("errorCode")+"-----errorInfo："+map.get("errorInfo"));

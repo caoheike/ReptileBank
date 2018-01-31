@@ -54,7 +54,7 @@ public class AbcSavingService {
 		 * @throws Exception
 		 */
 		public static Map<String, Object> doGetDetail(String username,
-				String userpwd, String UUID, String card,HttpSession session,HttpServletRequest request) throws InterruptedException{
+				String userpwd, String UUID, String card,HttpSession session,HttpServletRequest request,boolean flag) throws InterruptedException{
 			int numCount=0;//打码次数
 			logger.warn("########【农业储蓄卡########登陆开始】########【用户名：】"
 					+ username + "【密码：】" + userpwd+"【身份证号：】"+card);	
@@ -105,7 +105,7 @@ public class AbcSavingService {
 						//密码不为空并且报密码为空错误试递归
 						if(text.contains("密码内容不能为空")&&!"".equals(userpwd)) {
 							driver.quit();
-							doGetDetail(username,userpwd, UUID, card,session,request);
+							doGetDetail(username,userpwd, UUID, card,session,request,flag);
 						}						
 					}else{
 						text = driver.findElement(By.className("logon-error")).getAttribute("title");
@@ -189,7 +189,7 @@ public class AbcSavingService {
 	    		           	driver.quit();
 							return status;
 						}
-						status = doGetDetail(username, userpwd, UUID, card,session,request);
+						status = doGetDetail(username, userpwd, UUID, card,session,request,flag);
 					}else if(DriverUtil.waitByTitle("个人网上银行-重置登录密码", driver, 1)) {
 						logger.warn("########【农业储蓄卡登录失败 原因: 您的密码过于简单，请登录官网重置密码！】########【身份证号：】"+card);	
 						status.put("errorCode","0001");//异常处理
@@ -212,14 +212,14 @@ public class AbcSavingService {
 			}
 	
 		public static Map<String, Object> abcQueryInfo(String code, String idCard,
-				HttpSession session, String UUID,String numbe,HttpServletRequest request) throws InterruptedException{
+				HttpSession session, String UUID,String numbe,HttpServletRequest request, boolean flag0) throws InterruptedException{
 			logger.warn("########【农业储蓄卡第二接口开始########登陆开始】########【身份证号：】"+idCard);	
 			Map<String, Object> status = new HashMap<String, Object>();
 			Map<String, String> headers = new HashMap<String, String>();
 			int flag = 0;
 			
 			PushSocket.push(status, UUID, "1000","农业储蓄卡登录中");
-			PushState.state(idCard, "savings", 100);
+			PushState.stateByFlag(idCard, "savings", 100,flag0);
 			flag = 1;
 			Map<String, Object> params = new HashMap<String, Object>();
 			WebDriver driver = (WebDriver) session.getAttribute("ABCdriver");
@@ -257,7 +257,7 @@ public class AbcSavingService {
 						status.put("errorCode", "0002");// 异常处理
 						status.put("errorInfo", "短信验证码输入有误");
 						PushSocket.push(status, UUID, "3000","短信验证码输入有误");
-						PushState.state(idCard, "savings", 200,"短信验证码输入有误");
+						PushState.stateByFlag(idCard, "savings", 200,"短信验证码输入有误",flag0);
 						driver.quit();
 						return status;
 			        }
@@ -295,12 +295,14 @@ public class AbcSavingService {
 						status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");  //推送数据
 						logger.warn("########【农业储蓄卡推送完成    身份证号：】"+idCard+"数据中心返回结果："+status.toString());
 	    			    if(status!= null && "0000".equals(status.get("errorCode").toString())){
-	    		           	 PushState.state(idCard, "savings", 300);
+	    			    	PushState.stateByFlag(idCard, "savings", 300,flag0);
+//	    		           	 PushState.state(idCard, "savings", 300);
 	    		           	PushSocket.push(status, UUID, "8000","认证成功");
 	    		           	status.put("errorInfo","推送成功");
 	    		           	status.put("errorCode","0000");
 	    			    }else{
-	    		           	PushState.state(idCard, "savings", 200,status.get("errorInfo").toString());
+	    			    	PushState.stateByFlag(idCard, "savings", 200,status.get("errorInfo").toString(),flag0);
+//	    		           	PushState.state(idCard, "savings", 200,status.get("errorInfo").toString());
 	    		           	PushSocket.push(status, UUID, "9000",status.get("errorInfo").toString());
 	    		           	status.put("errorCode",status.get("errorCode"));//异常处理
 	    		           	status.put("errorInfo",status.get("errorInfo"));
@@ -322,8 +324,7 @@ public class AbcSavingService {
 						logger.warn("--------------flag="+flag+"----------网络异常，认证失败");
 						PushSocket.push(status, UUID, "9000","网络异常");						
 					}
-					
-					PushState.state(idCard, "savings", 200,"网络异常");
+					PushState.stateByFlag(idCard, "savings", 200,"网络异常",flag0);
 					
 					logger.warn("########【农业银行储蓄卡进入try-catch】【身份证号：】"+idCard);
 					status.put("errorInfo", "网络错误");
@@ -373,12 +374,12 @@ public class AbcSavingService {
 					status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");  //推送数据
 					logger.warn("########【农业储蓄卡推送完成    身份证号：】"+idCard+"数据中心返回结果："+status.toString());
     			    if(status!= null && "0000".equals(status.get("errorCode").toString())){
-    		           	 PushState.state(idCard, "savings", 300);
+    		           	PushState.stateByFlag(idCard, "savings", 300,flag0);
     		           	PushSocket.push(status, UUID, "8000","认证成功");
     		           	status.put("errorInfo","推送成功");
     		           	status.put("errorCode","0000");
     			    }else{
-    		           	PushState.state(idCard, "savings", 200,status.get("errorInfo").toString());
+    		           	PushState.stateByFlag(idCard, "savings", 200,status.get("errorInfo").toString(),flag0);
     		           	PushSocket.push(status, UUID, "9000",status.get("errorInfo").toString());
     		           	status.put("errorCode",status.get("errorCode"));//异常处理
     		           	status.put("errorInfo",status.get("errorInfo"));
@@ -398,8 +399,7 @@ public class AbcSavingService {
 					logger.warn("--------------flag="+flag+"----------网络异常，认证失败");
 					PushSocket.push(status, UUID, "9000","网络异常");						
 				}
-				
-				PushState.state(idCard, "savings", 200,"网络异常");
+				PushState.stateByFlag(idCard, "savings", 200,"网络异常",flag0);
 				logger.warn("########【农业银行储蓄卡进入try-catch】【身份证号：】"+idCard);
 				
 				status.put("errorInfo", "网络错误");
