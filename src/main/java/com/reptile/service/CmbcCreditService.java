@@ -11,18 +11,17 @@ import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import com.hoomsun.keyBoard.HttpWatchUtil;
 import com.hoomsun.keyBoard.SendKeys;
+import com.reptile.analysis.CmbcCreditAnalysis;
 import com.reptile.util.CountTime;
 import com.reptile.util.DriverUtil;
-import com.reptile.util.ImgUtil;
 import com.reptile.util.JsonUtil;
 import com.reptile.util.PushSocket;
 import com.reptile.util.PushState;
@@ -41,7 +40,7 @@ import com.reptile.util.application;
 @Service("cmbcCreditService")
 public class CmbcCreditService {
 
-	private Logger logger= LoggerFactory.getLogger(CmbcCreditService.class);
+	Logger logger = Logger.getLogger(CmbcCreditService.class);
 
 
 	/**
@@ -90,9 +89,7 @@ public class CmbcCreditService {
 					elements.sendKeys(number);
 					/* 执行换号 */
 					Thread.sleep(1000);
-//					HttpWatchUtil.sendTab();
-//					HttpWatchUtil.sendStr(pwd);
-					 SendKeys.sendStr(1180, 380+15, pwd);
+					SendKeys.sendStr(1180, 380+15, pwd);
 //					SendKeys.sendStr(1180, 380+60, pwd);//本地
 					Thread.sleep(1000);
 
@@ -107,8 +104,7 @@ public class CmbcCreditService {
 						/* 需要验证码进行打码 */
 						logger.warn("########【需要打印验证码】########【身份证号：】"+idcard);
 						WebElement imgEle = driver.findElement(By.id("_tokenImg"));
-//						String code = ImgUtil.saveImg(imgEle, driver, "msc", ".png");
-		                String imageCode=CmbSavingsService.imageGet(imgEle, driver,request );
+		                String imageCode = CmbSavingsService.imageGet(imgEle, driver,request);
 						driver.findElement(By.id("_vTokenName")).sendKeys(imageCode);
 					}
 					
@@ -122,8 +118,8 @@ public class CmbcCreditService {
 				}
 				
 			} catch (Exception e) {
+				logger.error("网络异常，登录失败",e);
 				logger.warn("########【未登陆成功，进入try-catch】########【原因：】网络异常，登录失败【身份证号：】"+idcard);
-				logger.warn(e + "网络异常，登录失败");
 				PushSocket.push(map, uuid, "3000", "网络异常，登录失败【身份证号：】"+idcard);
 				if (isok == true) {
 					PushState.state(idcard, "bankBillFlow", 200,"网络异常，登录失败");
@@ -146,8 +142,8 @@ public class CmbcCreditService {
 				}
 				map.put("errorCode", "0001");
 				map.put("errorInfo", errorinfo.getText());
-				driver.quit();
 				logger.warn("----民生信用卡------errorCode："+map.get("errorCode")+"-----errorInfo："+map.get("errorInfo"));
+				DriverUtil.close(driver);
 				return map;
 			} else {
 				logger.warn("########【登陆成功】########【身份证号：】"+idcard);
@@ -160,22 +156,25 @@ public class CmbcCreditService {
 						Thread.sleep(2000);
 						PushSocket.push(map, uuid, "5000", "民生银行数据获取中");
 						logger.warn("########【开始获取数据】########【身份证号：】"+idcard);
+						
 						Map<String, Object> data = new HashMap<String, Object>(16);
-						data.put("html", this.getDetail());
+						data.put("bankList", this.getDetail());
 						PushSocket.push(map, uuid, "6000", "民生银行数据获取成功");
 						logger.warn("########【数据获取成功】########【身份证号：】"+idcard);
 						flags = 3;
-						data.put("backtype", "CMBC");
-						data.put("idcard", idcard);
-						data.put("userAccount", number);
+			            
+			            map.put("data", data);
+			            map.put("backtype", "CMBC");
+			            map.put("idcard", idcard);
+			            map.put("userAccount",number);
+			            map.put("bankname", "民生银行信用卡");
+			            map.put("isok", isok);
+			            logger.warn("########【数据获取成功】########【数据为】" + map.toString());
 						
-						map.put("data", data);
-						map.put("isok", isok);
 						logger.warn("########【开始推送】########【身份证号：】"+idcard);
 						map = new Resttemplate().SendMessageX(map, application.sendip + "/HSDC/BillFlow/BillFlowByreditCard", idcard,uuid);
 						logger.warn("########【推送完成】########【身份证号：】"+idcard+"数据中心返回结果："+map.toString());
 					} else {
-						logger.warn("########【未登陆成功】########【原因：】网络异常，登录失败【身份证号：】"+idcard);
 						PushSocket.push(map, uuid, "3000", "网络异常，登陆失败");
 						if (isok == true) {
 							PushState.state(idcard, "bankBillFlow", 200,"网络异常，登陆失败");
@@ -190,7 +189,6 @@ public class CmbcCreditService {
 				}
 			}
 		} catch (Exception e) {
-			
 			logger.error("民生信用卡查询失败", e);
 			if(flags==1) {
 				PushSocket.push(map, uuid, "3000", "网页数据没有找到");
@@ -212,7 +210,7 @@ public class CmbcCreditService {
 		} finally {
 			DriverUtil.close(driver);
 		}
-		logger.warn("########民生信用卡########errorCode："+map.get("errorCode")+"########errorInfo："+map.get("errorInfo"));
+		logger.warn("------------民生信用卡-----------查询结束----------------返回信息为：" + map.toString() + "-------------");
 		return map;
 	}
 
@@ -245,35 +243,44 @@ public class CmbcCreditService {
 				"https://nper.cmbc.com.cn/pweb/CreditCardServiceTypeQry.do",
 				params, headers);
 		logger.warn("------请求2------response：" + response);
+		
 		String billDay = (String) JsonUtil.getJsonValue1(response, "BillDay");
-		int month = (int) JsonUtil.getJsonValue1(response, "Month");
-		int year = (int) JsonUtil.getJsonValue1(response, "Year");
+		int month = Integer.parseInt((String)JsonUtil.getJsonValue1(response, "Month"));
+		int year = Integer.parseInt((String)JsonUtil.getJsonValue1(response, "Year"));
+		
 		String recentDate = "";
-		if(month<9) {
+		if(month < 9) {
 			recentDate = String.valueOf(year).substring(2) + "0"+month;
 		}else {
 			recentDate = String.valueOf(year).substring(2) + month;
 		}
-		
 
-		
+		params.clear();
+		params.put("CreditAcType", "0010");
+		params.put("CurrencyFlag", "L");
+		params.put("BillDate", recentDate);
+		params.put("BillDay", billDay);
+		// 请求3
+		String response3 = SimpleHttpClient.post(
+				"https://nper.cmbc.com.cn/pweb/CreditBillTitleQry.do", params,
+				headers);
+		logger.warn("------请求3------response：" + response3);
+		String acNo = (String) JsonUtil.getJsonValue1(response3, "AcNo");
 
+		List<String> payRecordList = new ArrayList<String>(16);
+	    Map<String, String> bankListMap = new HashMap<>(16);
+	    List<List<String>> dateList = new ArrayList<List<String>>(16);
+	    List<String> bankList = new ArrayList<String>(16);
+	    Map<String,Object> yueMap=new HashMap<>(16);
+	    
 		int total = 6;
 		for (int j = 0; j < total; j++) {
-			params.clear();
-			params.put("CreditAcType", "0010");
-			params.put("CurrencyFlag", "L");
-			params.put("BillDate", recentDate);
-			params.put("BillDay", billDay);
-			// 请求3
-			response = SimpleHttpClient.post(
-					"https://nper.cmbc.com.cn/pweb/CreditBillTitleQry.do", params,
-					headers);
-			logger.warn("------请求3------response：" + response);
-			String acNo = (String) JsonUtil.getJsonValue1(response, "AcNo");
 			
-			
+			bankListMap.clear();
+			payRecordList.clear();
+
 			List<String> item = new ArrayList<String>(16);
+
 			params.clear();
 			params.put("CreditAcType", "0010");
 			params.put("CurrencyFlag", "L");
@@ -288,15 +295,13 @@ public class CmbcCreditService {
 					"https://nper.cmbc.com.cn/pweb/CreditBillQry.do", params,
 					headers);
 			logger.warn("------请求4------response：" + response);
+			
+			payRecordList.add(response);
+			
 			if (response.equals("")) {
 				break;
 			}
-			List<Map<String, Object>> infosList = new ArrayList<Map<String, Object>>();//页面获取信息List
-			List<Map<String, Object>> getInfosList = new ArrayList<Map<String, Object>>();//解析后存放信息List
-			infosList = (List<Map<String, Object>>) JsonUtil.getJsonValue1(response,
-					"List");
-//			getInfosList = getInfos(infosList,getInfosList);
-//			item.add(response);
+			item.add(response);
 			int pageNumber = (int) JsonUtil.getJsonValue1(response,
 					"pageNumber");
 			int begin = 2;
@@ -315,44 +320,31 @@ public class CmbcCreditService {
 							"https://nper.cmbc.com.cn/pweb/CreditBillQry.do",
 							params, headers);
 					logger.warn("------请求5------response：" + response);
-					infosList = (List<Map<String, Object>>) JsonUtil.getJsonValue1(response,
-							"List");
-//					getInfosList = getInfos(infosList,getInfosList);
+					
+					payRecordList.add(response);
+					
+					item.add(response);
 				}
 			}
+			list.add(item);
 			recentDate = this.lastDate(recentDate);
-		}
-		return list;
-	}
-	public List<Map<String, Object>> getInfos(List<Map<String, Object>> list,List<Map<String, Object>> getLists){
-		Map<String, Object> payRecord = new HashMap<String, Object>();
-		/*
-		 * "MonthSeq":"333",
-            "JnlNo":"258151",
-            "TransAmt":22.5,
-            "LargeBuyFlag":"0",
-            "RecordDate":"2017-09-08",
-            "TransAmtMrk":"+",
-            "AcNoRearFour":"3902",
-            "ConsumeDate":"0908",
-            "CancelFlag":"0",
-            "AuthCode":"155870",
-            "TransDescribe2":"",
-            "TransDescribe1":"北京钱袋宝支付技术有限公司",
-            "TransDescribe":"北京钱袋宝支付技术有限公司 ",
-            "ConsumeTime":"11073479",
-            "Currency":"CNY",
-            "TransDate":"2017-09-08"
-		 */
-		for (Map<String, Object> map : getLists) {
+			//----数据解析 按月-----
+		    yueMap.clear();
+		    bankList.clear();
+		    yueMap.put("response3", response3);
+		    yueMap.put("payRecordlist", payRecordList);
+		    bankList.add(yueMap.toString());
+		    bankListMap.put("banklist", bankList.toString());
+		    list = CmbcCreditAnalysis.getInfos(bankListMap);
+		    dateList.addAll(list);
+		    //----数据解析-----
 			
 		}
 		
 		
-		
-		
-		return getLists;
+		return dateList;
 	}
+
 	/**
 	 * 获取上个月
 	 * 
