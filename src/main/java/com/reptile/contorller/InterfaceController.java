@@ -89,7 +89,7 @@ public class InterfaceController {
 			} else if (BankType.equals("BOC")) {
 
 			} else if (BankType.equals("CMBC")) {// 民生信用卡
-				map = msBank.doLogin(request,numbe, pwd, BankType, userCard, UUID,timeCnt);
+				map = bank.CMBCLogin(request,numbe, pwd, BankType, userCard, UUID,timeCnt);
 			} else if (BankType.equals("CMBC2")) {// 民生储蓄卡
 				map = cmbs.login(request, response, numbe, pwd,
 						userCard, UUID, flag);
