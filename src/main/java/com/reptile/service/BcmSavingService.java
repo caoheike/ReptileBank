@@ -70,7 +70,7 @@ public class BcmSavingService {
 		System.out.println(js);//System.out.println(js)
 		try {
 			
-			logger.warn("########【农业储蓄卡########登陆开始】########【用户名：】"
+			logger.warn("########【交通储蓄卡########登陆开始】########【用户名：】"
 					+ UserName + "【密码：】" + UserPwd+"【身份证号：】"+userCard);	
 			/* 打开此网页 */
 			driver = DriverUtil.getDriverInstance("ie");

@@ -77,8 +77,8 @@ public class AbcSavingService {
 				element.sendKeys(username);
 				Thread.sleep(1500);
 				// 特殊字符处理,输入密码  
-//				SendKeys.sendStr(1143+80, 378, userpwd);
-				SendKeys.sendStr(1143+80, 378+35, userpwd);//本地
+				SendKeys.sendStr(1143+80, 378, userpwd);
+//				SendKeys.sendStr(1143+80, 378+35, userpwd);//本地
 				 //输入验证码 
 				Thread.sleep(1000);
 				logger.warn("########【农业储蓄卡获取验证码图片】########【身份证号：】"+card);
@@ -89,7 +89,7 @@ public class AbcSavingService {
 				logger.warn("########【农业储蓄卡打码结果  imgtext=】"+imgtext+"########【身份证号：】"+card);
 				code.sendKeys(imgtext);
 				//调出httpwatch
-//				HttpWatchUtil.openHttpWatch();
+				HttpWatchUtil.openHttpWatch();
 				 //登陆 
 				WebElement logo = driver.findElement(By.id("logo"));				
 				logo.click(); 

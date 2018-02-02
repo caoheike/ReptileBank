@@ -555,6 +555,7 @@ public class MobileService {
 
 					    params.put("billMes", list);
 					    params.put("baseMes", headers);
+					    params.put("bankName", "中国招商银行");
 					    params.put("IDNumber", idcard);
 					    params.put("cardNumber", numbe);
 					    params.put("userName", "");
@@ -715,6 +716,7 @@ public class MobileService {
 				   params.put("billMes", list);
 				   params.put("baseMes", headers);
 				   params.put("IDNumber", idcard);
+				   params.put("bankName", "中国招商银行");
 				   params.put("cardNumber",numbe);
 				   params.put("userName", "");
 				   System.out.println(JSONObject.fromObject(params));

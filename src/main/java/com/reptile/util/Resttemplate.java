@@ -88,8 +88,8 @@ public class Resttemplate {
   			PushSocket.push(map, UUID, "8000","认证成功");
   			ps.state(id, "savings", 300);
         }else{
-    		ps.state(id, "savings", 200,jsonObject.get("errorCode").toString());
-    		PushSocket.push(map, UUID, "9000",jsonObject.get("errorCode").toString());
+    		ps.state(id, "savings", 200,jsonObject.get("errorInfo").toString());
+    		PushSocket.push(map, UUID, "9000",jsonObject.get("errorInfo").toString());
       		message.put("errorCode",jsonObject.get("errorCode"));//异常处理
   			message.put("errorInfo",jsonObject.get("errorInfo"));
         }

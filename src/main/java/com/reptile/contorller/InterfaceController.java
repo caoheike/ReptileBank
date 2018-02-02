@@ -61,8 +61,7 @@ public class InterfaceController {
 	public Map<String, Object> Login(HttpServletRequest request,
 			HttpServletResponse response, @RequestParam("number") String numbe,
 			@RequestParam("pwd") String pwd,
-			@RequestParam("BankType") String BankType,
-			@RequestParam("flag") boolean flag
+			@RequestParam("BankType") String BankType
 			) throws Exception {
 		VirtualKeyBoard bank = new VirtualKeyBoard();
 		CmbBank banks = new CmbBank();
@@ -78,6 +77,11 @@ public class InterfaceController {
 //		String userCard = "610111199203252021";
 		String timeCnt = request.getParameter("timeCnt");
 //		String timeCnt = "2017-12-12";
+		String oldflag = request.getParameter("flag");
+		boolean flag = false;
+		if("true".equals(oldflag)) {
+			flag = true;
+		}
 		System.out.println("---*****************-----*****************-------userCard:"+userCard);
 		synchronized (this) {			
 			if (BankType.equals("CMB")) {// 招商银行
