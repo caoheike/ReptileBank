@@ -103,8 +103,8 @@ public class VirtualKeyBoard {
 //				SendKeys.sendTab();
 //				Thread.sleep(1000);
 //				SendKeys.sendStr(pwd);
-//				SendKeys.sendStr(1180, 380+15, pwd);
-				SendKeys.sendStr(1180, 380+60, pwd);//本地
+				SendKeys.sendStr(1180, 380+15, pwd);
+//				SendKeys.sendStr(1180, 380+60, pwd);//本地
 				Thread.sleep(1000);
 				
 //				/* 按下Tab */
