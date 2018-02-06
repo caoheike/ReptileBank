@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  *
  */
 public class PushState {
-	private static Logger logger = LoggerFactory.getLogger(PushSocket.class);
+	private static Logger logger = LoggerFactory.getLogger(PushState.class);
 
 	
 	

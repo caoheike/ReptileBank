@@ -79,10 +79,12 @@ public class InterfaceController {
 //		String timeCnt = "2017-12-12";
 		String oldflag = request.getParameter("flag");
 		boolean flag = false;
-		if("true".equals(oldflag)) {
+		if("true".equals(oldflag)||"1".equals(oldflag)) {
 			flag = true;
 		}
 		System.out.println("---*****************-----*****************-------userCard:"+userCard);
+		System.out.println("---*****************oldflag**********"+oldflag);
+		System.out.println("---*****************flag**********"+flag);
 		synchronized (this) {			
 			if (BankType.equals("CMB")) {// 招商银行
 				map = bank.Login(numbe, pwd, session, UUID);
