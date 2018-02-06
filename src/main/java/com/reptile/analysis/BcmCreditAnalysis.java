@@ -265,6 +265,7 @@ public class BcmCreditAnalysis {
 						map.put("backtype", "BCM");
 						map.put("idcard", UserCard);
 						map.put("bankname", "交通");
+						map.put("userAccount", UserNumber);
 						map.put("isok", isok);
 						// map= resttemplate.SendMessage(map,
 						// "http://192.168.3.16:8089/HSDC/BillFlow/BillFlowByreditCard",UserCard);

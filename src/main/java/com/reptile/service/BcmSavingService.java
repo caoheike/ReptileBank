@@ -298,11 +298,11 @@ public class BcmSavingService {
 				           	status.put("errorInfo",status.get("errorInfo"));
 			           }
 				}else {
-					logger.warn("########【交通储蓄卡登陆失败：账号密码错误】##########【身份证号：】"+userCard);
+					logger.warn("########【交通储蓄卡登陆失败：系统繁忙，请稍后再试】##########【身份证号：】"+userCard);
 					status.put("errorCode", "0001");// 异常处理
-					status.put("errorInfo", "账号密码错误，登录失败");
-					PushSocket.push(status, UUID, "3000","账号密码错误，登录失败");
-					PushState.stateByFlag(userCard, "savings", 200,"账号密码错误，登录失败",flag0);
+					status.put("errorInfo", "系统繁忙，请稍后再试");
+					PushSocket.push(status, UUID, "3000","系统繁忙，请稍后再试");
+					PushState.stateByFlag(userCard, "savings", 200,"系统繁忙，请稍后再试",flag0);
 					DriverUtil.close(driver);
 					logger.warn("----交通储蓄卡------errorCode："+status.get("errorCode")+"-----errorInfo："+status.get("errorInfo"));
 					return status;

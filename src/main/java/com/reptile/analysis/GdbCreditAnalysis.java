@@ -1,26 +1,30 @@
 package com.reptile.analysis;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
+import java.util.UUID;
 
 import org.apache.http.client.ClientProtocolException;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Cookie;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.Select;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import com.hoomsun.keyBoard.HttpWatchUtil;
+import com.hoomsun.keyBoard.ReadFromFile;
 import com.hoomsun.keyBoard.SendKeys;
 import com.reptile.util.CountTime;
 import com.reptile.util.Dates;
@@ -31,6 +35,8 @@ import com.reptile.util.Resttemplate;
 import com.reptile.util.SimpleHttpClient;
 import com.reptile.util.application;
 import com.reptile.winio.VirtualKeyBoard;
+
+import net.sf.json.JSONObject;
 
 
 @Service("GdbCreditAnalysis")
@@ -77,8 +83,8 @@ public class GdbCreditAnalysis {
 			elements.sendKeys(number);
 			Thread.sleep(1000);
 
-			SendKeys.sendStr(1193+80, 358, pwd);
-//			SendKeys.sendStr(1193+80, 358+35, pwd);//本地
+//			SendKeys.sendStr(1193+80, 358, pwd);
+			SendKeys.sendStr(1193+80, 358, pwd);//本地
 			Thread.sleep(1000);
 			logger.warn("########【广发信用卡获取图形验证码图片】########【身份证号：】"+usercard);
 			WebElement keyWord = driver.findElement(By.id("verifyImg"));
@@ -100,8 +106,11 @@ public class GdbCreditAnalysis {
 			WebElement _vTokenId = driver.findElement(By.id("captcha"));
 			_vTokenId.sendKeys(imgtext);
 			WebElement loginButton = driver.findElement(By.id("loginButton"));
+			
 			loginButton.click(); /* 点击登陆 */
 			Thread.sleep(3000);
+			//调出httpwatch
+			HttpWatchUtil.openHttpWatch();
 			//弹窗的内容
 			//System.out.println(driver.getPageSource());
 		} catch (Exception e) {
@@ -184,21 +193,25 @@ public class GdbCreditAnalysis {
 				
 				
 				
+				map = analysisData(listinfo,usercard);
+				map.put("userAccount", number);
+				logger.warn("*************"+JSONObject.fromObject(map).toString());
+				
 				
 				
 				PushSocket.push(map, UUID, "6000","广发银行信用卡数据获取成功");
 				logger.warn("########【广发银行信用卡数据获取成功】【身份证号：】"+usercard);
 				
-				data.put("html", listinfo);
-				data.put("backtype", "GDB");
-				data.put("idcard", usercard);
-				data.put("userAccount", number);
-				map.put("data", data);
+//				data.put("html", listinfo);
+//				data.put("backtype", "GDB");
+//				data.put("idcard", usercard);
+//				data.put("userAccount", number);
+//				map.put("data", data);
 				map.put("isok", isok);
 				Resttemplate ct = new Resttemplate();
 				logger.warn("########【广发银行信用卡开始推送数据】【身份证号：】"+usercard);
 				flag = 2;
-				map = ct.SendMessageX(map, application.sendip
+				map = ct.newSendMessageX(map, application.sendip
 						+ "/HSDC/BillFlow/BillFlowByreditCard", usercard,UUID);
 				logger.warn("########【广发银行信用卡推送完成    身份证号：】"+usercard+"数据中心返回结果："+map.toString());
 				}catch (Exception e) {
@@ -257,27 +270,34 @@ public class GdbCreditAnalysis {
 		return monthList;
 	}
 	 
-	public List<String> getInfos(WebDriver driver,List<String> listinfo,String number,String sid){
+	public List<String> getInfos(WebDriver driver,List<String> listinfo,String number,String sid) throws InterruptedException{
 		List<String> monthList = new ArrayList<String>();
+		String cookie = getcokie("JSESSIONID");
+		cookie = cookie.replace("<header name=\"Cookie\">", "").replace("</header>", "").trim();
 		monthList = getQueryMonth();
-		Set<Cookie> cookies = driver.manage().getCookies();
-	    StringBuffer cookie = new StringBuffer();
-	    for (Cookie oneCookie : cookies) {
-	      cookie = cookie.append(oneCookie.getName()+"="+oneCookie.getValue()+";");
-	    }
+//		Set<Cookie> cookies = driver.manage().getCookies();
+//	    StringBuffer cookie = new StringBuffer();
+//	    for (Cookie oneCookie : cookies) {
+//	      cookie = cookie.append(oneCookie.getName()+"="+oneCookie.getValue()+";");
+//	    }
 	    String currentTime = Dates.currentTime();
 		Map<String, String> headers = new HashMap<String, String>(16);
 		headers.put("Referer", "https://ebanks.cgbchina.com.cn/perbank/html/creditcard/b080102_creditBillResult.htm?HTMVersion="+currentTime);
 		headers.put("Host", "ebanks.cgbchina.com.cn");
-		headers.put("Cookie", String.valueOf(cookie));
+		headers.put("Cookie", cookie);
 		
+		headers.put("Accept", "text/html, application/xhtml+xml, */*");
+		headers.put("Accept-Encoding", "gzip, deflate");
+		headers.put("Accept-Language", "zh-CN");
+		headers.put("Connection", "Keep-Alive");
+		headers.put("User-Agent", "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; WOW64; Trident/5.0)");
 		
 		for(int i=0;i<6;i++) {
 				String response="";
 				try {
 					response = SimpleHttpClient.get("https://ebanks.cgbchina.com.cn/perbank/CR1080.do?"
 							+ "currencyType=&creditCardNo="+number+"&billDate="+monthList.get(i).substring(0, 6)+"&billType=1&abundantFlag=0&"
-							+ "terseFlag=0&showWarFlag=0&EMP_SID="+sid,headers);
+							+ "terseFlag=0&showWarFlag=1&EMP_SID="+sid,headers);
 				} catch (ClientProtocolException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -286,16 +306,136 @@ public class GdbCreditAnalysis {
 					e.printStackTrace();
 				}
 				logger.warn("--------广发银行登陆------------账单查询：第"+i+1+"次请求具体内容："+response);		
-				if (!response.contains("账单尚未生成或不存在，请于账单日后再查询")) {											
-					listinfo.add(response);
-				}
+				listinfo.add(response);
 			
 		}
 		return listinfo;
 
 	}
 	
+	public static String getcokie(String str) throws InterruptedException {
+		//保存快捷键 ctrl+shift+X
+	    SendKeys.key(600, 1);
+	    SendKeys.key(500, 1);
+	    
+	    Thread.sleep(3000);
+	    SendKeys.key(502, 1);
+	    Thread.sleep(1000);
+	    SendKeys.key(600, 2);
+	    SendKeys.key(500, 2);
+	    SendKeys.key(502, 2);
+	    Thread.sleep(1000);
+	    String uuid = UUID.randomUUID().toString().substring(0, 10);
+	    //文件路径
+	    File file = new File("C://reptile/httpwatch/");
+	    if(!file.exists()){
+	      file.mkdirs();
+	    }
+	    //文件名称
+	    String fileName = uuid+".xml";
+	    //文件路径+文件名称
+	    String filePath = file.getAbsolutePath()+fileName;//"httpwatch"+uuid+".xml";
+	    
+	    SendKeys.sendStr(filePath);
+	    Thread.sleep(1000);
+	    
+	    //保存 Alt + s
+	    SendKeys.key(602, 1);
+	    SendKeys.key(402, 1);
+	    SendKeys.key(602, 2);
+	    SendKeys.key(402, 2);
+	    
+	    Thread.sleep(1000);
+	    
+	    String strcookie = ReadFromFile.read(filePath,str);
+	    return strcookie;
+	}
 	
-	
-	
+	/**
+	   * 解析数据
+	   * @return
+	   */
+	  public Map<String,Object> analysisData(List<String> list,String idcard){
+	    
+	    List<JSONObject> bankList = new ArrayList<JSONObject>();
+	    for (String item : list) {
+	      Document doc = Jsoup.parse(item);
+	      Elements fixBand7s = doc.getElementsByAttributeValue("id", "fixBand7");
+	      if(fixBand7s.size()==0) {
+	    	  continue;
+	      }
+	      Element basic = fixBand7s.get(0);
+	      
+	      Element detail = fixBand7s.get(1);
+	      
+	      JSONObject AccountSummary = new JSONObject();
+	      AccountSummary.put("RMBCurrentAmountDue", this.analysisBasicInfo(basic, 1));
+	      AccountSummary.put("PaymentDueDate", this.analysisBasicInfo(basic, 3));
+	      AccountSummary.put("RMBMinimumAmountDue", this.analysisBasicInfo(basic, 2));
+	      AccountSummary.put("CreditLimit", this.analysisBasicInfo(basic, 5));
+	      AccountSummary.put("StatementDate","");	      
+	      JSONObject object = new JSONObject();
+	      object.put("accountSummary", AccountSummary);
+	      object.put("payRecord", this.analysisDetail(detail));
+	      
+	      bankList.add(object);
+	      
+	    }
+	    
+	    Map<String,Object> map = new HashMap<String, Object>();
+	    Map<String,Object> data = new HashMap<String, Object>();
+	    data.put("bankList", bankList);
+	    map.put("data", data);
+	    map.put("idcard", idcard);
+	    map.put("userAccount","广发银行");
+	    map.put("bankname", "广发银行");
+	    map.put("backtype", "GDB");
+	    
+	    logger.warn("解析后结果********************"+data.toString());
+	    return map;
+	  }
+	  
+	  /**
+	   * 获取数据 
+	   * 本期应还款额：//*[@id="fixBand7"]/table/tbody/tr/td[2]/div/font
+	   * 本期最低还款额：//*[@id="fixBand7"]/table/tbody/tr/td[3]/div/font
+	   * 最后还款日：//*[@id="fixBand7"]/table/tbody/tr/td[4]/div/font
+	   * 额度：//*[@id="fixBand7"]/table/tbody/tr/td[6]/div/font
+	   * 
+	   * @param fixBand 
+	   * @param i 数据在第几行
+	   * @return
+	   */
+	  private String  analysisBasicInfo(Element fixBand,int i) {
+	    
+	    return fixBand.select("table").get(0).select("td").get(i).select("font").get(0).text();
+	  }
+	  
+	  
+	  /**
+	   * 解析每个月的交易明细
+	   * @param fixBand
+	   * @return
+	   */
+	  private List<Map<String,Object>> analysisDetail(Element fixBand){
+	     Elements trs = fixBand.select("tr");
+	     List<Map<String,Object>> list = new ArrayList<Map<String,Object>>();
+	     for (int i = 0; i < trs.size(); i++) {
+	       Elements tds = trs.get(i).select("td");
+	       Map<String,Object> map = new HashMap<String,Object>();
+	       for (int j = 0; j < tds.size(); j++) {
+	        String text = tds.get(j).text();
+	        if(j == 0) {
+	          map.put("tran_date", text);
+	        }else if(j == 2) {
+	          map.put("tran_desc", text);
+	        }else if(j == 3) {
+	          map.put("post_amt", text);
+	        }
+	      }
+	       list.add(map); 
+	    }
+	     
+	     return list ;
+	  }
 }

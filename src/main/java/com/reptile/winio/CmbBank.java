@@ -180,10 +180,8 @@ public class CmbBank {
 					params.put("sessid", sessid);
 					params.put("Sendcode", "no");
 					map.put("errorInfo", "成功");
-					map.put("errorCode", "0000");
-					
+					map.put("errorCode", "0000");					
 					map.put("data", params);
-
 				}
 
 			} else {
