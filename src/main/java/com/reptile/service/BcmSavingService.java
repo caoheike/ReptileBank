@@ -185,11 +185,13 @@ public class BcmSavingService {
 							Thread.sleep(3000);
 						}
 						Thread.sleep(2000);
-						driver.switchTo().frame("frameMain");
-						//获取用户姓名
-						String text = driver.findElement(By.id("userName")).getText();						
-						int index = text.indexOf(",");						
-						String userName = text.substring(index);
+						String currentDriver = driver.getWindowHandle();
+			            driver.switchTo().frame("frameMain");
+			            //获取用户姓名
+			            String text = driver.findElement(By.id("userName")).getText();            
+			            int index = text.indexOf("，");            
+			            String userName = text.substring(index);
+			            
 												
 						logger.warn("-----------交通储蓄卡-----------获取数据明细----------身份证号："+userCard);
 						List<Map<String,Object>> list1 = new ArrayList<Map<String,Object>>();
