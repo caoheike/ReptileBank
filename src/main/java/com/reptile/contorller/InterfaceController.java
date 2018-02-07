@@ -21,6 +21,7 @@ import com.reptile.Bank.BcmLogin;
 import com.reptile.Bank.BcmLogins;
 import com.reptile.Bank.CMBService;
 import com.reptile.analysis.BcmCreditAnalysis;
+import com.reptile.analysis.GdbCreditAnalysis;
 import com.reptile.service.AbcSavingService;
 import com.reptile.service.BcmSavingService;
 import com.reptile.service.CmbSavingsService;
@@ -71,12 +72,12 @@ public class InterfaceController {
 		CMBService CMB=new CMBService();
 		Map<String, Object> map = new HashMap<String, Object>();
 		HttpSession session = request.getSession();
-		String UUID = request.getParameter("UUID");
-//		String UUID = "54557451454248+jhfjdkshfdsj";
-		String userCard = request.getParameter("userCard");
-//		String userCard = "610111199203252021";
-		String timeCnt = request.getParameter("timeCnt");
-//		String timeCnt = "2017-12-12";
+//		String UUID = request.getParameter("UUID");
+		String UUID = "54557451454248+jhfjdkshfdsj";
+//		String userCard = request.getParameter("userCard");
+		String userCard = "610111199203252021";
+//		String timeCnt = request.getParameter("timeCnt");
+		String timeCnt = "2017-12-12";
 		String oldflag = request.getParameter("flag");
 		boolean flag = false;
 		if("true".equals(oldflag)||"1".equals(oldflag)) {
@@ -85,7 +86,7 @@ public class InterfaceController {
 		System.out.println("---*****************-----*****************-------userCard:"+userCard);
 		System.out.println("---*****************oldflag**********"+oldflag);
 		System.out.println("---*****************flag**********"+flag);
-		synchronized (this) {			
+		synchronized (this) {
 			if (BankType.equals("CMB")) {// 招商银行
 				map = bank.Login(numbe, pwd, session, UUID);
 			} else if (BankType.equals("CXCMB")) {// 招商储蓄卡
@@ -163,9 +164,15 @@ public class InterfaceController {
 	public Map<String, Object> abcQueryInfo(HttpServletRequest request,
 			HttpServletResponse response, @RequestParam("code") String code,			
 			@RequestParam("idCard") String idCard,
-			@RequestParam("UUID") String UUID, @RequestParam("number") String numbe,
-			@RequestParam("flag") boolean flag) throws Exception {
+			@RequestParam("UUID") String UUID, @RequestParam("number") String numbe) throws Exception {
 		System.out.println("heeli man");
+		String oldflag = request.getParameter("flag");
+		boolean flag = false;
+		if("true".equals(oldflag)||"1".equals(oldflag)) {
+			flag = true;
+		}
+		System.out.println("---*****************oldflag**********"+oldflag);
+		System.out.println("---*****************flag**********"+flag);
 		HttpSession session = request.getSession();
 
 		return AbcSavingService.abcQueryInfo(code, idCard,
@@ -197,9 +204,15 @@ public class InterfaceController {
 			@RequestParam("idCard") String idCard,
 			@RequestParam("UUID") String UUID,
 			@RequestParam("Sendcode") String Sendcode,
-			@RequestParam("number") String numbe,
-			@RequestParam("flag") boolean flag) throws Exception {
+			@RequestParam("number") String numbe) throws Exception {
 		System.out.println("heeli man");
+		String oldflag = request.getParameter("flag");
+		boolean flag = false;
+		if("true".equals(oldflag)||"1".equals(oldflag)) {
+			flag = true;
+		}
+		System.out.println("---*****************oldflag**********"+oldflag);
+		System.out.println("---*****************flag**********"+flag);
 		HttpSession session = request.getSession();
 
 		return mobileService.CmbQueryInfo(code, sessid, ClientNo, idCard,
