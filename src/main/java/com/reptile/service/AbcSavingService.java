@@ -79,6 +79,7 @@ public class AbcSavingService {
 				// 特殊字符处理,输入密码  
 				SendKeys.sendStr(1143+80, 378, userpwd);
 //				SendKeys.sendStr(1143+80, 378+35, userpwd);//本地
+//				SendKeys.sendStr(805, 378, userpwd);//112上坐标
 				 //输入验证码 
 				Thread.sleep(1000);
 				logger.warn("########【农业储蓄卡获取验证码图片】########【身份证号：】"+card);
@@ -126,10 +127,10 @@ public class AbcSavingService {
 					StringBuffer getCookie = GetCookie(driver);								
 					String cookie = getCookie.toString().replaceAll("path=/;", "")+jsession;
 					logger.warn("########【农业储蓄卡 cookie："+cookie+"】########【身份证号：】"+card);
-					String jiaotongUuid = String.valueOf(Math.random());
-					logger.warn("-------------农业银行储蓄卡----------jiaotongUuid："+jiaotongUuid);
-					session.setAttribute("jiaotong-uuid",jiaotongUuid);
-					session.setAttribute(jiaotongUuid,cookie);
+					String nongyeUuid = String.valueOf(Math.random());
+					logger.warn("-------------农业银行储蓄卡----------nongyeUuid："+nongyeUuid);
+					session.setAttribute("jiaotong-uuid",nongyeUuid);
+					session.setAttribute(nongyeUuid,cookie);
 					
 				}else if(DriverUtil.waitByTitle("个人网上银行-用户名登录-短信校验", driver, 1)) {
 					logger.warn("########【农业储蓄卡登陆成功 需要短信验证】########【身份证号：】"+card);	
@@ -160,10 +161,10 @@ public class AbcSavingService {
 					}
 					params.clear();
 					headers.clear();
-					String jiaotongUuid = String.valueOf(Math.random());
-					logger.warn("-------------农业银行储蓄卡----------jiaotongUuid："+jiaotongUuid);
-					session.setAttribute("jiaotong-uuid",jiaotongUuid);
-					session.setAttribute(jiaotongUuid,jsession);
+					String nongyeUuid = String.valueOf(Math.random());
+					logger.warn("-------------农业银行储蓄卡----------nongyeUuid："+nongyeUuid);
+					session.setAttribute("jiaotong-uuid",nongyeUuid);
+					session.setAttribute(nongyeUuid,jsession);
 					if("".equals(response)) {
 						status.put("errorCode", "0000");
 						status.put("errorInfo", "成功");
@@ -175,9 +176,9 @@ public class AbcSavingService {
 					params.put("Verify", "yes");					
 					status.put("data", params);
 					String formId = driver.findElement(By.name("abc_formId")).getAttribute("value");
-					String jiaotongformId = String.valueOf(Math.random());
-					session.setAttribute("jiaotong-formId",jiaotongformId);
-					session.setAttribute(jiaotongformId,formId);
+					String nongyeformId = String.valueOf(Math.random());
+					session.setAttribute("jiaotong-formId",nongyeformId);
+					session.setAttribute(nongyeformId,formId);
 					
 				}else{
 					if(DriverUtil.waitByTitle("中国农业银行个人网银登录入口", driver, 1)) {
@@ -226,14 +227,14 @@ public class AbcSavingService {
 			if(!code.equals("0")) {
 				try {
 					logger.warn("########【农业储蓄卡第二接口需要短信验证码########登陆开始】########【身份证号：】"+idCard);	
-					String jiaotongformId = (String) session.getAttribute("jiaotong-formId");
-					logger.warn("---------------------数据获取中jiaotongformId:"+jiaotongformId);
-					String formId = (String) session.getAttribute(jiaotongformId);
+					String nongyeformId = (String) session.getAttribute("nongyeformId");
+					logger.warn("---------------------数据获取中nongyeformId:"+nongyeformId);
+					String formId = (String) session.getAttribute(nongyeformId);
 					logger.warn("---------------------数据获取中formId:"+formId);
 					
-					String jiaotongUuid = (String) session.getAttribute("jiaotong-uuid");
-					logger.warn("---------------------数据获取中jiaotongUuid:"+jiaotongUuid);
-					String jsession = (String) session.getAttribute(jiaotongUuid);
+					String nongyeUuid = (String) session.getAttribute("nongyeUuid");
+					logger.warn("---------------------数据获取中nongyeUuid:"+nongyeUuid);
+					String jsession = (String) session.getAttribute(nongyeUuid);
 					logger.warn("---------------------数据获取中jsession:"+jsession);
 					
 					
@@ -261,7 +262,10 @@ public class AbcSavingService {
 						driver.quit();
 						return status;
 			        }
-					String cusname = "";						
+			        
+					driver.switchTo().frame("contentFrame");
+					
+					String cusname = driver.findElement(By.id("show-custName")).getText();						
 					logger.warn("-----------农业储蓄卡-----------登陆成功----------身份证号："+idCard);
 						// 登陆成功 
 					logger.warn("########【农业储蓄卡   登陆成功】########【身份证号：】"+idCard);	
@@ -334,8 +338,9 @@ public class AbcSavingService {
 			}else {
 				try {
 					
+				driver.switchTo().frame("contentFrame");
 				
-				String cusname = "";						
+				String cusname = driver.findElement(By.id("show-custName")).getText();	
 				logger.warn("-----------农业储蓄卡-----------登陆成功----------身份证号："+idCard);
 					// 登陆成功 
 				logger.warn("########【农业储蓄卡   登陆成功】########【身份证号：】"+idCard);

@@ -7,7 +7,8 @@ import java.util.Map;
 
 import net.sf.json.JSONObject;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,7 +24,7 @@ import org.springframework.web.client.RestTemplate;
  *
  */
 public class Resttemplate {
-	private static Logger logger = Logger.getLogger(Resttemplate.class);
+	private static Logger logger =  LoggerFactory.getLogger(Resttemplate.class);
 	/**
 	 * 
 	 * @param map 需要推送的数据
