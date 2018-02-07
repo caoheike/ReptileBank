@@ -191,6 +191,7 @@ public class BcmSavingService {
 			            String text = driver.findElement(By.id("userName")).getText();            
 			            int index = text.indexOf("，");            
 			            String userName = text.substring(index);
+			            driver.switchTo().window(currentDriver);  
 			            
 												
 						logger.warn("-----------交通储蓄卡-----------获取数据明细----------身份证号："+userCard);
