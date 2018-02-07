@@ -185,7 +185,12 @@ public class BcmSavingService {
 							Thread.sleep(3000);
 						}
 						Thread.sleep(2000);
-						
+						driver.switchTo().frame("frameMain");
+						//获取用户姓名
+						String text = driver.findElement(By.id("userName")).getText();						
+						int index = text.indexOf(",");						
+						String userName = text.substring(index);
+												
 						logger.warn("-----------交通储蓄卡-----------获取数据明细----------身份证号："+userCard);
 						List<Map<String,Object>> list1 = new ArrayList<Map<String,Object>>();
 						list1 = getInfo(driver,list1,UserName, request);
@@ -294,7 +299,7 @@ public class BcmSavingService {
 						params.put("bankName", "中国交通银行");
 						params.put("IDNumber", userCard);
 						params.put("cardNumber", UserName);
-						params.put("userName", "");
+						params.put("userName", userName);
 						PushSocket.push(status, UUID, "6000","交通银行储蓄卡数据获取成功");
 						logger.warn("########【交通储蓄卡数据获取成功】##########【身份证号：】"+userCard);
 						flag = 3;
