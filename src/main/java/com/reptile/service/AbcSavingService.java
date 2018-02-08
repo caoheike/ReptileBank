@@ -295,7 +295,7 @@ public class AbcSavingService {
 						flag = 3;
 //						Resttemplate resttemplate = new Resttemplate();
 //						status = resttemplate.SendMessage(params, application.sendip+ "/HSDC/savings/authentication", card);
-						logger.warn("########【农业储蓄卡   开始推送】########【身份证号：】"+idCard);	
+						logger.warn("########【农业储蓄卡   开始推送】"+params+"########【身份证号：】"+idCard);	
 						status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");  //推送数据
 						logger.warn("########【农业储蓄卡推送完成    身份证号：】"+idCard+"数据中心返回结果："+status.toString());
 	    			    if(status!= null && "0000".equals(status.get("errorCode").toString())){
@@ -375,7 +375,7 @@ public class AbcSavingService {
 					flag = 3;
 //					Resttemplate resttemplate = new Resttemplate();
 //					status = resttemplate.SendMessage(params, application.sendip+ "/HSDC/savings/authentication", card);
-					logger.warn("########【农业储蓄卡   开始推送】########【身份证号：】"+idCard);
+					logger.warn("########【农业储蓄卡   开始推送】"+params+"########【身份证号：】"+idCard);	
 					status = new Resttemplate().SendMessage(params, application.sendip+"/HSDC/savings/authentication");  //推送数据
 					logger.warn("########【农业储蓄卡推送完成    身份证号：】"+idCard+"数据中心返回结果："+status.toString());
     			    if(status!= null && "0000".equals(status.get("errorCode").toString())){
@@ -497,6 +497,7 @@ public class AbcSavingService {
 				datas.put("incomeMoney", list.get(2));
 				//余额
 				datas.put("balanceAmount", list.get(3));
+				datas.put("expendMoney", "");
 				// 交易渠道 
 				datas.put("dealDitch", list.get(7));						
 				// 交易摘要 

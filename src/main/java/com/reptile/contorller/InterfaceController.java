@@ -204,7 +204,8 @@ public class InterfaceController {
 			@RequestParam("idCard") String idCard,
 			@RequestParam("UUID") String UUID,
 			@RequestParam("Sendcode") String Sendcode,
-			@RequestParam("number") String numbe) throws Exception {
+			@RequestParam("number") String numbe,
+			@RequestParam("userName") String userName) throws Exception {
 		System.out.println("heeli man");
 		String oldflag = request.getParameter("flag");
 		boolean flag = false;
@@ -216,7 +217,7 @@ public class InterfaceController {
 		HttpSession session = request.getSession();
 
 		return mobileService.CmbQueryInfo(code, sessid, ClientNo, idCard,
-				request, UUID, Sendcode,numbe,flag);
+				request, UUID, Sendcode,numbe,flag,userName);
 
 	}
 	

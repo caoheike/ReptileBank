@@ -397,7 +397,7 @@ public class MobileService {
 		 * @throws InterruptedException 
 		  */
 		 
-		 public Map<String,Object> CmbQueryInfo(String code,String sessid,String num,String idcard,HttpServletRequest re,String UUID,String Sendcode,String numbe,boolean flag) throws ParseException, IOException, InterruptedException{
+		 public Map<String,Object> CmbQueryInfo(String code,String sessid,String num,String idcard,HttpServletRequest re,String UUID,String Sendcode,String numbe,boolean flag,String userName) throws ParseException, IOException, InterruptedException{
 				SimpleHttpClient httclien=new SimpleHttpClient();
 				logger.warn("########【招商储蓄卡第二接口     登陆开始】########【短信验证码：】"
 						+ code + "【账号：】" + numbe+"【身份证号：】"+idcard);	
@@ -514,12 +514,12 @@ public class MobileService {
 						   System.out.println("开始");
 						   Elements td=tr.get(i).select("td");
 						   for (int j = 0; j < td.size(); j++) {
-							
+							   map.put("expendMoney", "");//交易金额
 							   if(j==0){
 								   map.put("dealTime", td.get(j).text());//交易时间
 							   }
 							   if(j==2){
-								   map.put("dealAmount", td.get(j).text());//交易金额
+								   map.put("incomeMoney", td.get(j).text());//交易金额
 							   }
 							   if(j==5){
 								   map.put("dealDitch", td.get(j).text());//交易渠道
@@ -558,7 +558,7 @@ public class MobileService {
 					    params.put("bankName", "中国招商银行");
 					    params.put("IDNumber", idcard);
 					    params.put("cardNumber", numbe);
-					    params.put("userName", "");
+					    params.put("userName", userName);
 					    System.out.println(JSONObject.fromObject(params));
 					    Thread.sleep(1000);
 					    PushSocket.push(params, UUID, "6000","招商储蓄卡数据获取成功");
@@ -671,29 +671,29 @@ public class MobileService {
 					   System.out.println("开始");
 					   Elements td=tr.get(i).select("td");
 					   for (int j = 0; j < td.size(); j++) {
-						
+						   map.put("expendMoney", "");//交易金额////
 						   if(j==0){
-							   map.put("dealTime", td.get(j).text());//交易时间
+							   map.put("dealTime", td.get(j).text());//交易时间///
 						   }
 						   if(j==2){
-							   map.put("dealAmount", td.get(j).text());//交易金额
+							   map.put("incomeMoney", td.get(j).text());//交易金额
 						   }
 						   if(j==5){
-							   map.put("dealDitch", td.get(j).text());//交易渠道
+							   map.put("dealDitch", td.get(j).text());//交易渠道////
 						   }
 						   if(j==4){
 							   map.put("balanceAmount", td.get(j).text());//余额
 						   }
 						   if(j==6){
-							   map.put("dealReferral", td.get(j).text());//业务摘要
+							   map.put("dealReferral", td.get(j).text());//业务摘要///
 						   }
-						   
-						
+						  
 					}
-					   map.put("oppositeSideName", "");
-					   map.put("oppositeSideNumber", "");
-					   map.put("currency", "");
+					   map.put("oppositeSideName", "");///
+					   map.put("oppositeSideNumber", "");///
+					   map.put("currency", "");///
 					   list.add(map);
+					  
 					   
 				}
 				   logger.warn("########【招商储蓄卡 账单获取完成】########【身份证号：】"+idcard+"【流水信息1loginstr1:】"+loginstr1);
@@ -718,14 +718,14 @@ public class MobileService {
 				   params.put("IDNumber", idcard);
 				   params.put("bankName", "中国招商银行");
 				   params.put("cardNumber",numbe);
-				   params.put("userName", "");
+				   params.put("userName", userName);
 				   System.out.println(JSONObject.fromObject(params));
 				   Thread.sleep(1000);
 				   
 				   PushSocket.push(params, UUID, "6000","招商储蓄卡数据获取成功");
 				   logger.warn("########【招商储蓄卡   数据获取成功】########【身份证号：】"+idcard);
 				   Resttemplate resttemplate=new Resttemplate();
-				   logger.warn("########【招商储蓄卡  开始推送】########【身份证号：】"+idcard);
+				   logger.warn("########【招商储蓄卡  开始推送】#"+JSONObject.fromObject(params)+"#####【身份证号：】"+idcard);
 				   status=	resttemplate.SendMessage(JSONObject.fromObject(params), application.sendip+"/HSDC/savings/authentication",idcard,UUID);
 				   logger.warn("########【招商储蓄卡推送完成    身份证号：】"+idcard+"数据中心返回结果："+status.toString());
 				   System.out.println(status);

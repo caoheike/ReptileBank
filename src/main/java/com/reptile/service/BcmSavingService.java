@@ -459,10 +459,10 @@ public class BcmSavingService {
 	public static List<Map<String, Object>> getInfo(Elements tr,List<Map<String, Object>> infos){
 		for (Element list : tr) {
 			Map<String, Object> datas=new HashMap<String, Object>();
-			datas.put("dealTime", list.getElementsByTag("td").get(0).text());
+			datas.put("dealTime", list.getElementsByTag("td").get(0).text().substring(0, 10));
 			
 			datas.put("incomeMoney", list.getElementsByTag("td").get(4).text());//收入金额
-			datas.put("expendMoney ", list.getElementsByTag("td").get(3).text());//支出金额
+			datas.put("expendMoney", list.getElementsByTag("td").get(3).text());//支出金额
 			//余额
 			datas.put("balanceAmount", list.getElementsByTag("td").get(5).text());
 			// 交易渠道 

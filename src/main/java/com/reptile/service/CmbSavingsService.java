@@ -413,22 +413,24 @@ public class CmbSavingsService {
     	logger.warn("--------------行数据："+billMes);
     	for(int i=0;i<billMes.size();i++) {
     		Map<String, Object> datas=new HashMap<String, Object>();
-    		datas.put("dealTime", billMes.get(i).get("TransDate"));//交易日期	
+    		String dealTime = (String) billMes.get(i).get("TransDate");
+    		dealTime = dealTime.substring(0, 4) + "/" + dealTime.substring(4,6) + "/" + dealTime.substring(6);
+    		datas.put("dealTime", dealTime);//交易日期	
     		String flagName = (String) billMes.get(i).get("DCFlagName");
     		if("存".equals(flagName)) {
     			datas.put("incomeMoney", billMes.get(i).get("CAmount"));//收入金额
-    			datas.put("expendMoney ", "0");//支出金额
+    			datas.put("expendMoney", "0");//支出金额
     		}else {
     			datas.put("incomeMoney", "0");//收入金额
-    			datas.put("expendMoney ", billMes.get(i).get("QAmount"));//支出金额
+    			datas.put("expendMoney", billMes.get(i).get("QAmount"));//支出金额
     		}
 			
 				datas.put("dealDitch",billMes.get(i).get("Channel"));//交易渠道
-				datas.put("balanceAmount", billMes.get(i).get("Balance"));//余额
+				datas.put("balanceAmount", billMes.get(i).get("Balance")+"");//余额
 				datas.put("dealReferral", billMes.get(i).get("Remark"));//业务摘要
 				datas.put("oppositeSideName","");//对方账户名
 				datas.put("currency", "");//币种	
-				datas.put("oppositeSideNumber ", billMes.get(i).get("PayeeAc"));//对方账户				
+				datas.put("oppositeSideNumber", billMes.get(i).get("PayeeAc"));//对方账户				
 				getInfo.add(datas);
     	}
     	return getInfo;
