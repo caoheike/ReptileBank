@@ -19,9 +19,9 @@ import org.springframework.stereotype.Component;
  *
  */
 public class application {
-//	public static String sendip="http://10.1.1.12:8080";//外地
-//public static String sendip="http://192.168.3.4:8081";//本地
-public static String sendip="http://117.34.70.217:8080";//测试环境
+	public static String sendip="http://10.1.1.12:8080";//外地
+//public static String sendip="http://192.168.3.16:8099";//本地
+//public static String sendip="http://117.34.70.217:8080";//测试环境
 
 public static List<String> Getdate() {
 	List<String> list=new ArrayList<String>();
