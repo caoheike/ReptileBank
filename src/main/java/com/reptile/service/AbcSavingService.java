@@ -504,6 +504,7 @@ public class AbcSavingService {
 				datas.put("oppositeSideName", "");
 				datas.put("oppositeSideNumber", "");
 				datas.put("currency", "");
+				datas.put("expendMoney", "");
 				infos.add(datas);
 			}
 			return infos;
