@@ -81,14 +81,14 @@ public class BcmSavingService {
 			/* 获得账号输入框 */
 			WebElement username = driver.findElement(By.id("alias"));
 		
-			WebElement login = driver.findElement(By.id("login"));
+//			WebElement login = driver.findElement(By.id("login"));
 
 			/* 输入账号 */
 			username.sendKeys(UserName);
 			Thread.sleep(2000);
 			
 			SendKeys.sendStr(1139+80, 338-15, UserPwd);
-//			SendKeys.sendStr(1139+80, 338+35, UserPwd);
+//			SendKeys.sendStr(1139+80, 338+5, UserPwd);
 			Thread.sleep(1000);
 			WebElement element = driver.findElement(By
 					.className("captchas-img-bg"));
@@ -100,10 +100,17 @@ public class BcmSavingService {
 				String imgtext = downloadImgs(driver, element);
 				logger.warn("########【交通储蓄卡开始打码  imgtext=】"+imgtext+"】########【身份证号：】"+userCard);
 				input_captcha.sendKeys(imgtext);
+			}			
+			Thread.sleep(2000);
+			
+			try {
+				//登录
+				js = (JavascriptExecutor) driver;
+				js.executeScript("$('#login').click();", "");
+			} catch (Exception e) {
+				// TODO: handle exception
+				System.out.println(e);
 			}
-			
-			login.click();		
-			
 			Thread.sleep(3000);
 			//调出httpwatch
 			HttpWatchUtil.openHttpWatch();
@@ -111,7 +118,7 @@ public class BcmSavingService {
 			boolean flgs = ElementExist(driver, By.className("lanse-12-b")); /* 错误表示 */
 			boolean flgb = ElementExist(driver, By.id("captchaErrMsg")); /* JS错误提示 */
 			boolean icon = ElementExist(driver, By.id("icon-warning")); /* 您尚未开启身份证登录或登录密码输入错误。 */
-			
+			boolean dialog = ElementExist(driver, By.className("dialog_msg"));
 			
 			
 			if(driver.getPageSource().contains("您未注册或登录密码输入错误")) {
@@ -134,6 +141,16 @@ public class BcmSavingService {
 				status = BcmSavingService.BcmLogins(request,UserName, UserPwd, UUID,userCard,flag0);
 			} else if (icon == true) {
 				String text = "您尚未开启身份证登录或登录密码输入错误";				
+				logger.warn("########【交通储蓄卡登陆失败 原因=】"+text+"  #####【身份证号：】"+userCard);
+				status.put( "errorInfo", text);
+				status.put( "errorCode", "0001" );
+				PushSocket.push(status, UUID, "3000",text);
+				PushState.stateByFlag(userCard, "savings", 200,text,flag0);
+				DriverUtil.close(driver);
+				logger.warn("----交通储蓄卡------errorCode："+status.get("errorCode")+"-----errorInfo："+status.get("errorInfo"));
+				return status;
+			}else if (dialog == true) {			
+				String text =driver.findElement(By.className("dialog_msg")).getText();				
 				logger.warn("########【交通储蓄卡登陆失败 原因=】"+text+"  #####【身份证号：】"+userCard);
 				status.put( "errorInfo", text);
 				status.put( "errorCode", "0001" );
@@ -334,7 +351,7 @@ public class BcmSavingService {
 				
 			}
 		}catch(Exception e) {
-			
+			logger.warn("交通储蓄卡",e);
 			if(flag == 1) {
 				status.put("errorCode", "0001");
 				logger.warn("--------------flag="+flag+"----------网络异常，登录失败");
