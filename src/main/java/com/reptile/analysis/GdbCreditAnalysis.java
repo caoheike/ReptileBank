@@ -391,7 +391,7 @@ public class GdbCreditAnalysis {
 	    map.put("bankname", "广发银行");
 	    map.put("backtype", "GDB");
 	    
-	    logger.warn("解析后结果********************"+data.toString());
+	    logger.warn("解析后结果********************"+map.toString());
 	    return map;
 	  }
 	  

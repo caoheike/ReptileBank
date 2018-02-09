@@ -8,11 +8,14 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.log4j.Logger;
 import org.openqa.selenium.By;
+import org.openqa.selenium.By.ByClassName;
+import org.openqa.selenium.Cookie;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.springframework.stereotype.Service;
@@ -28,6 +31,9 @@ import com.reptile.util.PushState;
 import com.reptile.util.Resttemplate;
 import com.reptile.util.SimpleHttpClient;
 import com.reptile.util.application;
+
+import net.sf.json.JSONArray;
+import net.sf.json.JSONObject;
 
 /**
  * 
@@ -89,8 +95,8 @@ public class CmbcCreditService {
 					elements.sendKeys(number);
 					/* 执行换号 */
 					Thread.sleep(1000);
-					SendKeys.sendStr(1180, 380+15, pwd);
-//					SendKeys.sendStr(1180, 380+60, pwd);//本地
+					//SendKeys.sendStr(1180, 380+15, pwd);
+					SendKeys.sendStr(1180, 380+80, pwd);//本地
 					Thread.sleep(1000);
 
 					WebElement loginButton = driver.findElement(By.id("loginButton"));
@@ -158,7 +164,7 @@ public class CmbcCreditService {
 						logger.warn("########【开始获取数据】########【身份证号：】"+idcard);
 						
 						Map<String, Object> data = new HashMap<String, Object>(16);
-						data.put("bankList", this.getDetail());
+						data.put("bankList", this.getDetail(driver));
 						PushSocket.push(map, uuid, "6000", "民生银行数据获取成功");
 						logger.warn("########【数据获取成功】########【身份证号：】"+idcard);
 						flags = 3;
@@ -219,15 +225,37 @@ public class CmbcCreditService {
 	
 	/**
 	 * 通过发包的形式获取账单
+	 * @param driver 
 	 * 
 	 * @return
 	 * @throws Exception
 	 */
-	public List<List<String>> getDetail() throws Exception {
+	public List<List<String>> getDetail(WebDriver driver) throws Exception {
 
+		//发包拿到信用额度
+		 
+		 String url="https://nper.cmbc.com.cn/pweb/CreditUserInfoQryTrans.do";
+         
+		 String jsession = HttpWatchUtil.getCookie("JSESSION");
+		 System.out.println(jsession);
+
+         Map<String,Object> params11=new HashMap<String, Object>();
+         params11.put("Type", null);
+         params11.put("ISetPws", null);
+         Map<String,String> headers11=new HashMap<String, String>();
+         headers11.put("Cookie", jsession);
+         headers11.put("Host", "nper.cmbc.com.cn");
+         headers11.put("Referer", "https://nper.cmbc.com.cn/pweb/static/main.html");
+         String response11=SimpleHttpClient.post(url,params11, headers11);
+         JSONObject datestr = JSONObject.fromObject(response11);
+ 		 JSONArray date = JSONArray.fromObject(datestr.get("List"));
+ 		 //信用额度
+ 		 String CreTLmit=JSONObject.fromObject(date.get(0)).get("CreTLmit").toString();
+         
+ 		 
 		List<List<String>> list = new ArrayList<List<String>>(16);
 
-		String jsession = HttpWatchUtil.getCookie("JSESSION");
+//		String jsession = HttpWatchUtil.getCookie("JSESSION");
 		Map<String, String> headers = new HashMap<String, String>(16);
 		headers.put("Cookie", jsession);
 		headers.put("Referer", "https://nper.cmbc.com.cn/pweb/static/main.html");
@@ -335,13 +363,10 @@ public class CmbcCreditService {
 		    yueMap.put("payRecordlist", payRecordList);
 		    bankList.add(yueMap.toString());
 		    bankListMap.put("banklist", bankList.toString());
-		    list = CmbcCreditAnalysis.getInfos(bankListMap);
+		    list = CmbcCreditAnalysis.getInfos(bankListMap,CreTLmit);
 		    dateList.addAll(list);
 		    //----数据解析-----
-			
 		}
-		
-		
 		return dateList;
 	}
 
@@ -355,19 +380,15 @@ public class CmbcCreditService {
 	public String lastDate(String date) throws ParseException {
 
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMM");
-		
 		// date格式为yyMM，在前面加上20才能变成完整的年月
 		String currentDate = "20" + date;
 		Date d = format.parse(currentDate);
-
 		Calendar c = Calendar.getInstance();
 		c.setTime(d);
-
 		c.add(Calendar.MONTH, -1);
-
 		String time = format.format(c.getTime());
 		return time.substring(2);
-	};
+	}
 
 	
 }
