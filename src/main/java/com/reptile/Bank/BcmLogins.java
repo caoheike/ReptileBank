@@ -230,7 +230,7 @@ public class BcmLogins {
 								.id("bill_date")));
 						Select sel = new Select(driver.findElement(By
 								.id("bill_date")));
-						List option = sel.getOptions();						
+						List<WebElement> option = sel.getOptions();						
 						for (int i = 0; i < option.size(); i++) {
 							sel = new Select(driver.findElement(By
 									.id("bill_date")));
@@ -240,7 +240,7 @@ public class BcmLogins {
 							elements.click();
 							Thread.sleep(2000);
 							String pageSource = driver.getPageSource();
-							if(pageSource.contains("系统忙")) {
+							if(pageSource.contains("系统忙")||pageSource.contains("服务超时")) {
 								String jsv = "window.location.reload();";
 								jss = (JavascriptExecutor) driver;
 								jss.executeScript(jsv, "");
@@ -256,7 +256,7 @@ public class BcmLogins {
 							goback.click();
 							Thread.sleep(2000);
 							String pageSource1 = driver.getPageSource();
-							if(pageSource1.contains("系统忙")) {
+							if(pageSource1.contains("系统忙")||pageSource.contains("服务超时")) {
 								String jsv = "window.location.reload();";
 								jss = (JavascriptExecutor) driver;
 								jss.executeScript(jsv, "");

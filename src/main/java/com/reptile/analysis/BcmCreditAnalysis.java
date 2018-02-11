@@ -49,6 +49,7 @@ import com.reptile.util.Resttemplate;
 import com.reptile.util.SimpleHttpClient;
 import com.reptile.util.application;
 
+
 /**
  * 
  * @author Bigyoung
@@ -218,8 +219,12 @@ public class BcmCreditAnalysis {
 						WebDriverWait wait = new WebDriverWait(driver, 20);
 						wait.until(ExpectedConditions.presenceOfElementLocated(By
 								.id("bill_date")));
-						for (int i = 0; i < 5; i++) {
-							Select sel = new Select(driver.findElement(By
+						
+						Select sel = new Select(driver.findElement(By
+								.id("bill_date")));
+						List<WebElement> option = sel.getOptions();	
+						for (int i = 0; i < option.size(); i++) {
+							sel = new Select(driver.findElement(By
 									.id("bill_date")));
 							sel.selectByIndex(i);
 							WebElement elements = driver.findElement(By
@@ -227,7 +232,7 @@ public class BcmCreditAnalysis {
 							elements.click();
 							Thread.sleep(2000);
 							String pageSource = driver.getPageSource();
-							if(pageSource.contains("系统忙")) {
+							if(pageSource.contains("系统忙")||pageSource.contains("服务超时")) {
 								String jsv = "window.location.reload();";
 								jss = (JavascriptExecutor) driver;
 								jss.executeScript(jsv, "");
@@ -243,7 +248,7 @@ public class BcmCreditAnalysis {
 							goback.click();
 							Thread.sleep(2000);
 							String pageSource1 = driver.getPageSource();
-							if(pageSource1.contains("系统忙")) {
+							if(pageSource1.contains("系统忙")||pageSource.contains("服务超时")) {
 								String jsv = "window.location.reload();";
 								jss = (JavascriptExecutor) driver;
 								jss.executeScript(jsv, "");
@@ -370,7 +375,7 @@ public class BcmCreditAnalysis {
 			if(ddList != null) {
 				for (Element element : ddList) {
 					Map<String, Object> payRecord = new HashMap<String, Object>();
-					payRecord.put("tran_date", element.getElementsByTag("span").get(0).text().replace("/", ""));
+					payRecord.put("tran_date", element.getElementsByTag("span").get(0).text());
 					payRecord.put("tran_desc", element.getElementsByTag("span").get(2).text().replace("/", ""));
 					payRecord.put("post_amt", element.getElementsByTag("span").get(3).text().replace("/", ""));
 					payRecordList.add(payRecord);//每月账单明细
@@ -381,7 +386,7 @@ public class BcmCreditAnalysis {
 			bankList.put("AccountSummary", accountSummary);
 			infoData.add(bankList);
 		}
-		
+		logger.warn("明细集合infoData"+infoData);
 		return infoData;
 	}
 	
