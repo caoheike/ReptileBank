@@ -76,17 +76,19 @@ public class PushState {
 		int messageSize = message.length();
 		String lastMessage = message.substring(messageSize-1);
 		String temp = "失败，失败原因："+message+",您可以重新认证或者选择其他产品";
+		String prefix = "您提交的";
 		if(",".equals(lastMessage)||"，".equals(lastMessage)||"。".equals(lastMessage)||".".equals(lastMessage)||"！".equals(lastMessage)||"!".equals(lastMessage)) {
 			message = message.substring(0, messageSize-1);
-		}
-		if(stat==300) {
-			temp = "成功";
-		}
+		}		
+//		if(stat==300) {
+//			temp = "成功";
+//			prefix = "";
+//		}
 		if("bankBillFlow".equals(approveName)) {
-//			message = "您提交的信用卡认证"+temp;
+//			message = prefix+"信用卡认证"+temp;
 			message = "您提交的信用卡认证失败，失败原因："+message+",您可以重新认证或者选择其他产品";
 		}else if("savings".equals(approveName)) {
-//			message = "您提交的储蓄卡认证"+temp;
+//			message = prefix+"储蓄卡认证"+temp;
 			message = "您提交的储蓄卡认证失败，失败原因："+message+",您可以重新认证或者选择其他产品";
 		}
 		application applications=new application();
