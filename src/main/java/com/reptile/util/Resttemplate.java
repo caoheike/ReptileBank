@@ -196,10 +196,6 @@ public class Resttemplate {
       MediaType type = MediaType.parseMediaType("application/x-www-form-urlencoded; charset=UTF-8");
       headers.setContentType(type);
       headers.add("Accept", MediaType.APPLICATION_JSON.toString());
-      
-      
-      
-      
       System.out.println("-------------向数据中心推送的数据为："+JSONObject.fromObject(map).toString()+"------------");
       logger.warn("-------------向数据中心推送的数据为："+JSONObject.fromObject(map).toString()+"------------");
       
@@ -215,6 +211,7 @@ public class Resttemplate {
 			if(isok==true){
 				ps.state(id, "bankBillFlow", 300);
 			}
+//			PushState.stateByFlag(id,"bankBillFlow",300,isok);
       }else{
     	  PushSocket.push(map, UUID, "9000",jsonObject.get("errorInfo").toString());
     	  if(isok==true){

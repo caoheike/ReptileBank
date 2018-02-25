@@ -77,8 +77,8 @@ public class AbcSavingService {
 				element.sendKeys(username);
 				Thread.sleep(1500);
 				// 特殊字符处理,输入密码  
-				SendKeys.sendStr(1143+80, 378, userpwd);
-//				SendKeys.sendStr(1143+80, 378+35, userpwd);//本地
+//				SendKeys.sendStr(1143+80, 378, userpwd);
+				SendKeys.sendStr(1143+80, 378, userpwd);//本地
 //				SendKeys.sendStr(805, 378, userpwd);//112上坐标
 				 //输入验证码 
 				Thread.sleep(1000);
@@ -152,7 +152,7 @@ public class AbcSavingService {
 					logger.warn("########【农业储蓄卡发送短信验证开始】########【身份证号：】"+card);	
 					// 发送短信验证码
 					String response = SimpleHttpClient.post("https://perbank.abchina.com/EbankSite/SendSmsVerifyCodeAct.ebf",params, headers);
-
+					logger.warn("-------------农业银行储蓄卡发送短信验证码----------response"+response);
 					try {
 						Alert alt = driver.switchTo().alert();
 						alt.accept();
@@ -227,12 +227,12 @@ public class AbcSavingService {
 			if(!code.equals("0")) {
 				try {
 					logger.warn("########【农业储蓄卡第二接口需要短信验证码########登陆开始】########【身份证号：】"+idCard);	
-					String nongyeformId = (String) session.getAttribute("nongyeformId");
+					String nongyeformId = (String) session.getAttribute("jiaotong-formId");
 					logger.warn("---------------------数据获取中nongyeformId:"+nongyeformId);
 					String formId = (String) session.getAttribute(nongyeformId);
 					logger.warn("---------------------数据获取中formId:"+formId);
 					
-					String nongyeUuid = (String) session.getAttribute("nongyeUuid");
+					String nongyeUuid = (String) session.getAttribute("jiaotong-uuid");
 					logger.warn("---------------------数据获取中nongyeUuid:"+nongyeUuid);
 					String jsession = (String) session.getAttribute(nongyeUuid);
 					logger.warn("---------------------数据获取中jsession:"+jsession);
@@ -453,6 +453,7 @@ public class AbcSavingService {
 			params.put("busCode", 200002);
 			params.put("oofeFlg", 0);
 			params.put("acctCurCode", 156);
+//			params.put("nextPageKey", "");
 
 			Map<String,String> headers1=new HashMap<String,String>();
 			headers1.put("Cookie",jsession);
@@ -471,9 +472,12 @@ public class AbcSavingService {
 			infos = getInfo(pageHeader,infos);
 			
 			while(!"".equals(nextPageKey)) {				
-				params.put("nextPageKey", nextPageKey);				
+				params.put("nextPageKey", nextPageKey);					
 				logger.warn("--------------写一页请求-----------------");
 				response = SimpleHttpClient.post("https://perbank.abchina.com/EbankSite/AccountTradeDetailQueryAct.do",params, headers1);
+				if(response.contains("会话超时")) {
+					break;
+				}
 				pageHeader = (List<List<String>>) JsonUtil.getJsonValue1(response, "table");
 				//解析
 				infos = getInfo(pageHeader,infos);

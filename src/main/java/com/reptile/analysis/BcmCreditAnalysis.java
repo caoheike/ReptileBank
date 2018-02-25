@@ -81,6 +81,7 @@ public class BcmCreditAnalysis {
 			if(isok==true){
 				PushState.state(UserCard, "bankBillFlow", 100);
 			}
+			
 			flag = 1;
 			
 			logger.warn("--------------交通银行信用卡---------------登陆开始----------------身份证号："+UserCard);
@@ -259,11 +260,11 @@ public class BcmCreditAnalysis {
 									.presenceOfElementLocated(By.id("bill_date")));
 						}
 
-					
+						//替换解析部分
 						List<Map<String, Object>> infoData = new ArrayList<Map<String, Object>>();
-						PushSocket.push(map, UUID, "6000","交通银行信用卡数据获取成功");
 						flag = 3;
 			            infoData = getInfos(list,infoData);
+			            PushSocket.push(map, UUID, "6000","交通银行信用卡数据获取成功");
 			            Map<String, Object> bankList = new HashMap<String, Object>();
 			            bankList.put("bankList", infoData);
 			            map.put("data", bankList);
@@ -272,6 +273,9 @@ public class BcmCreditAnalysis {
 						map.put("bankname", "交通");
 						map.put("userAccount", UserNumber);
 						map.put("isok", isok);
+						
+						
+						
 						// map= resttemplate.SendMessage(map,
 						// "http://192.168.3.16:8089/HSDC/BillFlow/BillFlowByreditCard",UserCard);
 						logger.warn("map :"+map.toString());

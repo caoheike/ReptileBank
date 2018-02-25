@@ -185,9 +185,14 @@ public class GdbCreditAnalysis {
 				PushSocket.push(map, UUID, "5000","广发银行信用卡数据获取中");
 				flag = 1;
 				logger.warn("########【广发银行信用卡开始获取数据】【身份证号：】"+usercard);
+				
+				//替换解析
 				String sid = driver.getPageSource()
 			            .substring(driver.getPageSource().indexOf("_emp_sid = '"),driver.getPageSource().indexOf("';"))
 			            .replaceAll("_emp_sid = '", "");
+				
+				
+				
 				List<String> listinfo = new ArrayList<String>();
 				listinfo = getInfos(driver,listinfo,number,sid);
 				

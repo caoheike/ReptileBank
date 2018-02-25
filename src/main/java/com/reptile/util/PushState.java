@@ -75,12 +75,18 @@ public class PushState {
 	public static void stateX(String UserCard,String approveName ,int stat,String message){
 		int messageSize = message.length();
 		String lastMessage = message.substring(messageSize-1);
+		String temp = "失败，失败原因："+message+",您可以重新认证或者选择其他产品";
 		if(",".equals(lastMessage)||"，".equals(lastMessage)||"。".equals(lastMessage)||".".equals(lastMessage)||"！".equals(lastMessage)||"!".equals(lastMessage)) {
 			message = message.substring(0, messageSize-1);
 		}
+		if(stat==300) {
+			temp = "成功";
+		}
 		if("bankBillFlow".equals(approveName)) {
+//			message = "您提交的信用卡认证"+temp;
 			message = "您提交的信用卡认证失败，失败原因："+message+",您可以重新认证或者选择其他产品";
 		}else if("savings".equals(approveName)) {
+//			message = "您提交的储蓄卡认证"+temp;
 			message = "您提交的储蓄卡认证失败，失败原因："+message+",您可以重新认证或者选择其他产品";
 		}
 		application applications=new application();
@@ -107,7 +113,7 @@ public class PushState {
 	 * @param message
 	 * @param flag true或false
 	 */
-	public static void stateByFlag(String UserCard,String approveName ,int stat,String message,boolean flag) {
+	public static void stateByFlag(String UserCard,String approveName ,int stat,String message,boolean flag) {		
 		if(flag) {
 			PushState.state(UserCard, approveName, stat,message);
 		}else {
@@ -126,7 +132,12 @@ public class PushState {
 	public static void stateByFlag(String UserCard,String approveName ,int stat,boolean flag) {
 		if(flag) {
 			PushState.state(UserCard, approveName, stat);
-		}
+		}//else {
+//			if(stat==300) {
+//				PushState.stateX(UserCard, approveName, stat,"认证成功");
+//			}
+//			
+//		}
 	}
 	
 	

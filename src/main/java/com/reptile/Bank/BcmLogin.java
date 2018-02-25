@@ -97,10 +97,7 @@ public class BcmLogin {
 				input_captcha.sendKeys(imgtext);
 			}
 			login.click();
-		
-			
-			
-			
+
 			Thread.sleep(3000);
 			/* //此处判断是否登陆成功 */
 			boolean flgs = ElementExist(driver, By.className("lanse-12-b")); /* 错误表示 */

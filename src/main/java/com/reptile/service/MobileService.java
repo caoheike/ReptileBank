@@ -333,9 +333,11 @@ public class MobileService {
 				 logger.warn("########【招商信用卡推送完成    【卡号：】"+numbe+"数据中心返回结果："+map.toString());
 //				 map=resttemplate.SendMessage(map,"http://192.168.3.4:8081/HSDC/BillFlow/BillFlowByreditCard"); 
 				 if(map.toString().contains("0000")){
+					 //下版本替换
 					 if(isok==true){
 				    	PushState.state(idCard, "bankBillFlow",300);
-					 }
+					 }					 
+//					 PushState.stateByFlag(idCard,"bankBillFlow",300,isok);
 					 PushSocket.push(map, UUID, "8000","认证成功");
 				    	
 		                map.put("errorInfo","查询成功");

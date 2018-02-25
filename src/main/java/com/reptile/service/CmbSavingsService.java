@@ -77,8 +77,8 @@ public class CmbSavingsService {
 		    element.sendKeys(userCard);//输入账号
 		    Thread.sleep(1000);
 
-		    SendKeys.sendStr(1180, 380+15, passWord);
-//		    SendKeys.sendStr(1180, 380+60, passWord);//本地
+//		    SendKeys.sendStr(1180, 380+15, passWord);
+		    SendKeys.sendStr(1180, 380+15, passWord);//本地
 		    
 		
 			Thread.sleep(1000);
@@ -215,7 +215,7 @@ public class CmbSavingsService {
     			    map = new Resttemplate().SendMessage(map, application.sendip+"/HSDC/savings/authentication");  //推送数据
     			    logger.warn("########【推送完成】########【身份证号：】"+idCard+"数据中心返回结果："+map.toString());
     			    if(map!=null&&"0000".equals(map.get("errorCode").toString())){
-    		           	 PushState.stateByFlag(idCard, "savings", 300,flag);
+    		           	PushState.stateByFlag(idCard, "savings", 300,flag);
     		           	PushSocket.push(map, UUID, "8000","认证成功");
     		           	data.put("errorInfo","推送成功");
     		           	data.put("errorCode","0000");
